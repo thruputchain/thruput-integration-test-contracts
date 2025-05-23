@@ -1,4 +1,4 @@
-//! An implementation of ERC20
+//! An implementation of Fibonacci
 
 use super::interface::Fibonacci;
 use sdk::storage_prelude::*;
@@ -10,7 +10,7 @@ pub struct FibonacciContract {
 impl FibonacciContract {
 }
 
-// This implements the ERC20 interface.  The `contract` macro provides
+// This implements the Fibonacci interface.  The `contract` macro provides
 // an exported entrypoint for each method; these will be placed in a
 // module with the specified name ("guest_exports").
 #[contract(exports = "guest_exports")]

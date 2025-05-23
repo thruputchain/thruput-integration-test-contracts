@@ -4,9 +4,10 @@ cargo-features = ["trim-paths", "profile-rustflags"] #unstable
 members = [
     "fibonacci",
 ]
+resolver = "2"
 
 [workspace.dependencies]
-sdk = { package = "sdk_rs", git = "https://github.com/groundhogchain/sdk_rs.git" }
+sdk = { package = "sdk_rs", git = "ssh://git@github.com/groundhogchain/sdk_rs.git" }
 serde = { version = "1.0.217", default-features = false }
 
 [profile.dev]
@@ -26,4 +27,4 @@ panic = "abort"
 lto = true
 codegen-units = 1
 trim-paths = "all" # unstable
-rustflags = [ "-C", "link-args=-zstack-size=64000" ]
+#rustflags = [ "-C", "link-args=-zstack-size=64000" ]
