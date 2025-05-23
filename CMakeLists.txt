@@ -13,7 +13,9 @@ function(add_wasm_contract target_name)
     COMMENT "Building ${target_name}.wasm"
   )
 
-  add_custom_target(${target_name} ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${target_name}.wasm)
+  add_custom_target(${target_name}_wasm ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${target_name}.wasm)
 endfunction()
 
 add_wasm_contract(fibonacci)
+
+add_custom_target(all_wasm_contracts DEPENDS fibonacci_wasm)
