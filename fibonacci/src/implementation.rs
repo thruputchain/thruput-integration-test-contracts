@@ -15,7 +15,6 @@ impl FibonacciContract {
 // module with the specified name ("guest_exports").
 #[contract(exports = "guest_exports")]
 impl Fibonacci for FibonacciContract {
-
     fn initialize(
         this: Option<&mut Self>,
     ) -> Result<()> {
@@ -39,4 +38,13 @@ impl Fibonacci for FibonacciContract {
         a
     }
 
+    fn slow_fibonacci(&self, n: u32) -> u32 {
+        if n == 0 {
+            return 0;
+        }
+        if n == 1 {
+            return 1;
+        }
+        self.slow_fibonacci(n - 1) + self.slow_fibonacci(n - 2)
+    }
 }
