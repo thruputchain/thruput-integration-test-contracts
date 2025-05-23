@@ -1,1 +1,1 @@
-cargo +nightly build --target wasm32-unknown-unknown -F guest -p fibonacci
+cargo +nightly build --release --target wasm32-unknown-unknown -F guest -p fibonacci
