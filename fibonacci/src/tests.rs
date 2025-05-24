@@ -9,6 +9,8 @@ fn test_fibonacci() {
 
     let test_contract = implementation::test_setup::register(&mut env);
     let contract_hash = env.setup_create_contract(&test_contract);
+    
+    sdk::TestEnvironment::enable_syscall_logging();
 
     let mut handler = env.prepare_test(move || -> i32 {
         match test_fibonacci_inner(&contract_hash) {
