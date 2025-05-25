@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <string_view>
-#include <utility>
+#include <tuple>
 
 // TODO(geoff): It would be nice if we could figure out a convenient
 // way to autogenerate this from the contract.
@@ -20,15 +20,6 @@ struct Fibonacci {
             "slow_fibonacci",
         };
 
-    template<size_t I> requires (I < 3)
-    constexpr static auto export_types() {
-        if constexpr (I == 0) {
-            return std::declval<void(*)()>();
-        } else if constexpr (I == 1) {
-            return std::declval<uint32_t(*)(uint32_t)>();
-        } else if constexpr (I == 2) {
-            return std::declval<uint32_t(*)(uint32_t)>();
-        }
-    }
+    using export_types = std::tuple<void(*)(), uint32_t(*)(uint32_t), uint32_t(*)(uint32_t)>;
 };
 
