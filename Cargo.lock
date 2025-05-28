@@ -14,7 +14,7 @@ dependencies = [
 [[package]]
 name = "bcs"
 version = "0.2.0"
-source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#7a78be1691872c0d53375e44229b39169cd98667"
+source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#75f7f9250c766aa6a335fd7a1235fe4b49085240"
 dependencies = [
  "serde",
  "thiserror",
@@ -209,7 +209,7 @@ checksum = "a8d1add55171497b4705a648c6b583acafb01d58050a51727785f0b2c8e0a2b2"
 [[package]]
 name = "groundhog_xdr"
 version = "0.1.0"
-source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#7a78be1691872c0d53375e44229b39169cd98667"
+source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#75f7f9250c766aa6a335fd7a1235fe4b49085240"
 dependencies = [
  "protocol_macros",
  "serde",
@@ -261,9 +261,9 @@ checksum = "d750af042f7ef4f724306de029d18836c26c1765a54a6a3f094cbd23a7267ffa"
 
 [[package]]
 name = "libloading"
-version = "0.8.7"
+version = "0.8.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6a793df0d7afeac54f95b471d3af7f0d4fb975699f972341a4b76988d49cdf0c"
+checksum = "07033963ba89ebaf1584d767badaa2e8fcec21aedea6b8c0346d487d49c28667"
 dependencies = [
  "cfg-if",
  "windows-targets",
@@ -278,7 +278,7 @@ checksum = "13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94"
 [[package]]
 name = "macros"
 version = "0.1.0"
-source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#7a78be1691872c0d53375e44229b39169cd98667"
+source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#75f7f9250c766aa6a335fd7a1235fe4b49085240"
 dependencies = [
  "darling",
  "groundhog_xdr",
@@ -305,7 +305,7 @@ checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
 [[package]]
 name = "native_exec"
 version = "0.1.0"
-source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#7a78be1691872c0d53375e44229b39169cd98667"
+source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#75f7f9250c766aa6a335fd7a1235fe4b49085240"
 dependencies = [
  "bindgen",
  "cmake",
@@ -345,7 +345,7 @@ dependencies = [
 [[package]]
 name = "protocol_macros"
 version = "0.1.0"
-source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#7a78be1691872c0d53375e44229b39169cd98667"
+source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#75f7f9250c766aa6a335fd7a1235fe4b49085240"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -405,7 +405,7 @@ checksum = "28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f"
 [[package]]
 name = "sdk_rs"
 version = "0.0.1"
-source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#7a78be1691872c0d53375e44229b39169cd98667"
+source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#75f7f9250c766aa6a335fd7a1235fe4b49085240"
 dependencies = [
  "bcs",
  "groundhog_xdr",
@@ -429,7 +429,7 @@ dependencies = [
 [[package]]
 name = "serde_arrays"
 version = "0.2.0"
-source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#7a78be1691872c0d53375e44229b39169cd98667"
+source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#75f7f9250c766aa6a335fd7a1235fe4b49085240"
 dependencies = [
  "serde",
 ]

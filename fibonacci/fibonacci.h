@@ -11,7 +11,7 @@
 
 struct Fibonacci {
     constexpr static std::string_view kTraitName = "Fibonacci";
-    constexpr static std::string_view kVersion = "0.1.0";
+    constexpr static std::string_view kVersion = "0.0.0";
 
     // These will be sorted before being passed as indices to method id derivation.
     constexpr static auto kExportNames = std::array<std::string_view, 3>{
