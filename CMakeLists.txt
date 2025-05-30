@@ -2,7 +2,7 @@ function(add_wasm_contract target_name)
 
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${target_name}.wasm
-    COMMAND cargo +nightly build
+    COMMAND cargo +nightly build --locked
         -p ${target_name}
         --target wasm32-unknown-unknown
         --release
