@@ -14,7 +14,7 @@ dependencies = [
 [[package]]
 name = "bcs"
 version = "0.2.0"
-source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#f3b4e6c2cd7029650c2161e7126712b32dcc7dc1"
+source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#70782837eed90a4f6a965a8b7e80c0f860c3689f"
 dependencies = [
  "serde",
  "thiserror",
@@ -57,9 +57,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.25"
+version = "1.2.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d0fc897dc1e865cc67c0e05a836d9d3f1df3cbe442aa4a9473b18e12624a4951"
+checksum = "956a5e21988b87f372569b66183b78babf23ebc2e744b733e4350a752c4dafac"
 dependencies = [
  "shlex",
 ]
@@ -75,9 +75,9 @@ dependencies = [
 
 [[package]]
 name = "cfg-if"
-version = "1.0.0"
+version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
+checksum = "9555578bc9e57714c812a1f84e4fc5b4d21fcb063490c624de019f7464c91268"
 
 [[package]]
 name = "clang-sys"
@@ -209,7 +209,7 @@ checksum = "a8d1add55171497b4705a648c6b583acafb01d58050a51727785f0b2c8e0a2b2"
 [[package]]
 name = "groundhog_xdr"
 version = "0.1.0"
-source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#f3b4e6c2cd7029650c2161e7126712b32dcc7dc1"
+source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#70782837eed90a4f6a965a8b7e80c0f860c3689f"
 dependencies = [
  "protocol_macros",
  "serde",
@@ -218,9 +218,9 @@ dependencies = [
 
 [[package]]
 name = "hashbrown"
-version = "0.15.3"
+version = "0.15.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "84b26c544d002229e640969970a2e74021aadf6e2f96372b9c58eff97de08eb3"
+checksum = "5971ac85611da7067dbfcabef3c70ebb5606018acd9e2a3903a0da507521e0d5"
 
 [[package]]
 name = "ident_case"
@@ -278,7 +278,7 @@ checksum = "13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94"
 [[package]]
 name = "macros"
 version = "0.1.0"
-source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#f3b4e6c2cd7029650c2161e7126712b32dcc7dc1"
+source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#70782837eed90a4f6a965a8b7e80c0f860c3689f"
 dependencies = [
  "darling",
  "groundhog_xdr",
@@ -305,7 +305,7 @@ checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
 [[package]]
 name = "native_exec"
 version = "0.1.0"
-source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#f3b4e6c2cd7029650c2161e7126712b32dcc7dc1"
+source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#70782837eed90a4f6a965a8b7e80c0f860c3689f"
 dependencies = [
  "bindgen",
  "cmake",
@@ -325,9 +325,9 @@ dependencies = [
 
 [[package]]
 name = "prettyplease"
-version = "0.2.32"
+version = "0.2.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "664ec5419c51e34154eec046ebcba56312d5a2fc3b09a06da188e1ad21afadf6"
+checksum = "9dee91521343f4c5c6a63edd65e54f31f5c92fe8978c40a4282f8372194c6a7d"
 dependencies = [
  "proc-macro2",
  "syn",
@@ -345,7 +345,7 @@ dependencies = [
 [[package]]
 name = "protocol_macros"
 version = "0.1.0"
-source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#f3b4e6c2cd7029650c2161e7126712b32dcc7dc1"
+source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#70782837eed90a4f6a965a8b7e80c0f860c3689f"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -405,7 +405,7 @@ checksum = "28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f"
 [[package]]
 name = "sdk_rs"
 version = "0.0.1"
-source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#f3b4e6c2cd7029650c2161e7126712b32dcc7dc1"
+source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#70782837eed90a4f6a965a8b7e80c0f860c3689f"
 dependencies = [
  "bcs",
  "groundhog_xdr",
@@ -429,7 +429,7 @@ dependencies = [
 [[package]]
 name = "serde_arrays"
 version = "0.2.0"
-source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#f3b4e6c2cd7029650c2161e7126712b32dcc7dc1"
+source = "git+ssh://git@github.com/groundhogchain/sdk_rs.git#70782837eed90a4f6a965a8b7e80c0f860c3689f"
 dependencies = [
  "serde",
 ]
@@ -483,9 +483,9 @@ checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 
 [[package]]
 name = "syn"
-version = "2.0.101"
+version = "2.0.102"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ce2b7fc941b3a24138a0a7cf8e858bfc6a992e7978a068a5c760deb0ed43caf"
+checksum = "f6397daf94fa90f058bd0fd88429dd9e5738999cca8d701813c80723add80462"
 dependencies = [
  "proc-macro2",
  "quote",

@@ -12,9 +12,9 @@ fn test_fibonacci() {
     
     sdk::TestEnvironment::enable_syscall_logging();
 
-    let mut handler = env.prepare_test(move || -> i32 {
+    let mut handler = env.prepare_test(move || -> () {
         match test_fibonacci_inner(&contract_hash) {
-            Ok(_) => 0,
+            Ok(_) => (),
             Err(error) => panic!("test failed: {}", error),
         }
     });
