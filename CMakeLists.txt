@@ -8,7 +8,9 @@ function(add_wasm_contract target_name)
         --target wasm32-unknown-unknown
         --release
         --manifest-path ${CMAKE_CURRENT_SOURCE_DIR}/${target_name}/Cargo.toml
-        --target-dir ${CMAKE_CURRENT_BINARY_DIR} &&
+        --target-dir ${CMAKE_CURRENT_BINARY_DIR} 
+        -Zbuild-std=core,alloc
+        -Zbuild-std-features=panic_immediate_abort &&
         cp ${CMAKE_CURRENT_BINARY_DIR}/wasm32-unknown-unknown/release/${target_name}.wasm ${CMAKE_CURRENT_BINARY_DIR}/${target_name}.wasm
     DEPENDS 
         ${CMAKE_CURRENT_SOURCE_DIR}/Cargo.lock
