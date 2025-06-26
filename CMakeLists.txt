@@ -3,6 +3,7 @@ function(add_wasm_contract target_name)
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${target_name}.wasm
     COMMAND CARGO_NET_GIT_FETCH_WITH_CLI=true
+        RUSTFLAGS='-C link-args=-zstack-size=30000'
         cargo +nightly build --locked
         -p ${target_name}
         --target wasm32-unknown-unknown
