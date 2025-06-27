@@ -1,0 +1,39 @@
+//! An implementation of Fibonacci
+
+use super::interface::SimpleWallet;
+use sdk::storage_prelude::*;
+use sdk::crypto::{verify_signature};
+
+use alloc::vec::Vec;
+
+#[derive(Storage, Debug, Serialize)]
+pub struct SimpleWalletContract {
+    owner: Ed25519PublicKey,
+}
+
+// This implements the Fibonacci interface.  The `contract` macro provides
+// an exported entrypoint for each method; these will be placed in a
+// module with the specified name ("guest_exports").
+#[contract(exports = "guest_exports")]
+impl SimpleWallet for SimpleWalletContract {
+    fn initialize(
+        this: Option<&mut Self>,
+        owner: &Ed25519PublicKey,
+    ) -> Result<()> {
+        // Make sure we haven't already been initialized
+        if this.is_some() {
+            panic!("Contract already initialized");
+        }
+
+        initialize_root(|_storage: &mut Self| {
+            _storage.owner = *owner;
+        })?;
+
+        Ok(())
+    }
+    fn do_action(&self, signature: &Ed25519Signature, invocation_bytes: Vec<u8>) -> Result<()> {
+        verify_signature(&PublicKey::Ed25519{ed25519: self.owner}, &Signature::Ed25519{ed25519:*signature}, &invocation_bytes)?;
+
+        Ok(())
+    }
+}

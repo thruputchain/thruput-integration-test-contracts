@@ -2,6 +2,7 @@ cargo-features = ["trim-paths", "profile-rustflags"] #unstable
 
 [workspace]
 members = [
+    "simple_wallet",
     "fibonacci",
 ]
 resolver = "2"
