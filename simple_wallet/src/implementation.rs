@@ -34,6 +34,19 @@ impl SimpleWallet for SimpleWalletContract {
     fn do_action(&self, signature: &Ed25519Signature, invocation_bytes: Vec<u8>) -> Result<()> {
         verify_signature(&PublicKey::Ed25519{ed25519: self.owner}, &Signature::Ed25519{ed25519:*signature}, &invocation_bytes)?;
 
+        let (addr, entrypoint, gas_limit, calldata) : (ContractAddress, ContractEntrypointID, u64, &[u8]) = sdk::serialize::from_bytes(&invocation_bytes).unwrap();
+
+        let mut return_len = 0;
+        let method_id = u64::from_be_bytes(entrypoint.into_inner());
+
+        sdk::sys::raw_Invoke(
+            &addr,
+            method_id,
+            gas_limit,
+            &calldata,
+            0, // TODO(geoff): invoke flags go here
+            &mut return_len)?;
+
         Ok(())
     }
 }
