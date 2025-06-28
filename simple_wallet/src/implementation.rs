@@ -31,7 +31,7 @@ impl SimpleWallet for SimpleWalletContract {
 
         Ok(())
     }
-    fn do_action(&self, signature: &Ed25519Signature, invocation_bytes: Vec<u8>) -> Result<()> {
+    fn do_action(&self, signature: &Ed25519Signature, invocation_bytes: &Vec<u8>) -> Result<()> {
         verify_signature(&PublicKey::Ed25519{ed25519: self.owner}, &Signature::Ed25519{ed25519:*signature}, &invocation_bytes)?;
 
         let (addr, entrypoint, gas_limit, calldata) : (ContractAddress, ContractEntrypointID, u64, &[u8]) = sdk::serialize::from_bytes(&invocation_bytes).unwrap();
