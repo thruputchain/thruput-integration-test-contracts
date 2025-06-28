@@ -14,12 +14,11 @@ struct Fibonacci {
     constexpr static std::string_view kVersion = "0.0.0";
 
     // These will be sorted before being passed as indices to method id derivation.
-    constexpr static auto kExportNames = std::array<std::string_view, 3>{
-            "initialize",
+    constexpr static auto kExportNames = std::array<std::string_view, 2>{
             "fibonacci",
             "slow_fibonacci",
         };
 
-    using export_types = std::tuple<void(*)(), uint32_t(*)(uint32_t), uint32_t(*)(uint32_t)>;
+    using export_types = std::tuple<uint32_t(*)(uint32_t), uint32_t(*)(uint32_t)>;
 };
 

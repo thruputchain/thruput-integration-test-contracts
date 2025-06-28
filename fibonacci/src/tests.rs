@@ -28,7 +28,6 @@ fn test_fibonacci_inner(contract_hash: &sdk::types::SHA256Hash) -> Result<()> {
     let deployed_addr = deploy_contract(&nonce, contract_hash)?;
 
     let mut client = FibonacciClient::new(&deployed_addr);
-    FibonacciClient::initialize(Some(&mut client))?;
 
     assert_eq!(client.fibonacci(0), 0);
     assert_eq!(client.fibonacci(1), 1);
