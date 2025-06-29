@@ -12,4 +12,12 @@ pub trait Ed25519VerifyWrapper {
         signature: &Ed25519Signature,
         public_key: &Ed25519PublicKey,
     ) -> bool;
+
+    fn ed25519_verify_repeated(
+        &self,
+        n: u32,
+        message: &Vec<u8>,
+        signature: &Ed25519Signature,
+        public_key: &Ed25519PublicKey,
+    );
 }

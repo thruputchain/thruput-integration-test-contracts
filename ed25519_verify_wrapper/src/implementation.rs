@@ -29,4 +29,16 @@ impl Ed25519VerifyWrapper for Ed25519VerifyWrapperContract {
         )
         .is_ok()
     }
+
+    fn ed25519_verify_repeated(
+        &self,
+        n: u32,
+        message: &Vec<u8>,
+        signature: &Ed25519Signature,
+        public_key: &Ed25519PublicKey,
+    ) {
+        for _ in 0..n {
+            assert!(self.ed25519_verify(message, signature, public_key));
+        }
+    }
 }
