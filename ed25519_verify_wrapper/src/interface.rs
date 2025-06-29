@@ -1,7 +1,6 @@
 use sdk::prelude::*;
 
 pub use sdk::prelude::{Error, Result};
-use sdk::types::*;
 
 use alloc::vec::Vec;
 
