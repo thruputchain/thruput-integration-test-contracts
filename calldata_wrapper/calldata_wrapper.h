@@ -6,12 +6,11 @@
 #include <string_view>
 #include <tuple>
 #include <vector>
-#include "types.hh"
 
 // TODO(geoff): It would be nice if we could figure out a convenient
 // way to autogenerate this from the contract.
 
-struct Sha256Wrapper {
+struct CalldataWrapper {
     constexpr static std::string_view kTraitName = "CalldataWrapper";
     constexpr static std::string_view kVersion = "0.0.0";
 
