@@ -51,3 +51,8 @@ pub extern "C" fn calldata_raw_100() -> () {
 pub extern "C" fn calldata_raw_1000() -> () {
     calldata(1000);
 }
+
+#[unsafe(export_name = "FFFFFFFFFFFFFFFF")]
+pub extern "C" fn startup_null() -> () {
+    ()
+}

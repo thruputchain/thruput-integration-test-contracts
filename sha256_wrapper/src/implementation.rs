@@ -22,3 +22,8 @@ impl Sha256Wrapper for Sha256WrapperContract {
         }
     }
 }
+
+#[unsafe(export_name = "FFFFFFFFFFFFFFFF")]
+pub extern "C" fn startup_null() -> () {
+    ()
+}

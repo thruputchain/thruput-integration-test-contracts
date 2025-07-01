@@ -1,6 +1,5 @@
 #![no_std]
 
-
 use sdk::prelude::*;
 
 pub fn fibonacci_slow(count: u32) -> u32{
@@ -42,6 +41,12 @@ pub extern "C" fn fibonacci_slow_raw_20() -> () {
 pub extern "C" fn fibonacci_slow_raw_25() -> () {
     fibonacci_slow(25);
 }
+
+#[unsafe(export_name = "FFFFFFFFFFFFFFFF")]
+pub extern "C" fn startup_null() -> () {
+    ()
+}
+
 
 
 

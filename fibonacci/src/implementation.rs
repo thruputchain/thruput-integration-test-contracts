@@ -32,3 +32,8 @@ impl Fibonacci for FibonacciContract {
         self.slow_fibonacci(n - 1) + self.slow_fibonacci(n - 2)
     }
 }
+
+#[unsafe(export_name = "FFFFFFFFFFFFFFFF")]
+pub extern "C" fn startup_null() -> () {
+    ()
+}

@@ -42,3 +42,9 @@ impl Ed25519VerifyWrapper for Ed25519VerifyWrapperContract {
         }
     }
 }
+
+#[unsafe(export_name = "FFFFFFFFFFFFFFFF")]
+pub extern "C" fn startup_null() -> () {
+    ()
+}
+
