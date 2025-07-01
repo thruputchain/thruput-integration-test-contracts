@@ -16,7 +16,7 @@ struct CalldataWrapper {
 
     // These will be sorted before being passed as indices to method id derivation.
     constexpr static auto kExportNames = std::array<std::string_view, 1>{
-            "calldata_wrapper"
+            "echo"
         };
 
     using export_types = std::tuple<std::vector<uint8_t>(*)(std::vector<uint8_t>)>;
