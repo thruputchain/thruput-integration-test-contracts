@@ -2,7 +2,7 @@
 
 extern crate alloc;
 
-use sdk::storage_prelude::get_calldata_len;
+use sdk::storage_prelude::{get_calldata, get_calldata_len};
 use alloc::vec::Vec;
 use alloc::vec;
 
@@ -28,12 +28,13 @@ pub extern "C" fn calldata_len_raw_1000() -> () {
 }
 
 pub fn calldata(count: u32) {
-    let len = get_calldata_len().unwrap();
-    let mut buf : Vec<u8> = vec![0; len as usize];
-    let mut written_len = 0;
+    //let len = get_calldata_len().unwrap();
+    //let mut buf : Vec<u8> = vec![0; len as usize];
+    //let mut written_len = 0;
 
     for _ in 0..count {
-        sdk::sys::raw_GetCalldata(buf.as_mut_slice(), &mut written_len).unwrap();
+        let _ = get_calldata().unwrap();
+       // sdk::sys::raw_GetCalldata(buf.as_mut_slice(), &mut written_len).unwrap();
     }
 }
 
