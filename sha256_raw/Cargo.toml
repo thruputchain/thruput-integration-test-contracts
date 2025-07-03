@@ -1,0 +1,19 @@
+cargo-features = ["trim-paths", "profile-rustflags"] #unstable
+
+[package]
+name = "sha256_raw"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sdk = { workspace = true }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+
+[features]
+default = ["guest"]
+client = []
+guest = []
+mock = ["guest", "sdk/mock"]
