@@ -17,3 +17,6 @@ default = ["guest"]
 client = []
 guest = []
 mock = ["guest", "sdk/mock"]
+
+[dev-dependencies]
+sha256_raw = { path = ".", features = ["mock", "client"] }
