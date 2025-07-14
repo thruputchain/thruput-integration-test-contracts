@@ -2,9 +2,13 @@
 
 use super::interface::SimpleWallet;
 use sdk::storage_prelude::*;
+<<<<<<< HEAD
 use sdk::crypto::{verify_signature_ed25519};
 
 use alloc::vec::Vec;
+=======
+use sdk::crypto::verify_signature;
+>>>>>>> 07c6879 (contracts receive shared slices instead of owned vecs)
 
 #[derive(Storage, Debug, Serialize)]
 pub struct SimpleWalletContract {
@@ -18,7 +22,7 @@ pub struct SimpleWalletContract {
 impl SimpleWallet for SimpleWalletContract {
     fn initialize(
         this: Option<&mut Self>,
-        owner: &Ed25519PublicKey,
+        owner: Ed25519PublicKey,
     ) -> Result<()> {
         // Make sure we haven't already been initialized
         if this.is_some() {
@@ -26,12 +30,12 @@ impl SimpleWallet for SimpleWalletContract {
         }
 
         initialize_root(|_storage: &mut Self| {
-            _storage.owner = *owner;
+            _storage.owner = owner;
         })?;
 
         Ok(())
     }
-    fn do_action(&self, signature: &Ed25519Signature, invocation_bytes: &Vec<u8>) -> Result<()> {
+    fn do_action(&self, signature: &Ed25519Signature, invocation_bytes: &[u8]) -> Result<()> {
         verify_signature_ed25519(&self.owner, signature, &invocation_bytes)?;
 
         let (addr, entrypoint, gas_limit, calldata) : (ContractAddress, ContractEntrypointID, u64, &[u8]) = sdk::serialize::from_bytes(&invocation_bytes).unwrap();

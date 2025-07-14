@@ -2,8 +2,8 @@
 
 extern crate alloc;
 
-use sdk::storage_prelude::{get_calldata, get_calldata_len};
-use sdk::storage_prelude::SHA256Hash;
+use sdk::prelude::get_calldata_len;
+use sdk::prelude::SHA256Hash;
 use alloc::vec::Vec;
 use alloc::vec;
 

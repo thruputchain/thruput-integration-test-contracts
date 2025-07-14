@@ -12,8 +12,8 @@ struct CalldataWrapperContract;
 // module with the specified name ("guest_exports").
 #[contract(exports = "guest_exports", storage = "false")]
 impl CalldataWrapper for CalldataWrapperContract {
-    fn echo(&self, data: &Vec<u8>) -> Vec<u8> {
-        data.clone()
+    fn echo(&self, data: &[u8]) -> Vec<u8> {
+        data.into()
     }
 }
 

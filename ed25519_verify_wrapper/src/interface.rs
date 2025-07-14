@@ -2,13 +2,11 @@ use sdk::prelude::*;
 
 pub use sdk::prelude::{Error, Result};
 
-use alloc::vec::Vec;
-
 #[contract(client = "client")]
 pub trait Ed25519VerifyWrapper {
     fn ed25519_verify(
         &self,
-        message: &Vec<u8>,
+        message: &[u8],
         signature: &Ed25519Signature,
         public_key: &Ed25519PublicKey,
     ) -> bool;
@@ -16,7 +14,7 @@ pub trait Ed25519VerifyWrapper {
     fn ed25519_verify_repeated(
         &self,
         n: u32,
-        message: &Vec<u8>,
+        message: &[u8],
         signature: &Ed25519Signature,
         public_key: &Ed25519PublicKey,
     );

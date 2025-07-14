@@ -2,7 +2,7 @@
 
 extern crate alloc;
 
-use sdk::storage_prelude::{get_calldata, get_calldata_len};
+use sdk::prelude::{get_calldata, get_calldata_len};
 use alloc::vec::Vec;
 use alloc::vec;
 

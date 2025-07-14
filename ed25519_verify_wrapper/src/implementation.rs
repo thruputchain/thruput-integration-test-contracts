@@ -3,8 +3,6 @@
 use super::interface::Ed25519VerifyWrapper;
 use sdk::prelude::*;
 
-use alloc::vec::Vec;
-
 struct Ed25519VerifyWrapperContract;
 
 // This implements the Fibonacci interface.  The `contract` macro provides
@@ -14,7 +12,7 @@ struct Ed25519VerifyWrapperContract;
 impl Ed25519VerifyWrapper for Ed25519VerifyWrapperContract {
     fn ed25519_verify(
         &self,
-        message: &Vec<u8>,
+        message: &[u8],
         signature: &Ed25519Signature,
         public_key: &Ed25519PublicKey,
     ) -> bool {
@@ -29,7 +27,7 @@ impl Ed25519VerifyWrapper for Ed25519VerifyWrapperContract {
     fn ed25519_verify_repeated(
         &self,
         n: u32,
-        message: &Vec<u8>,
+        message: &[u8],
         signature: &Ed25519Signature,
         public_key: &Ed25519PublicKey,
     ) {
