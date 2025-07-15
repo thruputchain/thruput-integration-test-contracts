@@ -2,13 +2,7 @@
 
 use super::interface::SimpleWallet;
 use sdk::storage_prelude::*;
-<<<<<<< HEAD
-use sdk::crypto::{verify_signature_ed25519};
-
-use alloc::vec::Vec;
-=======
-use sdk::crypto::verify_signature;
->>>>>>> 07c6879 (contracts receive shared slices instead of owned vecs)
+use sdk::crypto::verify_signature_ed25519;
 
 #[derive(Storage, Debug, Serialize)]
 pub struct SimpleWalletContract {
