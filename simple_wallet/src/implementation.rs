@@ -21,18 +21,10 @@ pub struct SimpleWalletContract {
 #[contract(exports = "guest_exports")]
 impl SimpleWallet for SimpleWalletContract {
     fn initialize(
-        this: Option<&mut Self>,
-        owner: Ed25519PublicKey,
+        &mut self,
+        owner: &Ed25519PublicKey,
     ) -> Result<()> {
-        // Make sure we haven't already been initialized
-        if this.is_some() {
-            panic!("Contract already initialized");
-        }
-
-        initialize_root(|_storage: &mut Self| {
-            _storage.owner = owner;
-        })?;
-
+        self.owner = owner.clone();
         Ok(())
     }
     fn do_action(&self, signature: &Ed25519Signature, invocation_bytes: &[u8]) -> Result<()> {

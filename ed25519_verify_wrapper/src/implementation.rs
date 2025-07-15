@@ -3,6 +3,7 @@
 use super::interface::Ed25519VerifyWrapper;
 use sdk::prelude::*;
 
+#[derive(Default)]
 struct Ed25519VerifyWrapperContract;
 
 // This implements the Fibonacci interface.  The `contract` macro provides

@@ -3,6 +3,7 @@
 use super::interface::Fibonacci;
 use sdk::prelude::*;
 
+#[derive(Default)]
 struct FibonacciContract;
 
 

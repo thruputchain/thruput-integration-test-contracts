@@ -1,5 +1,6 @@
 #![no_std]
 
+#[allow(unused_imports)]
 use sdk::prelude::*;
 
 pub fn fibonacci_slow(count: u32) -> u32{

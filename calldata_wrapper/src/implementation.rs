@@ -5,6 +5,7 @@ use sdk::prelude::*;
 
 use alloc::vec::Vec;
 
+#[derive(Default)]
 struct CalldataWrapperContract;
 
 // This implements the Fibonacci interface.  The `contract` macro provides

@@ -3,6 +3,7 @@
 use super::interface::Sha256Wrapper;
 use sdk::prelude::*;
 
+#[derive(Default)]
 struct Sha256WrapperContract;
 
 // This implements the Fibonacci interface.  The `contract` macro provides
