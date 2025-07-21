@@ -19,16 +19,21 @@ function ls_contracts {
 }
 
 function build_contract {
-    contract=${1:?Please specify contract to build}
+    contract="${1:?Please specify contract to build}"
+    release="../target/wasm32-unknown-unknown/release/${contract}.wasm"
+    optimized="../target/optimized/${contract}.wasm"
 
-    $cargo build \
+    cargo build \
         --features "guest" \
         --target wasm32-unknown-unknown \
         --release \
         --package "$contract" \
-        --color=always \
         -Zbuild-std=alloc,core \
-        -Zbuild-std-features=panic_immediate_abort
+        -Zbuild-std-features=panic_immediate_abort \
+        &&
+    (cd ../target && mkdir -p optimized) &&
+    # further compress the wasm (anecdotally, wasm-opt -Os and -Oz do only very slightly better)
+    wasm-opt -O3 --enable-bulk-memory -o "${optimized}" "${release}"
 }
 
 function build_contracts {
@@ -41,11 +46,32 @@ function build_contracts {
     done
 }
 
+function expand_contract {
+    contract=${1:?Please specify contract to expand}
+    shift
+
+    cargo expand \
+        --features "guest" \
+        --target wasm32-unknown-unknown \
+        --release \
+        --package "$contract" \
+        "$@"
+}
+
+function expand_test_contract {
+    contract=${1:?Please specify contract to expand}
+    shift
+
+    cargo_native expand \
+        --features "mock" \
+        --package "$contract" \
+        "$@"
+}
+
 function test_contract {
     contract=${1:?Please specify contract to build}
 
-    cargo_native -v test \
-            --color=always \
+    cargo_native test \
             --package "$contract" \
             -- --nocapture
 }
@@ -71,6 +97,12 @@ case "$what" in
             build_contracts
         fi
         ;;
+    expand)
+        expand_contract "$1"
+        ;;
+    expand-test)
+        expand_test_contract "$1"
+        ;;
     test)
         if [ -n "$1" ]; then
             test_contract "$1"
@@ -82,6 +114,9 @@ case "$what" in
         ls_contracts
         ;;
     ls-wasms)
+        ls -l ../target/optimized/*.wasm
+        ;;
+    ls-wasms-unoptimized)
         ls -l ../target/wasm32-unknown-unknown/release/*.wasm
         ;;
     * )
