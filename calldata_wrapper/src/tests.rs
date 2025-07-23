@@ -1,6 +1,5 @@
 use crate::implementation;
 use crate::interface::client::CalldataWrapperClient;
-use crate::interface::CalldataWrapper;
 use sdk::prelude::*;
 
 use std::vec;
@@ -31,7 +30,7 @@ fn test_calldata_wrapper_inner(
     let nonce = SHA256Hash::from([7; 32]); 
     let deployed_addr = deploy_contract(&nonce, contract_hash)?;
 
-    let client = CalldataWrapperClient::new(&deployed_addr);
+    let mut client = CalldataWrapperClient::new(&deployed_addr);
 
     let data = vec![1, 2, 3, 4, 5];
     let echo = client.echo(&data);

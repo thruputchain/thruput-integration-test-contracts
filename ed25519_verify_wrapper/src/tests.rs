@@ -1,6 +1,5 @@
 use crate::implementation;
 use crate::interface::client::Ed25519VerifyWrapperClient;
-use crate::interface::Ed25519VerifyWrapper;
 use ed25519_dalek::{Signer, SigningKey};
 use rand::rngs::OsRng;
 use sdk::prelude::*;
@@ -33,7 +32,7 @@ fn test_ed25519_verify_wrapper_inner(
     let nonce = SHA256Hash::from([7; 32]);
     let deployed_addr = deploy_contract(&nonce, contract_hash)?;
 
-    let client = Ed25519VerifyWrapperClient::new(&deployed_addr);
+    let mut client = Ed25519VerifyWrapperClient::new(&deployed_addr);
 
     let msg = vec![1, 2, 3, 4, 5];
 

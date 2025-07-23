@@ -1,6 +1,5 @@
 use crate::implementation;
 use crate::interface::client::Sha256WrapperClient;
-use crate::interface::Sha256Wrapper;
 use sdk::prelude::*;
 use sha2::{Digest, Sha256};
 
@@ -32,7 +31,7 @@ fn test_sha256_wrapper_inner(
     let nonce = SHA256Hash::from([7; 32]);
     let deployed_addr = deploy_contract(&nonce, contract_hash)?;
 
-    let client = Sha256WrapperClient::new(&deployed_addr);
+    let mut client = Sha256WrapperClient::new(&deployed_addr);
 
     let data = vec![1, 2, 3, 4, 5];
     let hash = client.sha256(&data);
