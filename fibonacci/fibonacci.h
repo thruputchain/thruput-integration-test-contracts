@@ -13,6 +13,9 @@ struct Fibonacci {
     constexpr static std::string_view kTraitName = "Fibonacci";
     constexpr static std::string_view kVersion = "0.0.0";
 
+    // Specify serialization format, if non-default, with a line like the below.
+    // constexpr static std::string_view kSerializationFormat = "txs";
+
     // These will be sorted before being passed as indices to method id derivation.
     constexpr static auto kExportNames = std::array<std::string_view, 2>{
             "fibonacci",
