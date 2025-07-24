@@ -21,7 +21,7 @@ struct CxsRoundtrip {
     // constexpr static std::string_view kSerializationFormat = "txs";
 
     // These will be sorted before being passed as indices to method id derivation.
-    constexpr static auto kExportNames = std::array<std::string_view, 11>{
+    constexpr static auto kExportNames = std::array<std::string_view, 13>{
             "roundtrip_foo",
             "roundtrip_senum",
             "roundtrip_sunion",
@@ -33,10 +33,25 @@ struct CxsRoundtrip {
             "roundtrip_sha256hash",
             "roundtrip_storage_delta",
             "roundtrip_storage_delta_vec",
+            "roundtrip_i32",
+            "roundtrip_u32",
         };
 
     using roundtrip_signature = x23::Vec<uint8_t>(*)(hogd::Calldata);
 
-    using export_types = std::tuple<roundtrip_signature, roundtrip_signature, roundtrip_signature, roundtrip_signature, roundtrip_signature, roundtrip_signature, roundtrip_signature, roundtrip_signature, roundtrip_signature, roundtrip_signature, roundtrip_signature>;
+    using export_types = std::tuple<
+        roundtrip_signature, // 0
+        roundtrip_signature, // 1
+        roundtrip_signature, // 2
+        roundtrip_signature, // 3
+        roundtrip_signature, // 4
+        roundtrip_signature, // 5
+        roundtrip_signature, // 6
+        roundtrip_signature, // 7
+        roundtrip_signature, // 8
+        roundtrip_signature, // 9
+        roundtrip_signature, // 10
+        roundtrip_signature, // 11
+        roundtrip_signature>; // 12
 };
 

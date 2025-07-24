@@ -17,4 +17,6 @@ pub trait CxsRoundtrip {
     fn roundtrip_sha256hash(&self, data: &[u8]) -> Vec<u8>;
     fn roundtrip_storage_delta(&self, data: &[u8]) -> Vec<u8>;
     fn roundtrip_storage_delta_vec(&self, data: &[u8]) -> Vec<u8>;
+    fn roundtrip_i32(&self, data: &[u8]) -> Vec<u8>;
+    fn roundtrip_u32(&self, data: &[u8]) -> Vec<u8>;
 }

@@ -11,12 +11,21 @@ struct CxsRoundtripContract;
 use xdrs::serialize_cxs;
 use xdrs::{ReadXDROwned, WriteXDR};
 
+use sdk::prelude::log;
+use alloc::format;
+
 fn roundtrip<T>(data: &[u8]) -> Vec<u8> 
 where
-    T: ReadXDROwned + WriteXDR,
+    T: ReadXDROwned + WriteXDR + core::fmt::Debug,
 {
-    let parsed: T = serialize_cxs::decode(data).unwrap();
+    log(format!("roundtrip: {:02X?}", data).as_bytes()).unwrap();
+    let parsed: T = serialize_cxs::decode(data).unwrap_or_else(|e| {
+        log(format!("decode error: {:?}", e).as_bytes()).unwrap();
+        panic!("decode error")
+    });
+    log(format!("parsed as {:?}", parsed).as_bytes()).unwrap();
     let out = serialize_cxs::encode(&parsed).unwrap();
+    log(format!("out: {:02X?}", out).as_bytes()).unwrap();
     out
 }
 
@@ -47,6 +56,8 @@ impl_roundtrip_methods! {
     roundtrip_sha256hash: crate::roundtrip::SHA256Hash,
     roundtrip_storage_delta: crate::roundtrip::StorageDelta,
     roundtrip_storage_delta_vec: crate::roundtrip::StorageDeltaVec,
+    roundtrip_i32: i32,
+    roundtrip_u32: u32,
 }
 
 #[unsafe(export_name = "FFFFFFFFFFFFFFFF")]
