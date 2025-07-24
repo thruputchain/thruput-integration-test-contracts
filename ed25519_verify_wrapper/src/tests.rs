@@ -1,5 +1,5 @@
 use crate::implementation;
-use crate::interface::client::Ed25519VerifyWrapperClient;
+use crate::interface::Ed25519VerifyWrapperClient;
 use ed25519_dalek::{Signer, SigningKey};
 use rand::rngs::OsRng;
 use sdk::prelude::*;

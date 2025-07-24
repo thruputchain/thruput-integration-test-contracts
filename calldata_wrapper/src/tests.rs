@@ -1,5 +1,5 @@
 use crate::implementation;
-use crate::interface::client::CalldataWrapperClient;
+use crate::interface::CalldataWrapperClient;
 use sdk::prelude::*;
 
 use std::vec;

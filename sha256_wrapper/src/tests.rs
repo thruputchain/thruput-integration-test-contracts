@@ -1,5 +1,5 @@
 use crate::implementation;
-use crate::interface::client::Sha256WrapperClient;
+use crate::interface::Sha256WrapperClient;
 use sdk::prelude::*;
 use sha2::{Digest, Sha256};
 

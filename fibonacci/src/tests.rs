@@ -1,5 +1,5 @@
 use crate::implementation;
-use crate::interface::client::FibonacciClient;
+use crate::interface::FibonacciClient;
 use sdk::prelude::*;
 
 #[test]

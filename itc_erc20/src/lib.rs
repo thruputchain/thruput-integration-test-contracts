@@ -4,10 +4,6 @@
 
 pub use erc20_if as interface;
 
-// A client stub that provides the interface via cross-contract calls
-#[cfg(feature = "client")]
-pub use interface::client;
-
 // An implementation of the contract interface
 #[cfg(feature = "guest")]
 mod implementation;
