@@ -1,5 +1,5 @@
 use crate::implementation;
-use crate::interface::client::FibonacciClient;
+use crate::Client;
 use sdk::prelude::*;
 
 #[test]
@@ -26,7 +26,7 @@ fn test_fibonacci_inner(contract_hash: &sdk::types::SHA256Hash) -> Result<()> {
     let nonce = SHA256Hash::from([7; 32]);
     let deployed_addr = deploy_contract(&nonce, contract_hash)?;
 
-    let mut client = FibonacciClient::new(&deployed_addr);
+    let mut client = Client::new(&deployed_addr);
 
     assert_eq!(client.fibonacci(0), 0);
     assert_eq!(client.fibonacci(1), 1);

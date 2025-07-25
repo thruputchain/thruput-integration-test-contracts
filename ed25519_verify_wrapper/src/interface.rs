@@ -2,7 +2,7 @@ use sdk::prelude::*;
 
 pub use sdk::prelude::{Error, Result};
 
-#[contract(client = "client")]
+#[contract(client = "Client")]
 pub trait Ed25519VerifyWrapper {
     fn ed25519_verify(
         &self,
