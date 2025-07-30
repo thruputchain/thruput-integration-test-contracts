@@ -5,8 +5,6 @@ use sdk::macros::static_key;
 
 use crate::interface::ReadOnlyTest;
 
-use alloc::format;
-
 #[derive(Default)]
 struct ReadOnlyTestContract;
 
