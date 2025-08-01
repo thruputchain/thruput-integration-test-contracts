@@ -1,0 +1,24 @@
+cargo-features = ["trim-paths", "profile-rustflags"] #unstable
+
+[package]
+name = "fibonacci_call"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sdk = { workspace = true, features = ["storage"] }
+serde = { workspace = true, features = ["derive"] }
+fibonacci = { path = "../fibonacci", features = ["client"] }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+
+[features]
+default = ["guest"]
+client = []
+guest = []
+mock = ["guest", "sdk/mock"]
+
+[dev-dependencies]
+fibonacci_call = { path = ".", features = ["mock", "client"] }
