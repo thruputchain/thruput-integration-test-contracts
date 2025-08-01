@@ -34,7 +34,7 @@ fn test_sha256_wrapper_inner(
     let mut client = Client::new(&deployed_addr);
 
     let data = vec![1, 2, 3, 4, 5];
-    let hash = client.sha256(&data);
+    let hash = client.sha256(&data).unwrap();
 
     // Compute expected hash using sha2 crate
     let mut hasher = Sha256::new();

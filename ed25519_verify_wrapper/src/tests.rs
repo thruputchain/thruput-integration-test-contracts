@@ -43,14 +43,14 @@ fn test_ed25519_verify_wrapper_inner(
         signing_key.verifying_key().to_bytes().into();
     let signature: Ed25519Signature = signing_key.sign(&msg).to_bytes().into();
 
-    let res = client.ed25519_verify(&msg, &signature, &public_key);
+    let res = client.ed25519_verify(&msg, &signature, &public_key).unwrap();
     assert_eq!(res, true);
 
     // Verify the signature with the wrong public key
     let signing_key2: SigningKey = SigningKey::generate(&mut csprng);
     let wrong_public_key: Ed25519PublicKey =
         signing_key2.verifying_key().to_bytes().into();
-    let res = client.ed25519_verify(&msg, &signature, &wrong_public_key);
+    let res = client.ed25519_verify(&msg, &signature, &wrong_public_key).unwrap();
     assert_eq!(res, false);
 
     Ok(())
