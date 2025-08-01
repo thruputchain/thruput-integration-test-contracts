@@ -33,7 +33,7 @@ fn test_calldata_wrapper_inner(
     let mut client = Client::new(&deployed_addr);
 
     let data = vec![1, 2, 3, 4, 5];
-    let echo = client.echo(&data);
+    let echo = client.echo(&data)?;
 
     assert_eq!(echo, data);
 
