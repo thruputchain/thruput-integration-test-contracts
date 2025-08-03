@@ -28,7 +28,7 @@ impl ManualRevertTest for ManualRevertTestContract {
     fn test_basic_manual_revert(&self, should_revert: bool) -> Result<()> {
         // Write some state first
         let test_key: StorageKeyContractData = static_key!("test_basic_revert");
-        bytestring_set(&test_key, b"state_before_revert")?;
+        bytestring_set(&test_key, b"state_before_revert").unwrap();
         
         if should_revert {
             // When we return Err, the SDK's Returnable trait automatically:

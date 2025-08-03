@@ -1,5 +1,6 @@
 #pragma once
 
+#include "hogd/hogexec/runtime/serialize_calldata.h"
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -24,10 +25,10 @@ struct ManualRevertTest {
     // The only method that returns bool is check_storage_exists
     using export_types = std::tuple<
         bool(*)(),                              // check_storage_exists -> bool
-        void(*)(bool),                          // internal_revert_method -> Result<()>  
-        void(*)(bool),                          // test_basic_manual_revert -> Result<()>
-        void(*)(uint32_t),                      // test_error_type_revert -> Result<()>
-        void(*)(bool),                          // test_nested_manual_revert -> Result<()>
-        void(*)(bool)                           // test_storage_manual_revert -> Result<()>
+        hogd::Result<void>(*)(bool),            // internal_revert_method -> Result<()>  
+        hogd::Result<void>(*)(bool),            // test_basic_manual_revert -> Result<()>
+        hogd::Result<void>(*)(uint32_t),        // test_error_type_revert -> Result<()>
+        hogd::Result<void>(*)(bool),            // test_nested_manual_revert -> Result<()>
+        hogd::Result<void>(*)(bool)             // test_storage_manual_revert -> Result<()>
     >;
 }; 
