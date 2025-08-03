@@ -58,6 +58,9 @@ impl_roundtrip_methods! {
     roundtrip_storage_delta_vec: crate::roundtrip::StorageDeltaVec,
     roundtrip_i32: i32,
     roundtrip_u32: u32,
+    roundtrip_error_xdr: crate::contract_error::ErrorXDR,
+    roundtrip_contract_error_xdr: crate::contract_error::ContractErrorXDR,
+    roundtrip_storage_err_xdr: crate::contract_error::StorageErrXDR,
 }
 
 #[unsafe(export_name = "FFFFFFFFFFFFFFFF")]
