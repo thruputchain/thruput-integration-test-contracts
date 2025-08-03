@@ -9,10 +9,6 @@ extern crate alloc;
 #[rustfmt::skip]
 mod roundtrip;
 
-// generated code for contract error types
-#[rustfmt::skip]
-mod contract_error;
-
 // A trait describing the contract interface
 pub mod interface;
 

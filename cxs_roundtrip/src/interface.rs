@@ -22,4 +22,5 @@ pub trait CxsRoundtrip {
     fn roundtrip_error_xdr(&self, data: &[u8]) -> Vec<u8>;
     fn roundtrip_contract_error_xdr(&self, data: &[u8]) -> Vec<u8>;
     fn roundtrip_storage_err_xdr(&self, data: &[u8]) -> Vec<u8>;
+    fn roundtrip_result_xdr(&self, data: &[u8]) -> Vec<u8>;
 }
