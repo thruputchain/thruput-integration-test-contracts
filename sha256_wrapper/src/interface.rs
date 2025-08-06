@@ -1,7 +1,5 @@
 use sdk::prelude::*;
 
-pub use sdk::prelude::{Error, Result};
-
 #[contract(client = "Client")]
 pub trait Sha256Wrapper {
     fn sha256(&self, data: &[u8]) -> SHA256Hash;

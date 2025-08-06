@@ -1,6 +1,6 @@
 use sdk::prelude::*;
 
-pub use sdk::prelude::{Error, Result};
+pub use sdk::contract_result::*;
 
 #[contract(client = "Client")]
 pub trait SimpleWallet {

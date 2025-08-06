@@ -1,7 +1,5 @@
 use sdk::prelude::*;
 
-pub use sdk::prelude::{Error, Result};
-
 use alloc::vec::Vec;
 
 #[contract(client = "Client")]

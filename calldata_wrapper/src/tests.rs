@@ -1,7 +1,7 @@
 use crate::implementation;
 use crate::Client;
 use sdk::prelude::*;
-
+pub use sdk::contract_result::Result;
 use std::vec;
 
 #[test]
@@ -33,7 +33,7 @@ fn test_calldata_wrapper_inner(
     let mut client = Client::new(&deployed_addr);
 
     let data = vec![1, 2, 3, 4, 5];
-    let echo = client.echo(&data);
+    let echo = client.echo(&data).unwrap();
 
     assert_eq!(echo, data);
 
