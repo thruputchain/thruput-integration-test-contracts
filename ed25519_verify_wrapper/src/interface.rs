@@ -1,8 +1,6 @@
 use sdk::prelude::*;
 
-pub use sdk::prelude::{Error, Result};
-
-#[contract(client = Ed25519VerifyWrapperClient)]
+#[contract(client = Client)]
 pub trait Ed25519VerifyWrapper {
     fn ed25519_verify(
         &self,

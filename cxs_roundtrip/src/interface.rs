@@ -1,10 +1,8 @@
 use sdk::prelude::*;
 
-pub use sdk::prelude::{Error, Result};
-
 use alloc::vec::Vec;
 
-#[contract(client = CxsRoundtripClient)]
+#[contract(client = Client)]
 pub trait CxsRoundtrip {
     fn roundtrip_foo(&self, data: &[u8]) -> Vec<u8>;
     fn roundtrip_senum(&self, data: &[u8]) -> Vec<u8>;

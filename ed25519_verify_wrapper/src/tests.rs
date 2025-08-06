@@ -1,8 +1,9 @@
 use crate::implementation;
-use crate::interface::Ed25519VerifyWrapperClient;
+use crate::Client;
 use ed25519_dalek::{Signer, SigningKey};
 use rand::rngs::OsRng;
 use sdk::prelude::*;
+use sdk::contract_result::*;
 
 use std::vec;
 
@@ -32,7 +33,7 @@ fn test_ed25519_verify_wrapper_inner(
     let nonce = SHA256Hash::from([7; 32]);
     let deployed_addr = deploy_contract(&nonce, contract_hash)?;
 
-    let mut client = Ed25519VerifyWrapperClient::new(&deployed_addr);
+    let mut client = Client::new(&deployed_addr);
 
     let msg = vec![1, 2, 3, 4, 5];
 
@@ -43,14 +44,14 @@ fn test_ed25519_verify_wrapper_inner(
         signing_key.verifying_key().to_bytes().into();
     let signature: Ed25519Signature = signing_key.sign(&msg).to_bytes().into();
 
-    let res = client.ed25519_verify(&msg, &signature, &public_key);
+    let res = client.ed25519_verify(&msg, &signature, &public_key).unwrap();
     assert_eq!(res, true);
 
     // Verify the signature with the wrong public key
     let signing_key2: SigningKey = SigningKey::generate(&mut csprng);
     let wrong_public_key: Ed25519PublicKey =
         signing_key2.verifying_key().to_bytes().into();
-    let res = client.ed25519_verify(&msg, &signature, &wrong_public_key);
+    let res = client.ed25519_verify(&msg, &signature, &wrong_public_key).unwrap();
     assert_eq!(res, false);
 
     Ok(())

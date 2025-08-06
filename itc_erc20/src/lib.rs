@@ -4,6 +4,8 @@
 
 pub use erc20_if as interface;
 
+pub use interface::ERC20Client;
+
 // An implementation of the contract interface
 #[cfg(feature = "guest")]
 mod implementation;

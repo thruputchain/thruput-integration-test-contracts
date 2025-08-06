@@ -75,7 +75,7 @@ fn add_to_allowance(
 #[derive(Default)]
 struct Token;
 
-#[contract(storage = "false")] // Don't load/store `Token` for each method call
+#[contract(err_type = Error, storage = "false")] // Don't load/store `Token` for each method call
 impl ERC20 for Token {
     fn initialize(
         &mut self,

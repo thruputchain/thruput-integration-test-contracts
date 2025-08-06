@@ -1,5 +1,5 @@
 use crate::implementation;
-use crate::interface::Sha256WrapperClient;
+use crate::Client;
 use sdk::prelude::*;
 use sha2::{Digest, Sha256};
 
@@ -15,7 +15,10 @@ fn test_sha256_wrapper() {
     sdk::TestEnvironment::enable_syscall_logging();
 
     let mut handler = env.prepare_test(move || -> () {
-        match test_sha256_wrapper_inner(&contract_hash) {
+        let nonce = SHA256Hash::from([7; 32]);
+        let deployed_addr = deploy_contract(&nonce, &contract_hash).unwrap();
+        let mut client = Client::new(&deployed_addr);
+        match test_sha256_wrapper_inner(&mut client) {
             Ok(_) => (),
             Err(error) => panic!("test failed: {}", error),
         }
@@ -25,16 +28,9 @@ fn test_sha256_wrapper() {
     assert_eq!(res.result.panic, sdk::InvokeErrorCode::kInvokeNone as i32);
 }
 
-fn test_sha256_wrapper_inner(
-    contract_hash: &sdk::types::SHA256Hash,
-) -> Result<()> {
-    let nonce = SHA256Hash::from([7; 32]);
-    let deployed_addr = deploy_contract(&nonce, contract_hash)?;
-
-    let mut client = Sha256WrapperClient::new(&deployed_addr);
-
+fn test_sha256_wrapper_inner(client: &mut Client) -> InvokeResult<()> {
     let data = vec![1, 2, 3, 4, 5];
-    let hash = client.sha256(&data);
+    let hash = client.sha256(&data)?;
 
     // Compute expected hash using sha2 crate
     let mut hasher = Sha256::new();

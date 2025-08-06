@@ -1,6 +1,6 @@
 //! An implementation of Fibonacci
 
-use super::interface::SimpleWallet;
+use super::interface::*;
 use sdk::storage_prelude::*;
 use sdk::crypto::verify_signature_ed25519;
 
