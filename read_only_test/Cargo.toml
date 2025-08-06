@@ -1,0 +1,28 @@
+cargo-features = ["trim-paths", "profile-rustflags"] #unstable
+
+[package]
+name = "read_only_test"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sdk = { workspace = true }
+groundhog_xdr = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+xdrs = { workspace = true, features = ["alloc"] }
+xdr_common = { workspace = true, features = ["alloc"] }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+
+[features]
+default = ["guest", "alloc", "xdrs"]
+client = []
+guest = []
+mock = ["guest", "sdk/mock"]
+alloc = []
+xdrs = []
+
+[dev-dependencies]
+read_only_test = { path = ".", features = ["mock", "client"] }

@@ -23,5 +23,5 @@ pub use implementation::guest_exports::*;
 #[cfg(feature = "mock")]
 pub use implementation::test_setup;
 
-#[cfg(test)]
+#[cfg(all(test, feature = "mock"))]
 mod tests;

@@ -1,0 +1,21 @@
+[package]
+name = "manual_revert_caller"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+sdk = { workspace = true, features = ["storage"] }
+serde = { workspace = true, features = ["derive"] }
+manual_revert_test = { path = "../manual_revert_test", features = ["client"] }
+
+[dev-dependencies]
+manual_revert_caller = { path = ".", features = ["mock", "client"] }
+
+[features]
+default = ["guest"]
+client = []
+guest = []
+mock = ["guest", "sdk/mock", "manual_revert_test/mock"]
