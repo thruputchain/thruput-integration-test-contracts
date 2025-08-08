@@ -19,12 +19,12 @@ use crate::interface::*;
 #[derive(Default)]
 struct ManualRevertTestContract;
 
-#[contract(exports = "guest_exports", storage = "false")]
+#[contract(exports = "guest_exports", storage = "false", err_type = ManualRevertTestError)]
 impl ManualRevertTest for ManualRevertTestContract {
     
     /// Test basic manual revert functionality
     /// Demonstrates how the Returnable trait automatically triggers manual revert on Err
-    fn test_basic_manual_revert(&self, should_revert: bool) -> Result<()> {
+    fn test_basic_manual_revert(&self, should_revert: bool) -> Result<(), ManualRevertTestError> {
         // Write some state first
         let test_key: StorageKeyContractData = static_key!("test_basic_revert");
         bytestring_set(&test_key, b"state_before_revert").unwrap();
@@ -42,7 +42,7 @@ impl ManualRevertTest for ManualRevertTestContract {
     }
     
     /// Test manual revert with different error types
-    fn test_error_type_revert(&self, error_type: u32) -> Result<()> {
+    fn test_error_type_revert(&self, error_type: u32) -> Result<(), ManualRevertTestError> {
         // Write test state
         let key: StorageKeyContractData = static_key!("error_type_test");
         bytestring_set(&key, b"test_data")?;
@@ -71,7 +71,7 @@ impl ManualRevertTest for ManualRevertTestContract {
     }
     
     /// Test nested calls with manual revert
-    fn test_nested_manual_revert(&self, child_should_revert: bool) -> Result<()> {
+    fn test_nested_manual_revert(&self, child_should_revert: bool) -> Result<(), ManualRevertTestError> {
         // Parent writes state
         let parent_key: StorageKeyContractData = static_key!("parent_state");
         bytestring_set(&parent_key, b"parent_data")?;
@@ -94,7 +94,7 @@ impl ManualRevertTest for ManualRevertTestContract {
     }
     
     /// Test storage operations with manual revert
-    fn test_storage_manual_revert(&self, should_revert: bool) -> Result<()> {
+    fn test_storage_manual_revert(&self, should_revert: bool) -> Result<(), ManualRevertTestError> {
         // Write multiple storage items
         let key1: StorageKeyContractData = static_key!("storage_test_1");
         let key2: StorageKeyContractData = static_key!("storage_test_2");
@@ -113,7 +113,7 @@ impl ManualRevertTest for ManualRevertTestContract {
     }
     
     /// Internal method for nested testing - manually reverts with data
-    fn internal_revert_method(&self, should_revert: bool) -> Result<()> {
+    fn internal_revert_method(&self, should_revert: bool) -> Result<(), ManualRevertTestError> {
         // Write some internal state
         let internal_key: StorageKeyContractData = static_key!("internal_state");
         bytestring_set(&internal_key, b"internal_data")?;
@@ -127,8 +127,9 @@ impl ManualRevertTest for ManualRevertTestContract {
     }
     
     /// Check if storage was actually reverted - returns true if key exists
-    fn check_storage_exists(&self) -> bool {
+    fn check_storage_exists(&self) -> Result<bool, ManualRevertTestError> {
         let test_key: StorageKeyContractData = static_key!("test_basic_revert");
-        bytestring_get(&test_key).is_ok()
+        let res = bytestring_get(&test_key).is_ok();
+        Ok(res)
     }
 }

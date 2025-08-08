@@ -9,6 +9,7 @@ edition = "2021"
 sdk = { workspace = true, features = ["storage"] }
 serde = { workspace = true, features = ["derive"] }
 xdrs = { workspace = true, features = ["alloc", "xdr_common"] }
+xdr_common = { workspace = true }
 
 [lib]
 crate-type = ["cdylib", "rlib"]

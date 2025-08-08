@@ -8,6 +8,8 @@ crate-type = ["cdylib", "lib"]
 
 [dependencies]
 sdk = { workspace = true }
+thiserror = { version = "2.0.10", default-features = false }
+xdrs = { workspace = true }
 
 [features]
 default = ["guest", "alloc", "xdrs"]
