@@ -7,7 +7,7 @@ edition = "2021"
 crate-type = ["cdylib", "lib"]
 
 [dependencies]
-sdk = { workspace = true, features = ["storage"] }
+sdk = { workspace = true, features = ["storage", "logging"] }
 serde = { workspace = true, features = ["derive"] }
 manual_revert_test = { path = "../manual_revert_test", features = ["client"] }
 

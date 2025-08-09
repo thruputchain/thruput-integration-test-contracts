@@ -3,6 +3,8 @@ use sdk::macros::static_key;
 
 use crate::interface::*;
 
+use alloc::format;
+
 //
 // Implementation of ManualRevertTest contract demonstrating manual frame revert functionality.
 // 
@@ -30,6 +32,9 @@ impl ManualRevertTest for ManualRevertTestContract {
         bytestring_set(&test_key, b"state_before_revert").unwrap();
         
         if should_revert {
+
+            let err : Result<(), ManualRevertTestError> = Err(SysErr::from(SyscallErrorCode::kInvalidSyscallInput).into());
+            sdk::storage_prelude::log(format!("err as {:?}", err).as_bytes()).unwrap();
             // When we return Err, the SDK's Returnable trait automatically:
             // 1. Calls force_revert() which returns true for Result::Err
             // 2. Triggers Return syscall with revert_frame=true
@@ -77,20 +82,7 @@ impl ManualRevertTest for ManualRevertTestContract {
         bytestring_set(&parent_key, b"parent_data")?;
         
         // Call internal method that may revert
-        let result = self.internal_revert_method(child_should_revert);
-        
-        match result {
-            Ok(()) => {
-                // Child succeeded
-                Ok(())
-            },
-            Err(_e) => {
-                // Child manually reverted - in a real system, the parent would receive
-                // the child's error data even though child's state was reverted
-                // For this test, we'll just succeed to show parent handles child revert
-                Ok(())
-            }
-        }
+        self.internal_revert_method(child_should_revert)
     }
     
     /// Test storage operations with manual revert
@@ -119,7 +111,6 @@ impl ManualRevertTest for ManualRevertTestContract {
         bytestring_set(&internal_key, b"internal_data")?;
         
         if should_revert {
-            // This triggers manual revert via Returnable trait
             return Err(SysErr::from(SyscallErrorCode::kCalldataParseError).into());
         }
         
