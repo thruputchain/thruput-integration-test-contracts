@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hogd/hogexec/runtime/serialize_calldata.h"
+#include "hogd/hogexec/runtime/contract_result.h"
 #include <array>
 #include <cstddef>
 #include <cstdint>
