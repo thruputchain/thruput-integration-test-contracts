@@ -17,12 +17,12 @@ impl SimpleWallet for SimpleWalletContract {
     fn initialize(
         &mut self,
         owner: &Ed25519PublicKey,
-    ) -> Result<()> {
+    ) {
         self.owner = owner.clone();
-        Ok(())
     }
-    fn do_action(&self, signature: &Ed25519Signature, invocation_bytes: &[u8]) -> Result<()> {
-        verify_signature_ed25519(&self.owner, signature, &invocation_bytes)?;
+
+    fn do_action(&self, signature: &Ed25519Signature, invocation_bytes: &[u8])  {
+        verify_signature_ed25519(&self.owner, signature, &invocation_bytes).unwrap();
 
         let (addr, entrypoint, gas_limit, calldata) : (ContractAddress, ContractEntrypointID, u64, &[u8]) = sdk::serialize::from_bytes(&invocation_bytes).unwrap();
 
@@ -35,8 +35,6 @@ impl SimpleWallet for SimpleWalletContract {
             gas_limit,
             &calldata,
             0, // TODO(geoff): invoke flags go here
-            &mut return_len)?;
-
-        Ok(())
+            &mut return_len).unwrap();
     }
 }

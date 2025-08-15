@@ -9,8 +9,7 @@ edition = "2021"
 sdk = { workspace = true }
 groundhog_xdr = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
-xdrs = { workspace = true, features = ["alloc"] }
-xdr_common = { workspace = true, features = ["alloc"] }
+xdrs = { workspace = true, features = ["alloc", "xdr_common"] }
 
 [lib]
 crate-type = ["cdylib", "rlib"]
