@@ -1,7 +1,8 @@
 //! An implementation of Fibonacci
 
 use super::interface::*;
-use sdk::storage_prelude::*;
+use sdk::*;
+use sdk::serialize::*;
 use sdk::crypto::verify_signature_ed25519;
 
 #[derive(Storage, Debug, Serialize)]

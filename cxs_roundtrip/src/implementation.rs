@@ -1,18 +1,15 @@
 //! An implementation of Fibonacci
 
-use super::interface::CxsRoundtrip;
-use sdk::prelude::*;
-
+use crate::interface::CxsRoundtrip;
 use alloc::vec::Vec;
+use alloc::format;
+use xdrs::serialize_cxs;
+use xdrs::{ReadXDROwned, WriteXDR};
+use sdk::*;
 
 #[derive(Default)]
 struct CxsRoundtripContract;
 
-use xdrs::serialize_cxs;
-use xdrs::{ReadXDROwned, WriteXDR};
-
-use sdk::prelude::log;
-use alloc::format;
 
 fn roundtrip<T>(data: &[u8]) -> Vec<u8> 
 where

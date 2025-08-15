@@ -1,7 +1,7 @@
 //! An implementation of Fibonacci
 
 use super::interface::Fibonacci;
-use sdk::prelude::*;
+use sdk::*;
 
 #[derive(Default)]
 struct FibonacciContract;

@@ -1,6 +1,6 @@
 use crate::implementation;
 use crate::Client;
-use sdk::prelude::*;
+use sdk::*;
 pub use sdk::contract_result::Result;
 use std::vec;
 

@@ -1,7 +1,7 @@
 //! An implementation of Ed25519VerifyWrapper
 
 use super::interface::Ed25519VerifyWrapper;
-use sdk::prelude::*;
+use sdk::*;
 
 #[derive(Default)]
 struct Ed25519VerifyWrapperContract;

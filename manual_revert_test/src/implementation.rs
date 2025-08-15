@@ -1,9 +1,6 @@
-use sdk::prelude::*;
-use sdk::macros::static_key;
-
-use crate::interface::*;
-
+use sdk::*;
 use alloc::format;
+use crate::interface::*;
 
 //
 // Implementation of ManualRevertTest contract demonstrating manual frame revert functionality.
@@ -34,7 +31,7 @@ impl ManualRevertTest for ManualRevertTestContract {
         if should_revert {
 
             let err : Result<(), ManualRevertTestError> = Err(SysErr::from(SyscallErrorCode::kInvalidSyscallInput).into());
-            sdk::storage_prelude::log(format!("err as {:?}", err).as_bytes()).unwrap();
+            log(format!("err as {:?}", err).as_bytes()).unwrap();
             // When we return Err, the SDK's Returnable trait automatically:
             // 1. Calls force_revert() which returns true for Result::Err
             // 2. Triggers Return syscall with revert_frame=true

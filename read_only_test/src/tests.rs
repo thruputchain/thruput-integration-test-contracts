@@ -1,6 +1,6 @@
 use crate::implementation;
 use crate::interface::*;
-use sdk::prelude::*;
+use sdk::*;
 
 #[test]
 fn test_read_only_bytestring_set() {

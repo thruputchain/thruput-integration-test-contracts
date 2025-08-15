@@ -1,11 +1,8 @@
-use super::interface::*;
-use sdk::prelude::*;
-use sdk::macros::static_key;
-use manual_revert_test::Client as ManualRevertTestClient;
-
-use sdk::storage_prelude::ClientError;
-
+use sdk::*;
+use sdk::serialize::*;
 use alloc::format;
+use crate::interface::*;
+use manual_revert_test::Client as ManualRevertTestClient;
 
 //
 // Implementation of ManualRevertCaller contract that tests cross-contract revert propagation.
@@ -30,7 +27,7 @@ pub struct ManualRevertCallerContract {
 
 impl ManualRevertCallerContract {
     fn check_result(result: &ClientResult<(), sdk::contract_result::Error>, should_revert: bool) {
-        sdk::storage_prelude::log(format!("doing check_result: should_revert {:?} res {:?}", should_revert, result).as_bytes()).unwrap();
+        log(format!("doing check_result: should_revert {:?} res {:?}", should_revert, result).as_bytes()).unwrap();
         match result {
             Ok(()) => { if should_revert { panic!("Manual revert should have failed"); } else { return; }},
             Err(e) => match e {
@@ -63,7 +60,7 @@ impl ManualRevertCaller for ManualRevertCallerContract {
         // Call the target contract's method
         let result : ClientResult<(), sdk::contract_result::Error> = client.test_basic_manual_revert(should_revert);
 
-        sdk::storage_prelude::log(format!("result as {:?}", result).as_bytes()).unwrap();
+        log(format!("result as {:?}", result).as_bytes()).unwrap();
 
         Self::check_result(&result, should_revert);
     }
