@@ -1,4 +1,4 @@
-use sdk::prelude::*;
+use sdk::*;
 
 pub use sdk::contract_result::*;
 

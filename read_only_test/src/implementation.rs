@@ -1,7 +1,4 @@
-use sdk::prelude::*;
-
-use sdk::macros::static_key;
-
+use sdk::*;
 use crate::interface::*;
 
 #[derive(Default)]

@@ -3,7 +3,7 @@ use itc_erc20 as erc20;
 use erc20::test_setup;
 use erc20::ERC20Client;
 use erc20::interface::Error as ERC20Error;
-use sdk::prelude::*;
+use sdk::*;
 
 #[test]
 fn check() {

@@ -2,7 +2,7 @@ use crate::implementation;
 use crate::Client;
 use ed25519_dalek::{Signer, SigningKey};
 use rand::rngs::OsRng;
-use sdk::prelude::*;
+use sdk::*;
 use sdk::contract_result::*;
 
 use std::vec;

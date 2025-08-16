@@ -1,6 +1,6 @@
 use crate::implementation;
 use crate::Client;
-use sdk::prelude::*;
+use sdk::*;
 
 #[test]
 fn test_fibonacci() {

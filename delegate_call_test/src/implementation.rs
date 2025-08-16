@@ -1,7 +1,7 @@
 //! An implementation of DelegateCallTest
 
 use super::interface::*;
-use sdk::prelude::*;
+use sdk::*;
 
 #[derive(Default)]
 struct DelegateCallTestContract;
