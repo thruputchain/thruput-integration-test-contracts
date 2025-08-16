@@ -1,5 +1,6 @@
-use super::*;
-use sdk::prelude::*;
+use crate::implementation::*;
+use alloc::vec::Vec;
+use sdk::*;
 
 #[test]
 fn test_initial_token_claim_contract_creation() {
@@ -13,7 +14,7 @@ fn test_storage_key_generation() {
     // Test that storage key generation matches the design document
     let hash = SHA256Hash::from([1u8; 32]);
     let nonce = SHA256Hash::from([2u8; 32]);
-    let entrypoint = ContractEntrypointID::from(123);
+    let entrypoint = ContractEntrypointID::from_u64(123);
     let calldata = b"test_calldata";
     
     // Create storage key: sha256("Initial Deployment" || hash || nonce || entrypoint || calldata)

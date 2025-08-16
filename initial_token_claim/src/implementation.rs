@@ -1,9 +1,8 @@
 //! Implementation of Initial Token Claim contract
 
 use super::interface::*;
-use sdk::prelude::*;
-use alloc::vec::Vec;
-use alloc::format;
+use sdk::*;
+use sdk::serialize::*;
 
 #[derive(Default, Debug, Serialize)]
 pub struct InitialTokenClaimContract {

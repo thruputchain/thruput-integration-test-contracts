@@ -1,7 +1,7 @@
 //! An implementation of Fibonacci
 
 use super::interface::Sha256Wrapper;
-use sdk::prelude::*;
+use sdk::*;
 
 #[derive(Default)]
 struct Sha256WrapperContract;

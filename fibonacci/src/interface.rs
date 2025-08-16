@@ -1,4 +1,4 @@
-use sdk::prelude::*;
+use sdk::*;
 
 #[contract(client = Client)]
 pub trait Fibonacci {
