@@ -2,7 +2,7 @@
 
 #![cfg_attr(not(feature = "mock"), no_std)]
 
-pub use erc20_if as interface;
+pub use groundhog_erc20_if as interface;
 
 pub use interface::ERC20Client;
 
