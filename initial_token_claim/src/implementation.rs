@@ -1,8 +1,8 @@
 //! Implementation of Initial Token Claim contract
 
 use super::interface::*;
-use sdk::*;
 use sdk::serialize::*;
+use sdk::*;
 
 #[derive(Default, Debug, Serialize)]
 pub struct InitialTokenClaimContract {
@@ -32,31 +32,51 @@ impl InitialTokenClaim for InitialTokenClaimContract {
         let contract_data_key = StorageKeyContractData::from(storage_key);
 
         // Load the allocation amount
-        let allocation_bytes: [u8; 16] = bytestring_get_sized(&contract_data_key).unwrap().unwrap();
+        let allocation_bytes: [u8; 16] =
+            bytestring_get_sized(&contract_data_key).unwrap().unwrap();
         let allocation: i128 = i128::from_be_bytes(allocation_bytes);
-        
+
         // Delete the storage key to prevent double-claiming
         // Convert StorageKey to StorageKeyContractData for the syscall
         sdk::delete::delete(&contract_data_key, true).unwrap();
-        
+
         // Calculate receiver address from contract hash and nonce
         let mut receiver_addr = ContractAddress::default();
-        sdk::sys::raw_GetDeployAddress(None, nonce, hash, &mut receiver_addr).unwrap();
-        
+        sdk::sys::raw_GetDeployAddress(None, nonce, hash, &mut receiver_addr)
+            .unwrap();
+
         // Transfer tokens to the receiver via HOG token contract
         // TODO: Call the HOG token contract's transfer method
         // For now, we'll just log the transfer
-        sdk::log::log(&format!("Transferring {} tokens to {:?}", allocation, receiver_addr).as_bytes()).unwrap();
-        
+        sdk::log::log(
+            &format!(
+                "Transferring {} tokens to {:?}",
+                allocation, receiver_addr
+            )
+            .as_bytes(),
+        )
+        .unwrap();
+
         // Deploy the contract using hash and nonce
         let mut deployed_addr = ContractAddress::default();
         sdk::sys::raw_DeployContract(nonce, hash, &mut deployed_addr).unwrap();
-        
+
         // Call the initialize entrypoint with provided calldata
         let method_id = u64::from_be_bytes(method.into_inner());
         let mut return_len = 0;
-        sdk::sys::raw_Invoke(&deployed_addr, method_id, u64::MAX, calldata, 0, &mut return_len).unwrap();
-        
-        sdk::log::log(b"Successfully claimed initial tokens and deployed contract").unwrap();
+        sdk::sys::raw_Invoke(
+            &deployed_addr,
+            method_id,
+            u64::MAX,
+            calldata,
+            0,
+            &mut return_len,
+        )
+        .unwrap();
+
+        sdk::log::log(
+            b"Successfully claimed initial tokens and deployed contract",
+        )
+        .unwrap();
     }
 }
