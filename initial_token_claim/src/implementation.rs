@@ -32,8 +32,9 @@ impl InitialTokenClaim for InitialTokenClaimContract {
         let contract_data_key = StorageKeyContractData::from(storage_key);
 
         // Load the allocation amount
-        let allocation: i128 = non_negative_int_get(&contract_data_key).unwrap();
-        
+        let allocation: i128 =
+            non_negative_int_get(&contract_data_key).unwrap();
+
         // Delete the storage key to prevent double-claiming
         // Convert StorageKey to StorageKeyContractData for the syscall
         sdk::delete::delete(&contract_data_key, true).unwrap();
