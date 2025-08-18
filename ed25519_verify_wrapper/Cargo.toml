@@ -16,12 +16,16 @@ doctest = false
 [[bin]]
 name = "generate_spec"
 path = "src/bin/generate_spec.rs"
+required-features = ["spec"]
 
 [features]
 default = ["guest"]
 client = []
 guest = []
-mock = ["guest", "sdk/mock"]
+mock = ["guest", "sdk/mock", "std"]
+spec = ["sdk/spec", "std", "client"]
+std = ["sdk/std"]
+
 
 [dev-dependencies]
 ed25519_verify_wrapper = { path = ".", features = ["mock", "client"] }
