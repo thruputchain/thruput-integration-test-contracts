@@ -6,10 +6,16 @@ edition = "2021"
 [lib]
 crate-type = ["cdylib", "lib"]
 
+[[bin]]
+name = "generate_spec"
+path = "src/bin/generate_spec.rs"
+required-features = ["spec"]
+
 [dependencies]
 sdk = { workspace = true, features = ["storage", "logging"] }
 serde = { workspace = true, features = ["derive"] }
 manual_revert_test = { path = "../manual_revert_test", features = ["client"] }
+xdrs = { workspace = true, optional = true, features = ["derive", "alloc", "extras"] }
 
 [dev-dependencies]
 manual_revert_caller = { path = ".", features = ["mock", "client"] }
@@ -19,3 +25,5 @@ default = ["guest"]
 client = []
 guest = []
 mock = ["guest", "sdk/mock", "manual_revert_test/mock"]
+spec = ["sdk/spec", "std", "client", "dep:xdrs"]
+std = ["sdk/std", "manual_revert_test/std"]

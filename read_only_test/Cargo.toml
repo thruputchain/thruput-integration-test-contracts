@@ -7,9 +7,14 @@ edition = "2021"
 
 [dependencies]
 sdk = { workspace = true }
-groundhog_xdr = { workspace = true }
+groundhog_xdr = { workspace = true, features = ["xdrs"]}
 serde = { workspace = true, features = ["derive"] }
 xdrs = { workspace = true, features = ["alloc", "xdr_common"] }
+
+[[bin]]
+name = "generate_spec"
+path = "src/bin/generate_spec.rs"
+required-features = ["spec"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -22,6 +27,8 @@ guest = []
 mock = ["guest", "sdk/mock"]
 alloc = []
 xdrs = []
+spec = ["sdk/spec", "std", "client"]
+std = ["sdk/std"]
 
 [dev-dependencies]
 read_only_test = { path = ".", features = ["mock", "client"] }

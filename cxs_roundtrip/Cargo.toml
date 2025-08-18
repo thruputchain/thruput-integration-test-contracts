@@ -8,11 +8,17 @@ edition = "2021"
 [dependencies]
 sdk = { workspace = true, features = ["storage"] }
 serde = { workspace = true, features = ["derive"] }
-xdrs = { workspace = true, features = ["alloc", "xdr_common"] }
+xdrs = { workspace = true, features = ["derive", "alloc", "extras", "int128_xdr", "xdr_common"] }
+xdr_common = { workspace = true, features = ["alloc"] }
 
 [lib]
 crate-type = ["cdylib", "rlib"]
 doctest = false
+
+[[bin]]
+name = "generate_spec"
+path = "src/bin/generate_spec.rs"
+required-features = ["spec"]
 
 [features]
 default = ["guest", "alloc", "xdrs"]
@@ -21,6 +27,8 @@ guest = []
 mock = ["guest", "sdk/mock"]
 alloc = []
 xdrs = []
+spec = ["sdk/spec", "std", "client"]
+std = ["sdk/std"]
 
 [dev-dependencies]
 cxs_roundtrip = { path = ".", features = ["mock", "client"] }

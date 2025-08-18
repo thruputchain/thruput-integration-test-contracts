@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 sdk = { workspace = true, features = ["storage"] }
 serde = { workspace = true, features = ["derive"] }
-xdrs = { git = "ssh://git@github.com/groundhogchain/xdrs.git", features = ["derive", "alloc", "extras", "int128_xdr"] }
+xdrs = { workspace = true, features = ["derive", "alloc", "extras", "int128_xdr"] }
 
 [lib]
 crate-type = ["cdylib", "rlib"]

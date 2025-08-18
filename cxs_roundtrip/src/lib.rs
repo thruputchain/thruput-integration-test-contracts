@@ -1,4 +1,4 @@
-#![no_std]
+#![cfg_attr(not(feature = "std"), no_std)]
 
 #[cfg(feature = "mock")]
 extern crate std;
@@ -29,3 +29,7 @@ pub use implementation::test_setup;
 
 #[cfg(test)]
 mod tests;
+
+
+
+

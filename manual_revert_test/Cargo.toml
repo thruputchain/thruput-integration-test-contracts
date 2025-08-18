@@ -11,6 +11,11 @@ sdk = { workspace = true , features = ["storage", "logging"] }
 thiserror = { version = "2.0.10", default-features = false }
 xdrs = { workspace = true }
 
+[[bin]]
+name = "generate_spec"
+path = "src/bin/generate_spec.rs"
+required-features = ["spec"]
+
 [features]
 default = ["guest", "alloc", "xdrs"]
 client = []
@@ -18,6 +23,8 @@ guest = []
 mock = ["guest", "sdk/mock"]
 alloc = []
 xdrs = []
+spec = ["sdk/spec", "std", "client"]
+std = ["sdk/std"]
 
 [dev-dependencies]
 manual_revert_test = { path = ".", features = ["mock", "client"] }

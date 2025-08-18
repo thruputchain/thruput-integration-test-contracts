@@ -1,5 +1,4 @@
 use sdk::*;
-
 use alloc::vec::Vec;
 
 #[contract(client = Client)]

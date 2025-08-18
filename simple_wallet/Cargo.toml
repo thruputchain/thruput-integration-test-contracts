@@ -8,6 +8,12 @@ edition = "2021"
 [dependencies]
 sdk = { workspace = true, features = ["storage"] }
 serde = { workspace = true, features = ["derive"] }
+xdrs = { workspace = true, optional = true, features = ["derive", "alloc", "extras"] }
+
+[[bin]]
+name = "generate_spec"
+path = "src/bin/generate_spec.rs"
+required-features = ["spec"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -18,6 +24,8 @@ default = ["guest"]
 client = []
 guest = []
 mock = ["guest", "sdk/mock"]
+spec = ["sdk/spec", "std", "client", "dep:xdrs"]
+std = ["sdk/std"]
 
 [dev-dependencies]
 simple_wallet = { path = ".", features = ["mock", "client"] }

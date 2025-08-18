@@ -13,6 +13,10 @@ serde = { workspace = true, features = ["derive"] }
 crate-type = ["cdylib", "rlib"]
 doctest = false
 
+[[bin]]
+name = "generate_spec"
+path = "src/bin/generate_spec.rs"
+
 [features]
 default = ["guest"]
 client = []
