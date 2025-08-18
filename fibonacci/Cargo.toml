@@ -8,16 +8,24 @@ edition = "2021"
 [dependencies]
 sdk = { workspace = true, features = ["storage"] }
 serde = { workspace = true, features = ["derive"] }
+xdrs = { git = "ssh://git@github.com/groundhogchain/xdrs.git", features = ["derive", "alloc", "extras", "int128_xdr"] }
 
 [lib]
 crate-type = ["cdylib", "rlib"]
 doctest = false
+
+[[bin]]
+name = "generate_spec"
+path = "src/bin/generate_spec.rs"
+required-features = ["spec"]
 
 [features]
 default = ["guest"]
 client = []
 guest = []
 mock = ["guest", "sdk/mock"]
+spec = ["sdk/spec", "std", "client"]
+std = ["sdk/std"]
 
 [dev-dependencies]
 fibonacci = { path = ".", features = ["mock", "client"] }
