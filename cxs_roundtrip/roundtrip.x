@@ -1,4 +1,4 @@
-namespace test {
+namespace cxs_test {
 
 struct Foo {
     unsigned int a;

@@ -14,6 +14,11 @@ name = "generate_spec"
 path = "src/bin/generate_spec.rs"
 required-features = ["spec"]
 
+[[bin]]
+name = "generate_types"
+path = "src/bin/generate_types.rs"
+required-features = ["spec"]
+
 [lib]
 crate-type = ["cdylib", "rlib"]
 doctest = false
