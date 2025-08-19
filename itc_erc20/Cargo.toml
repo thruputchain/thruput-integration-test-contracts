@@ -24,6 +24,7 @@ crate-type = ["cdylib", "rlib"]
 doctest = false
 
 [features]
+default = ["guest"]
 guest = []
 mock = ["guest", "std", "sdk/mock", "groundhog-erc20-if/mock"]
 logging = ["sdk/logging"]
