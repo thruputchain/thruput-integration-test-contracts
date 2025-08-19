@@ -7,8 +7,12 @@ edition = "2024"
 sdk = { workspace = true }
 serde = { workspace = true }
 groundhog-erc20-if = { workspace = true }
-thiserror = { workspace = true }
 xdrs = { workspace = true, features = ["derive"] }
+
+[[bin]]
+name = "generate_spec"
+path = "src/bin/generate_spec.rs"
+required-features = ["spec"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -16,8 +20,11 @@ doctest = false
 
 [features]
 guest = []
-mock = ["guest", "sdk/mock", "groundhog-erc20-if/mock"]
+mock = ["guest", "std", "sdk/mock", "groundhog-erc20-if/mock"]
 logging = ["sdk/logging"]
+spec = ["sdk/spec", "std", "groundhog-erc20-if/spec"]
+std = ["sdk/std", "groundhog-erc20-if/std"]
+
 
 [dev-dependencies]
 itc_erc20 = { path = ".", features = ["mock"] }

@@ -1,6 +1,6 @@
 //! ERC20 implementation without storage feature
 
-#![cfg_attr(not(feature = "mock"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std)]
 
 pub use groundhog_erc20_if as interface;
 
