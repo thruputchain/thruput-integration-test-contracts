@@ -4,6 +4,8 @@ use super::interface::*;
 use sdk::serialize::*;
 use sdk::*;
 
+use groundhog_erc20_if::ERC20Client;
+
 #[derive(Default, Debug, Serialize)]
 pub struct InitialTokenClaimContract {
     // This contract doesn't need persistent state
@@ -32,8 +34,8 @@ impl InitialTokenClaim for InitialTokenClaimContract {
         let contract_data_key = StorageKeyContractData::from(storage_key);
 
         // Load the allocation amount
-        let allocation: i128 =
-            non_negative_int_get(&contract_data_key).unwrap();
+        let allocation: u128 =
+            non_negative_int_get(&contract_data_key).unwrap() as u128;
 
         // Delete the storage key to prevent double-claiming
         // Convert StorageKey to StorageKeyContractData for the syscall
@@ -47,9 +49,12 @@ impl InitialTokenClaim for InitialTokenClaimContract {
         // Transfer tokens to the receiver via HOG token contract
         // TODO: Call the HOG token contract's transfer method
         // For now, we'll just log the transfer
+        let mut erc20_client = ERC20Client::new(&sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN);
+        erc20_client.transfer(&receiver_addr, allocation).unwrap();
+        
         sdk::log::log(
             &format!(
-                "Transferring {} tokens to {:?}",
+                "Transferred {} tokens to {:?}",
                 allocation, receiver_addr
             )
             .as_bytes(),
