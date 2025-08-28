@@ -1,7 +1,6 @@
 use groundhog_erc20_if::ERC20Error as Error;
 use std::env;
 use std::fs;
-use std::io::Write;
 use xdrs::xdr_repr::XDR;
 
 fn main() {
