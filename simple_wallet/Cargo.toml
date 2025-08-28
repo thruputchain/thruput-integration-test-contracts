@@ -9,6 +9,7 @@ edition = "2021"
 sdk = { workspace = true, features = ["storage"] }
 serde = { workspace = true, features = ["derive"] }
 xdrs = { workspace = true, optional = true, features = ["derive", "alloc", "extras"] }
+groundhog-erc1271-if = { workspace = true }
 
 [[bin]]
 name = "generate_spec"
