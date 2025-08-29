@@ -4,16 +4,16 @@ use crate::interface::CxsRoundtrip;
 use alloc::vec::Vec;
 use alloc::format;
 use xdrs::serialize_cxs;
-use xdrs::{ReadXDROwned, WriteXDR};
+use xdrs::{ReadXDR, WriteXDR};
 use sdk::*;
 
 #[derive(Default)]
 struct CxsRoundtripContract;
 
 
-fn roundtrip<T>(data: &[u8]) -> Vec<u8> 
+fn roundtrip<'a, T>(data: &'a[u8]) -> Vec<u8> 
 where
-    T: ReadXDROwned + WriteXDR + core::fmt::Debug,
+    T: ReadXDR<'a> + WriteXDR + core::fmt::Debug,
 {
     log(format!("roundtrip: {:02X?}", data).as_bytes()).unwrap();
     let parsed: T = serialize_cxs::decode(data).unwrap_or_else(|e| {
@@ -58,6 +58,8 @@ impl_roundtrip_methods! {
     roundtrip_error_xdr: sdk::contract_result::Error,
     roundtrip_contract_error_xdr: sdk::contract_result::ContractError,
     roundtrip_storage_err_xdr: sdk::storage::error::Error,
+    roundtrip_opaque_vector: Vec<u8>,
+    roundtrip_opaque_slice: &[u8],
 }
 
 

@@ -19,4 +19,6 @@ pub trait CxsRoundtrip {
     fn roundtrip_error_xdr(&self, data: &[u8]) -> Vec<u8>; // 13
     fn roundtrip_contract_error_xdr(&self, data: &[u8]) -> Vec<u8>;
     fn roundtrip_storage_err_xdr(&self, data: &[u8]) -> Vec<u8>;
+    fn roundtrip_opaque_vector(&self, data: &[u8]) -> Vec<u8>; // 14
+    fn roundtrip_opaque_slice(&self, data: &[u8]) -> Vec<u8>; // 15
 }
