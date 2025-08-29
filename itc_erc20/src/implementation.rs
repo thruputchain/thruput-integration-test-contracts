@@ -55,6 +55,7 @@ fn add_to_total_supply(diff: Difference) -> Result<()> {
 }
 
 fn add_to_balance(addr: &ContractAddress, diff: Difference) -> Result<()> {
+    // TODO(geoff): make this add instead of set_add (this force loads the base value)
     Ok(non_negative_int_add_default_zero(
         &get_balance_key(addr),
         diff,

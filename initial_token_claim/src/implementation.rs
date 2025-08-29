@@ -51,15 +51,7 @@ impl InitialTokenClaim for InitialTokenClaimContract {
         // For now, we'll just log the transfer
         let mut erc20_client = ERC20Client::new(&sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN);
         erc20_client.transfer(&receiver_addr, allocation).unwrap();
-        
-        sdk::log::log(
-            &format!(
-                "Transferred {} tokens to {:?}",
-                allocation, receiver_addr
-            )
-            .as_bytes(),
-        )
-        .unwrap();
+    
 
         // Deploy the contract using hash and nonce
         let mut deployed_addr = ContractAddress::default();
@@ -75,11 +67,6 @@ impl InitialTokenClaim for InitialTokenClaimContract {
             calldata,
             0,
             &mut return_len,
-        )
-        .unwrap();
-
-        sdk::log::log(
-            b"Successfully claimed initial tokens and deployed contract",
         )
         .unwrap();
     }
