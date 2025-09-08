@@ -10,7 +10,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         let key : StorageKeyContractData = static_key!("test");
         let res = bytestring_set(&key, b"test");
         if expect_error {
-            assert!(res.err().unwrap().is_code(SyscallErrorCode::kInvalidSyscallInput));
+            assert!(res.err().unwrap().is_code(SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput));
         } else {
             assert_eq!(res, Ok(()));
         }

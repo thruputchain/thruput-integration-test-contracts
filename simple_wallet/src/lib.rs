@@ -23,7 +23,12 @@ pub use implementation::guest_exports::*;
 pub use implementation::erc1271_exports::*;
 
 #[cfg(feature = "mock")]
-pub use implementation::test_setup;
+pub fn register(env : &mut ::sdk::TestEnvironment) -> ::sdk::types::Contract {
+    let mut contract = env.add_contract();
+    implementation::erc1271_test_setup::register_mock(&mut contract);
+    implementation::simple_wallet_test_setup::register_mock(&mut contract);
+    contract.as_contract()
+}
 
 #[cfg(test)]
 mod tests;

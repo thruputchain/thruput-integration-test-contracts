@@ -30,14 +30,14 @@ impl ManualRevertTest for ManualRevertTestContract {
         
         if should_revert {
 
-            let err : Result<(), ManualRevertTestError> = Err(SysErr::from(SyscallErrorCode::kInvalidSyscallInput).into());
+            let err : Result<(), ManualRevertTestError> = Err(SysErr::from(SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput).into());
             log(format!("err as {:?}", err).as_bytes()).unwrap();
             // When we return Err, the SDK's Returnable trait automatically:
             // 1. Calls force_revert() which returns true for Result::Err
             // 2. Triggers Return syscall with revert_frame=true
             // 3. Serializes error data and makes it available to parent
             // 4. Reverts state changes but commits transaction successfully
-            return Err(SysErr::from(SyscallErrorCode::kInvalidSyscallInput).into());
+            return Err(SysErr::from(SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput).into());
         }
         
         Ok(())
@@ -52,11 +52,11 @@ impl ManualRevertTest for ManualRevertTestContract {
         match error_type {
             1 => {
                 // Syscall error triggers manual revert
-                Err(SysErr::from(SyscallErrorCode::kStorageKeyNotExist).into())
+                Err(SysErr::from(SyscallErrorCode::kSyscallErrorCodeStorageKeyNotExist).into())
             },
             2 => {
                 // Different syscall error triggers manual revert
-                Err(SysErr::from(SyscallErrorCode::kInsufficientGasForInvocation).into())
+                Err(SysErr::from(SyscallErrorCode::kSyscallErrorCodeInsufficientGasForInvocation).into())
             },
             3 => {
                 // Custom contract error triggers manual revert
@@ -108,7 +108,7 @@ impl ManualRevertTest for ManualRevertTestContract {
         bytestring_set(&internal_key, b"internal_data")?;
         
         if should_revert {
-            return Err(SysErr::from(SyscallErrorCode::kCalldataParseError).into());
+            return Err(SysErr::from(SyscallErrorCode::kSyscallErrorCodeCalldataParseError).into());
         }
         
         Ok(())

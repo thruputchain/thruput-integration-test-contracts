@@ -13,7 +13,7 @@ pub struct SimpleWalletContract {
     owner: Ed25519PublicKey,
 }
 
-#[contract(exports = "erc1271_exports")]
+#[contract(exports = "erc1271_exports", test_setup = "erc1271_test_setup")]
 impl ERC1271 for SimpleWalletContract {
     fn is_valid_signature(&self, msg: &[u8], signature: &[u8]) -> Result<bool, sdk::contract_result::Error> {
         if signature.len() != 64 {
@@ -28,7 +28,7 @@ impl ERC1271 for SimpleWalletContract {
 // This implements the Fibonacci interface.  The `contract` macro provides
 // an exported entrypoint for each method; these will be placed in a
 // module with the specified name ("guest_exports").
-#[contract(exports = "guest_exports")]
+#[contract(exports = "guest_exports", test_setup = "simple_wallet_test_setup")]
 impl SimpleWallet for SimpleWalletContract {
     fn initialize(
         &mut self,
