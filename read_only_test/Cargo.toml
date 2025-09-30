@@ -8,7 +8,6 @@ edition = "2021"
 [dependencies]
 sdk = { workspace = true }
 groundhog_xdr = { workspace = true, features = ["xdrs"]}
-serde = { workspace = true, features = ["derive"] }
 xdrs = { workspace = true, features = ["alloc", "xdr_common"] }
 
 [[bin]]

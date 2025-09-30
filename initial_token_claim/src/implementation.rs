@@ -1,12 +1,11 @@
 //! Implementation of Initial Token Claim contract
 
 use super::interface::*;
-use sdk::serialize::*;
 use sdk::*;
 
 use groundhog_erc20_if::ERC20Client;
 
-#[derive(Default, Debug, Serialize)]
+#[derive(Default, Debug)]
 pub struct InitialTokenClaimContract {
     // This contract doesn't need persistent state
 }
