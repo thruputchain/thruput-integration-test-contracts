@@ -2,13 +2,12 @@
 
 use super::interface::*;
 use sdk::*;
-use sdk::serialize::*;
 use sdk::crypto::verify_signature_ed25519;
 
 use groundhog_erc1271_if::ERC1271;
 use sdk::contract_result::caller_error;
 
-#[derive(Storage, Debug, Serialize)]
+#[storage]
 pub struct SimpleWalletContract {
     owner: Ed25519PublicKey,
 }

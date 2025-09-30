@@ -9,7 +9,7 @@ edition = "2021"
 sdk = { workspace = true, features = ["storage"] }
 serde = { workspace = true, features = ["derive"] }
 fibonacci = { path = "../fibonacci", features = ["client"] }
-xdrs = { workspace = true, optional = true, features = ["derive", "alloc", "extras", "int128_xdr"] }
+xdrs = { workspace = true, features = ["derive", "alloc", "extras", "int128_xdr"] }
 
 
 [[bin]]
@@ -26,7 +26,7 @@ default = ["guest"]
 client = []
 guest = []
 mock = ["guest", "sdk/mock", "fibonacci/mock"]
-spec = ["sdk/spec", "std", "client", "dep:xdrs"]
+spec = ["sdk/spec", "std", "client"]
 std = ["sdk/std", "fibonacci/std"]
 
 [dev-dependencies]

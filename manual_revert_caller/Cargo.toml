@@ -15,7 +15,7 @@ required-features = ["spec"]
 sdk = { workspace = true, features = ["storage", "logging"] }
 serde = { workspace = true, features = ["derive"] }
 manual_revert_test = { path = "../manual_revert_test", features = ["client"] }
-xdrs = { workspace = true, optional = true, features = ["derive", "alloc", "extras"] }
+xdrs = { workspace = true, features = ["derive", "alloc", "extras"] }
 
 [dev-dependencies]
 manual_revert_caller = { path = ".", features = ["mock", "client"] }
@@ -25,5 +25,5 @@ default = ["guest"]
 client = []
 guest = []
 mock = ["guest", "sdk/mock", "manual_revert_test/mock"]
-spec = ["sdk/spec", "std", "client", "dep:xdrs"]
+spec = ["sdk/spec", "std", "client"]
 std = ["sdk/std", "manual_revert_test/std"]

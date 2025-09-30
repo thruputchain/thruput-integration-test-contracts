@@ -1,5 +1,4 @@
 use sdk::*;
-use sdk::serialize::*;
 use alloc::format;
 use crate::interface::*;
 use manual_revert_test::Client as ManualRevertTestClient;
@@ -20,7 +19,7 @@ use manual_revert_test::Client as ManualRevertTestClient;
 // 4. Complex nested scenarios work correctly
 //
 
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[storage]
 pub struct ManualRevertCallerContract {
     target_address: ContractAddress,
 }

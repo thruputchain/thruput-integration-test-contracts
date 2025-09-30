@@ -2,10 +2,8 @@
 
 use super::interface::*;
 use sdk::*;
-use sdk::serialize::*;
 
-
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[storage]
 pub struct FibonacciContractCaller {
     address: ContractAddress,
 }
