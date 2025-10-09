@@ -12,7 +12,7 @@ fn test_sha256_wrapper() {
     let test_contract = implementation::test_setup::register(&mut env);
     let contract_hash = env.setup_create_contract(&test_contract);
 
-    sdk::TestEnvironment::enable_syscall_logging();
+    // sdk::TestEnvironment::enable_syscall_logging();
 
     let mut handler = env.prepare_test(move || -> () {
         let nonce = SHA256Hash::from([7; 32]);

@@ -42,7 +42,7 @@ impl SimpleWallet for SimpleWalletContract {
             trap();
         }
 
-        let res = sdk::serialize::decode_xdr(&invocation_bytes);
+        let res = xdrs::serialize_txs::decode(&invocation_bytes);
         let (addr, entrypoint, gas_limit, calldata) : (ContractAddress, ContractEntrypointID, u64, &[u8]) = res.unwrap();
 
         let mut return_len = 0;
