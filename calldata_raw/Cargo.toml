@@ -2,11 +2,11 @@ cargo-features = ["trim-paths", "profile-rustflags"] #unstable
 
 [package]
 name = "calldata_raw"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 
 [dependencies]
-sdk = { workspace = true }
+sdk = { workspace = true, features = ["alloc"] }
 
 [lib]
 crate-type = ["cdylib", "rlib"]
