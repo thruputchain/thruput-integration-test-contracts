@@ -25,6 +25,7 @@ alloc = []
 xdrs = []
 spec = ["sdk/spec", "std", "client"]
 std = ["sdk/std"]
+logging = ["sdk/logging"]
 
 [dev-dependencies]
 manual_revert_test = { path = ".", features = ["mock", "client"] }

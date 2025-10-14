@@ -28,6 +28,7 @@ alloc = []
 xdrs = []
 spec = ["sdk/spec", "std", "client"]
 std = ["sdk/std"]
+logging = ["sdk/logging"]
 
 [dev-dependencies]
 txs_roundtrip = { path = ".", features = ["mock", "client"] }

@@ -1,8 +1,8 @@
 use itc_erc20 as erc20;
 
+use erc20::interface::ERC20Error;
 use erc20::test_setup;
 use erc20::ERC20Client;
-use erc20::interface::ERC20Error;
 use sdk::*;
 
 #[test]
@@ -20,8 +20,7 @@ fn check() {
         let deployed_addr = deploy_contract(&nonce, &contract_hash).unwrap();
         let mut client = ERC20Client::new(&deployed_addr);
 
-        check_inner(&mut client).unwrap_or_else(|e|
-            panic!("test failed: {e}"))
+        check_inner(&mut client).unwrap_or_else(|e| panic!("test failed: {e}"))
     });
 
     let res = handler.root_invoke();

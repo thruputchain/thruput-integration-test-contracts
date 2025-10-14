@@ -1,17 +1,16 @@
 //! An implementation of Fibonacci
 
 use crate::interface::TxsRoundtrip;
-use alloc::vec::Vec;
 use alloc::format;
+use alloc::vec::Vec;
+use sdk::*;
 use xdrs::serialize_txs;
 use xdrs::{ReadXDR, WriteXDR};
-use sdk::*;
 
 #[derive(Default)]
 struct TxsRoundtripContract;
 
-
-fn roundtrip<'a, T>(data: &'a[u8]) -> Vec<u8> 
+fn roundtrip<'a, T>(data: &'a [u8]) -> Vec<u8>
 where
     T: ReadXDR<'a> + WriteXDR + core::fmt::Debug,
 {
@@ -62,10 +61,7 @@ impl_roundtrip_methods! {
     roundtrip_opaque_slice: &[u8],
 }
 
-
-
 #[unsafe(export_name = "FFFFFFFFFFFFFFFF")]
 pub extern "C" fn startup_null() -> () {
     ()
 }
-

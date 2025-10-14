@@ -30,6 +30,9 @@ impl FibonacciCaller for FibonacciContractCaller {
 
     fn call_fibonacci_expect_out_of_gas(&mut self, n: u32, gas_limit: u64) {
         let mut client = fibonacci::Client::new(&self.address);
-        client.with_gas_limit(gas_limit).slow_fibonacci(n).unwrap_err();
+        client
+            .with_gas_limit(gas_limit)
+            .slow_fibonacci(n)
+            .unwrap_err();
     }
 }

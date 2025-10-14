@@ -26,6 +26,7 @@ guest = []
 mock = ["guest", "sdk/mock"]
 spec = ["sdk/spec", "std", "client"]
 std = ["sdk/std"]
+logging = ["sdk/logging"]
 
 [dev-dependencies]
 simple_wallet = { path = ".", features = ["mock", "client"] }

@@ -1,5 +1,5 @@
-use sdk::*;
 use alloc::vec::Vec;
+use sdk::*;
 
 #[contract(client = Client)]
 pub trait CxsRoundtrip {

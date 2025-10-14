@@ -26,6 +26,7 @@ guest = []
 mock = ["guest", "sdk/mock", "std"]
 std = ["sdk/std"]
 spec = ["std", "sdk/spec", "client", "dep:xdrs"]
+logging = ["sdk/logging"]
 
 [dev-dependencies]
 initial_token_claim = { path = ".", features = ["mock", "client"] }

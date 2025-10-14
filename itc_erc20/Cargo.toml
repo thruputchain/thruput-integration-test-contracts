@@ -26,9 +26,9 @@ doctest = false
 default = ["guest"]
 guest = []
 mock = ["guest", "std", "sdk/mock", "groundhog-erc20-if/mock"]
-logging = ["sdk/logging"]
 spec = ["sdk/spec", "std", "groundhog-erc20-if/spec"]
 std = ["sdk/std", "groundhog-erc20-if/std"]
+logging = ["sdk/logging"]
 
 
 [dev-dependencies]

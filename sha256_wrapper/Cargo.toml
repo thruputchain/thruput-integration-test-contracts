@@ -17,6 +17,7 @@ default = ["guest"]
 client = []
 guest = []
 mock = ["guest", "sdk/mock"]
+logging = ["sdk/logging"]
 
 [dev-dependencies]
 sha256_wrapper = { path = ".", features = ["mock", "client"] }

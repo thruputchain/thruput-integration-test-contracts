@@ -17,6 +17,7 @@ default = ["guest"]
 client = []
 guest = []
 mock = ["guest", "sdk/mock"]
+logging = ["sdk/logging"]
 
 [dev-dependencies]
 delegate_call_test = { path = ".", features = ["mock", "client"] } 

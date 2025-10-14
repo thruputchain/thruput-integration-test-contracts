@@ -1,7 +1,7 @@
 use crate::implementation;
 use crate::Client;
-use sdk::*;
 pub use sdk::contract_result::Result;
+use sdk::*;
 use std::vec;
 
 #[test]
@@ -27,7 +27,7 @@ fn test_calldata_wrapper() {
 fn test_calldata_wrapper_inner(
     contract_hash: &sdk::types::SHA256Hash,
 ) -> Result<()> {
-    let nonce = SHA256Hash::from([7; 32]); 
+    let nonce = SHA256Hash::from([7; 32]);
     let deployed_addr = deploy_contract(&nonce, contract_hash)?;
 
     let mut client = Client::new(&deployed_addr);

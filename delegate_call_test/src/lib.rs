@@ -1,6 +1,6 @@
 #![no_std]
 
-#[cfg(feature="mock")]
+#[cfg(feature = "mock")]
 extern crate std;
 
 extern crate alloc;
@@ -24,4 +24,4 @@ pub use implementation::guest_exports::*;
 pub use implementation::test_setup;
 
 #[cfg(test)]
-mod tests; 
+mod tests;

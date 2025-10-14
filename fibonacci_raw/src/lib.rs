@@ -3,7 +3,7 @@
 #[allow(unused_imports)]
 use sdk::*;
 
-pub fn fibonacci_slow(count: u32) -> u32{
+pub fn fibonacci_slow(count: u32) -> u32 {
     if count == 0 {
         return 0;
     }
@@ -47,8 +47,3 @@ pub extern "C" fn fibonacci_slow_raw_25() -> () {
 pub extern "C" fn startup_null() -> () {
     ()
 }
-
-
-
-
-

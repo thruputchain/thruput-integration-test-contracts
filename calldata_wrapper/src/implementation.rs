@@ -22,4 +22,3 @@ impl CalldataWrapper for CalldataWrapperContract {
 pub extern "C" fn startup_null() -> () {
     ()
 }
-

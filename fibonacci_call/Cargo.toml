@@ -26,6 +26,7 @@ guest = []
 mock = ["guest", "sdk/mock", "fibonacci/mock"]
 spec = ["sdk/spec", "std", "client"]
 std = ["sdk/std", "fibonacci/std"]
+logging = ["sdk/logging"]
 
 [dev-dependencies]
 fibonacci_call = { path = ".", features = ["mock", "client"] }
