@@ -58,6 +58,8 @@ impl InitialTokenClaim for InitialTokenClaimContract {
 
         // Call the initialize entrypoint with provided calldata
         let method_id = u64::from_be_bytes(method.into_inner());
+
+        sdk::log(format!("Deployed contract address: {:?}", deployed_addr).as_bytes()).unwrap();
         let mut return_len = 0;
         sdk::sys::raw_Invoke(
             &deployed_addr,
@@ -68,5 +70,7 @@ impl InitialTokenClaim for InitialTokenClaimContract {
             &mut return_len,
         )
         .unwrap();
+
+        sdk::log(format!("End ITC").as_bytes()).unwrap();
     }
 }
