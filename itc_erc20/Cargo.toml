@@ -29,7 +29,7 @@ guest = []
 mock = ["guest", "std", "sdk/mock", "groundhog-erc20-if/mock"]
 spec = ["sdk/spec", "std", "groundhog-erc20-if/spec"]
 std = ["sdk/std", "groundhog-erc20-if/std"]
-logging = ["sdk/logging"]
+logging = ["sdk/logging", "alloc"]
 
 
 [dev-dependencies]
