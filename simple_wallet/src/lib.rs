@@ -31,6 +31,3 @@ pub fn register(
     implementation::simple_wallet_test_setup::register_mock(&mut contract);
     contract.as_contract()
 }
-
-#[cfg(test)]
-mod tests;

@@ -25,3 +25,8 @@ pub use implementation::test_setup;
 
 #[cfg(all(test, feature = "mock"))]
 mod tests;
+
+#[cfg(feature = "bottle-test")]
+mod bottle_test;
+#[cfg(feature = "bottle-test")]
+pub use bottle_test::*;

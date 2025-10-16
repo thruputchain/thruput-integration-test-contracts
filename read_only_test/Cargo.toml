@@ -10,6 +10,9 @@ sdk = { workspace = true, features = ["alloc"] }
 groundhog_xdr = { workspace = true, features = ["xdrs"]}
 xdrs = { workspace = true, features = ["alloc", "xdr_common"] }
 
+# Optional
+bottle-test-if = { workspace = true, optional = true }
+
 [[bin]]
 name = "generate_spec_read_only_test"
 path = "src/bin/generate_spec.rs"
@@ -29,6 +32,7 @@ xdrs = []
 spec = ["sdk/spec", "std", "client"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
+bottle-test = ["dep:bottle-test-if", "client"]
 
 [dev-dependencies]
 read_only_test = { path = ".", features = ["mock", "client"] }

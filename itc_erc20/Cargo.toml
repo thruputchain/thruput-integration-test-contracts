@@ -8,6 +8,9 @@ sdk = { workspace = true }
 groundhog-erc20-if = { workspace = true }
 xdrs = { workspace = true, features = ["derive"] }
 
+# Optional testing dependencies
+erc20-bottle-test = { workspace = true, optional = true }
+
 [[bin]]
 name = "generate_spec_itc_erc20"
 path = "src/bin/generate_spec.rs"
@@ -23,14 +26,12 @@ crate-type = ["cdylib", "rlib"]
 doctest = false
 
 [features]
-default = ["guest"]
-alloc = ["sdk/alloc"]
 guest = []
 mock = ["guest", "std", "sdk/mock", "groundhog-erc20-if/mock"]
 spec = ["sdk/spec", "std", "groundhog-erc20-if/spec"]
 std = ["sdk/std", "groundhog-erc20-if/std"]
-logging = ["sdk/logging", "alloc"]
-
+logging = ["sdk/logging"]
+bottle-test = ["dep:erc20-bottle-test"]
 
 [dev-dependencies]
 itc_erc20 = { path = ".", features = ["mock"] }

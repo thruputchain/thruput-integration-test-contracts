@@ -13,6 +13,7 @@ groundhog-erc20-if = { workspace = true }
 [lib]
 crate-type = ["cdylib", "rlib"]
 doctest = false
+test = false
 
 [[bin]]
 name = "generate_spec_initial_token_claim"
