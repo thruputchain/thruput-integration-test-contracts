@@ -9,6 +9,9 @@ edition = "2021"
 sdk = { workspace = true, features = ["storage"] }
 xdrs = { workspace = true, features = ["derive", "alloc", "extras", "int128_xdr"] }
 
+# Optional
+bottle-test-if = { workspace = true, optional = true }
+
 [lib]
 crate-type = ["cdylib", "rlib"]
 doctest = false
@@ -26,6 +29,7 @@ mock = ["guest", "sdk/mock"]
 spec = ["sdk/spec", "std", "client"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
+bottle-test = ["dep:bottle-test-if", "client"]
 
 [dev-dependencies]
 fibonacci = { path = ".", features = ["mock", "client"] }
