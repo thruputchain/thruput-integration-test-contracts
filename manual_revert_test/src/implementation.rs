@@ -20,8 +20,8 @@ struct ManualRevertTestContract;
 
 #[contract(exports = "guest_exports", storage = "false", err_type = ManualRevertTestError)]
 impl ManualRevertTest for ManualRevertTestContract {
-    /// Test basic manual revert functionality
-    /// Demonstrates how the Returnable trait automatically triggers manual revert on Err
+    // Test basic manual revert functionality
+    // Demonstrates how the Returnable trait automatically triggers manual revert on Err
     fn test_basic_manual_revert(
         &self,
         should_revert: bool,
@@ -51,7 +51,7 @@ impl ManualRevertTest for ManualRevertTestContract {
         Ok(())
     }
 
-    /// Test manual revert with different error types
+    // Test manual revert with different error types
     fn test_error_type_revert(
         &self,
         error_type: u32,
@@ -84,7 +84,7 @@ impl ManualRevertTest for ManualRevertTestContract {
         }
     }
 
-    /// Test nested calls with manual revert
+    // Test nested calls with manual revert
     fn test_nested_manual_revert(
         &self,
         child_should_revert: bool,
@@ -97,7 +97,7 @@ impl ManualRevertTest for ManualRevertTestContract {
         self.internal_revert_method(child_should_revert)
     }
 
-    /// Test storage operations with manual revert
+    // Test storage operations with manual revert
     fn test_storage_manual_revert(
         &self,
         should_revert: bool,
@@ -119,7 +119,7 @@ impl ManualRevertTest for ManualRevertTestContract {
         Ok(())
     }
 
-    /// Internal method for nested testing - manually reverts with data
+    // Internal method for nested testing - manually reverts with data
     fn internal_revert_method(
         &self,
         should_revert: bool,
@@ -139,7 +139,7 @@ impl ManualRevertTest for ManualRevertTestContract {
         Ok(())
     }
 
-    /// Check if storage was actually reverted - returns true if key exists
+    // Check if storage was actually reverted - returns true if key exists
     fn check_storage_exists(&self) -> Result<bool, ManualRevertTestError> {
         let test_key: StorageKeyContractData =
             static_key!("test_basic_revert");
