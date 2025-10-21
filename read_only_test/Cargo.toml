@@ -6,9 +6,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sdk = { workspace = true, features = ["alloc"] }
+sdk = { workspace = true, features = ["storage"] }
 groundhog_xdr = { workspace = true, features = ["xdrs"]}
-xdrs = { workspace = true, features = ["alloc", "xdr_common"] }
+xdrs = { workspace = true, features = ["alloc", "xdr_common", "derive"] }
 
 # Optional
 bottle-test-if = { workspace = true, optional = true }

@@ -6,7 +6,8 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-sdk = { workspace = true, features = ["alloc"] }
+sdk = { workspace = true, features = ["storage"] }
+xdrs = { workspace = true, features = ["derive"] }
 
 # Optional
 bottle-test-if = { workspace = true, optional = true }
