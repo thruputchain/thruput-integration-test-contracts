@@ -11,7 +11,7 @@ xdrs = { workspace = true, features = ["derive", "alloc", "extras"] }
 groundhog-erc1271-if = { workspace = true }
 
 [[bin]]
-name = "generate_spec"
+name = "generate_spec_simple_wallet"
 path = "src/bin/generate_spec.rs"
 required-features = ["spec"]
 
@@ -23,10 +23,11 @@ doctest = false
 default = ["guest"]
 client = []
 guest = []
-mock = ["guest", "sdk/mock"]
-spec = ["sdk/spec", "std", "client"]
-std = ["sdk/std"]
+mock = ["guest", "sdk/mock", "sdk/std", "groundhog-erc1271-if/mock"]
+spec = ["sdk/spec", "std", "client", "groundhog-erc1271-if/spec"]
+std = ["sdk/std", "groundhog-erc1271-if/std"]
 logging = ["sdk/logging"]
+
 
 [dev-dependencies]
 simple_wallet = { path = ".", features = ["mock", "client"] }

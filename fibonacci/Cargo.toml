@@ -14,7 +14,7 @@ crate-type = ["cdylib", "rlib"]
 doctest = false
 
 [[bin]]
-name = "generate_spec"
+name = "generate_spec_fibonacci"
 path = "src/bin/generate_spec.rs"
 required-features = ["spec"]
 

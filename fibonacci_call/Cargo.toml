@@ -11,7 +11,7 @@ fibonacci = { path = "../fibonacci", features = ["client"] }
 xdrs = { workspace = true, features = ["derive", "alloc", "extras", "int128_xdr"] }
 
 [[bin]]
-name = "generate_spec"
+name = "generate_spec_fibonacci_call"
 path = "src/bin/generate_spec.rs"
 required-features = ["spec"]
 
