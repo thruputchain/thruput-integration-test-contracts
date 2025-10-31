@@ -6,9 +6,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sdk = { workspace = true, features = ["alloc"] }
+sdk = { workspace = true, features = ["storage"] }
 groundhog_xdr = { workspace = true, features = ["xdrs"]}
-xdrs = { workspace = true, features = ["alloc", "xdr_common"] }
+xdrs = { workspace = true, features = ["alloc", "xdr_common", "derive"] }
+
+# Optional
+bottle-test-if = { workspace = true, optional = true }
 
 [[bin]]
 name = "generate_spec_read_only_test"
@@ -29,6 +32,7 @@ xdrs = []
 spec = ["sdk/spec", "std", "client"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
+bottle-test = ["dep:bottle-test-if", "client"]
 
 [dev-dependencies]
 read_only_test = { path = ".", features = ["mock", "client"] }

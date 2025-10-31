@@ -7,6 +7,11 @@ edition = "2021"
 
 [dependencies]
 sdk = { workspace = true, features = ["storage"] }
+xdrs = { workspace = true, features = ["derive"] }
+
+# Optional
+bottle-test-if = { workspace = true, optional = true }
+sha2 = { workspace = true, optional = true }
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -18,7 +23,8 @@ client = []
 guest = []
 mock = ["guest", "sdk/mock"]
 logging = ["sdk/logging"]
+bottle-test = ["dep:bottle-test-if", "client", "dep:sha2"]
 
 [dev-dependencies]
 sha256_wrapper = { path = ".", features = ["mock", "client"] }
-sha2 = "0.10"
+sha2 = { workspace = true }
