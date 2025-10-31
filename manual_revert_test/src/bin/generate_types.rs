@@ -1,9 +1,8 @@
 use manual_revert_test::interface::ManualRevertTestError as Error;
+use sdk::spec::HasSpecification;
 use std::env;
 use std::fs;
 use xdrs::xdr_repr::XDR;
-use sdk::spec::HasSpecification;
-
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -31,7 +30,8 @@ fn main() {
     output.push_str(&format!("{}", sdk::storage::error::StorageError::spec()));
 
     output.push_str(&format!("{}", sdk::sysresult::ErrorMsg::def()));
-    output.push_str(&format!("{}", sdk::contract_result::ContractError::spec()));
+    output
+        .push_str(&format!("{}", sdk::contract_result::ContractError::spec()));
 
     output.push_str(&format!("{}", Error::spec()));
 
