@@ -56,7 +56,7 @@ impl_roundtrip_methods! {
     roundtrip_u32: u32,
     roundtrip_error_xdr: sdk::contract_result::Error,
     roundtrip_contract_error_xdr: sdk::contract_result::ContractError,
-    roundtrip_storage_err_xdr: sdk::storage::error::Error,
+    roundtrip_storage_err_xdr: sdk::storage::error::StorageError,
     roundtrip_opaque_vector: Vec<u8>,
     roundtrip_opaque_slice: &[u8],
 }
