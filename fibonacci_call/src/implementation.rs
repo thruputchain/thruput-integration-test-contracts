@@ -19,6 +19,7 @@ impl FibonacciContractCaller {
 // module with the specified name ("guest_exports").
 #[contract(exports = "guest_exports")]
 impl FibonacciCaller for FibonacciContractCaller {
+    #[init]
     fn initialize(&mut self, address: &ContractAddress) {
         self.address = *address;
     }

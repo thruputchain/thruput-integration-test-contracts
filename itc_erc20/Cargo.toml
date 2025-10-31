@@ -28,10 +28,11 @@ doctest = false
 [features]
 guest = []
 mock = ["guest", "std", "sdk/mock", "groundhog-erc20-if/mock"]
-spec = ["sdk/spec", "std", "groundhog-erc20-if/spec"]
+spec = ["sdk/spec", "std", "groundhog-erc20-if/spec", "sdk/alloc"]
 std = ["sdk/std", "groundhog-erc20-if/std"]
-logging = ["sdk/logging"]
+logging = ["sdk/logging", "sdk/alloc", "alloc"]
 bottle-test = ["dep:erc20-bottle-test"]
+alloc = []
 
 [dev-dependencies]
 itc_erc20 = { path = ".", features = ["mock"] }

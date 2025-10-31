@@ -19,6 +19,11 @@ name = "generate_spec_cxs_roundtrip"
 path = "src/bin/generate_spec.rs"
 required-features = ["spec"]
 
+[[bin]]
+name = "generate_types_cxs_roundtrip"
+path = "src/bin/generate_types.rs"
+required-features = ["spec"]
+
 [features]
 default = ["guest", "alloc", "xdrs"]
 client = []

@@ -27,8 +27,7 @@ impl ManualRevertTest for ManualRevertTestContract {
         should_revert: bool,
     ) -> Result<(), ManualRevertTestError> {
         // Write some state first
-        let test_key: StorageKeyContractData =
-            static_key!("test_basic_revert");
+        let test_key: StorageKeyContractData = static_key!("test_basic_revert");
         bytestring_set(&test_key, b"state_before_revert").unwrap();
 
         if should_revert {
@@ -141,8 +140,7 @@ impl ManualRevertTest for ManualRevertTestContract {
 
     // Check if storage was actually reverted - returns true if key exists
     fn check_storage_exists(&self) -> Result<bool, ManualRevertTestError> {
-        let test_key: StorageKeyContractData =
-            static_key!("test_basic_revert");
+        let test_key: StorageKeyContractData = static_key!("test_basic_revert");
         let res = bytestring_get(&test_key).is_ok();
         Ok(res)
     }

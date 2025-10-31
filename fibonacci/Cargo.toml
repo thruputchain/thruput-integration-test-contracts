@@ -26,10 +26,11 @@ default = ["guest"]
 client = []
 guest = []
 mock = ["guest", "sdk/mock"]
-spec = ["sdk/spec", "std", "client"]
+spec = ["sdk/spec", "std", "client", "sdk/alloc"]
 std = ["sdk/std"]
-logging = ["sdk/logging"]
+logging = ["sdk/logging", "sdk/alloc", "alloc"]
 bottle-test = ["dep:bottle-test-if", "client"]
+alloc = []
 
 [dev-dependencies]
 fibonacci = { path = ".", features = ["mock", "client"] }
