@@ -33,6 +33,7 @@ impl ERC1271 for SimpleWalletContract {
 // module with the specified name ("guest_exports").
 #[contract(exports = "guest_exports", test_setup = "simple_wallet_test_setup")]
 impl SimpleWallet for SimpleWalletContract {
+    #[init]
     fn initialize(&mut self, owner: &Ed25519PublicKey) {
         self.owner = owner.clone();
     }

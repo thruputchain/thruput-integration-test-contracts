@@ -6,6 +6,10 @@ pub use groundhog_erc20_if as interface;
 
 pub use interface::ERC20Client;
 
+// This is required if the logging feature is enabled
+#[cfg(feature = "alloc")]
+extern crate alloc;
+
 // An implementation of the contract interface
 #[cfg(feature = "guest")]
 mod implementation;
