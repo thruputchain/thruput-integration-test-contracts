@@ -9,7 +9,8 @@ groundhog-erc20-if = { workspace = true }
 xdrs = { workspace = true, features = ["derive"] }
 
 # Optional testing dependencies
-erc20-bottle-test = { workspace = true, optional = true }
+erc20-bottle-test = { workspace = true, optional = true, features = ["no_check_aborts"] }
+erc20-native-test = { workspace = true, optional = true, features = ["no_check_aborts"] }
 
 [[bin]]
 name = "generate_spec_itc_erc20"
@@ -27,12 +28,16 @@ doctest = false
 
 [features]
 guest = []
-mock = ["guest", "std", "sdk/mock", "groundhog-erc20-if/mock"]
+mock = ["guest", "std", "sdk/mock", "groundhog-erc20-if/mock", "dep:erc20-native-test"]
 spec = ["sdk/spec", "std", "groundhog-erc20-if/spec", "sdk/alloc"]
 std = ["sdk/std", "groundhog-erc20-if/std"]
 logging = ["sdk/logging", "sdk/alloc", "alloc"]
 bottle-test = ["dep:erc20-bottle-test"]
 alloc = []
+
+# Use checked nnint operations to fail before commit.  With this enabled,
+# the "no_check_aborts" test feature may be omitted.
+checked = []
 
 [dev-dependencies]
 itc_erc20 = { path = ".", features = ["mock"] }
