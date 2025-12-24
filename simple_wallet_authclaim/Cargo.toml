@@ -1,0 +1,33 @@
+cargo-features = ["trim-paths", "profile-rustflags"] #unstable
+
+[package]
+name = "simple_wallet_authclaim"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sdk = { workspace = true }
+xdrs = { workspace = true, features = ["derive", "alloc", "extras"] }
+
+[[bin]]
+name = "generate_spec_simple_wallet_authclaim"
+path = "src/bin/generate_spec.rs"
+required-features = ["spec"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+test = false
+
+[features]
+default = ["guest"]
+client = []
+guest = []
+mock = ["guest", "sdk/mock", "sdk/std"]
+spec = ["sdk/spec", "std", "client"]
+std = ["sdk/std"]
+logging = ["sdk/logging"]
+
+
+[dev-dependencies]
+simple_wallet_authclaim = { path = ".", features = ["mock", "client"] }
