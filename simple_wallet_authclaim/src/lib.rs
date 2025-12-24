@@ -3,10 +3,11 @@
 #[cfg(feature = "mock")]
 extern crate std;
 
-extern crate alloc;
-
 // A trait describing the contract interface
 pub mod interface;
+
+#[cfg(feature="alloc")]
+extern crate alloc;
 
 // A client stub that provides the interface via cross-contract calls
 #[cfg(feature = "client")]
