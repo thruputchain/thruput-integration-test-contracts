@@ -1,0 +1,26 @@
+[package]
+name = "nocontract_wallet"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+doctest = false
+test = false
+
+[dependencies]
+sdk = { workspace = true }
+xdrs = { workspace = true }
+
+[[bin]]
+name = "generate_spec_nocontract_wallet"
+path = "src/bin/generate_spec.rs"
+required-features = ["spec"]
+
+[features]
+default = ["client"]
+client = []
+guest = []
+spec = ["sdk/spec", "std", "client"]
+std = ["sdk/std"]
+logging = ["sdk/logging", "std"]
