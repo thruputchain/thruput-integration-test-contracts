@@ -1,8 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[cfg(feature = "mock")]
+#[cfg(feature = "std")]
 extern crate std;
-
 
 // A trait describing the contract interface
 pub mod interface;
