@@ -1,0 +1,33 @@
+cargo-features = ["trim-paths", "profile-rustflags"] #unstable
+
+[package]
+name = "htlc"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sdk = { workspace = true , features = ["storage"] }
+xdrs = { workspace = true, features = ["derive", "extras", "int128_xdr"] }
+groundhog-erc20-if = { workspace = true }
+
+[[bin]]
+name = "generate_spec_htlc"
+path = "src/bin/generate_spec.rs"
+required-features = ["spec"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+
+[features]
+default = ["guest"]
+client = []
+guest = []
+mock = ["guest", "sdk/mock", "std"]
+spec = ["sdk/spec", "std", "client"]
+std = ["sdk/std"]
+logging = ["sdk/logging"]
+
+[dev-dependencies]
+htlc = { path = ".", features = ["mock", "client"] }
+
