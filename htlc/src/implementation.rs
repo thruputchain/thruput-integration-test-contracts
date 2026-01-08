@@ -70,7 +70,11 @@ impl HTLC for HTLCContract {
             expiration_height: expiration_height.clone(),
         };
 
-        self.htlcs.set(hash, &htlc).unwrap();
+        let mut token_client = htlc.token_client();
+        let self_address = sdk::get_current_address().unwrap();
+        token_client.transfer_from(&htlc.sender, &self_address, htlc.amount as u128).unwrap();
+
+        self.htlcs.set_exclusive(hash, &htlc).unwrap();
     }
 
     fn claim_htlc(&mut self, 
