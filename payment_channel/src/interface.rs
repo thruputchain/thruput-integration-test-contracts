@@ -3,6 +3,9 @@ use xdrs::{ReadXDR, WriteXDR};
 
 pub use sdk::contract_result::*;
 
+#[cfg(feature = "spec")]
+use xdrs::XDR;
+
 // Payment Channel Contract Interface
 //
 // This contract implements Lightning-style payment channels. Two parties can:
@@ -17,7 +20,9 @@ pub use sdk::contract_result::*;
 
 // The state that both parties sign for off-chain updates and on-chain close/dispute.
 // This struct is serialized to XDR format before signing.
+// TODO: Add derive(xdrs::xdr_repr::XDR) once xdrs properly exports it
 #[derive(Clone, Debug, PartialEq, ReadXDR, WriteXDR)]
+#[cfg_attr(feature = "spec", derive(XDR))]
 pub struct ChannelState {
     pub channel_id: u64,
     pub balance_a: i128,

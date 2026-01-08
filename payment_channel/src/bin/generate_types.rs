@@ -1,6 +1,12 @@
 use std::env;
 use std::fs;
 
+use xdrs::xdr_repr::XDR;
+
+// TODO: Once xdrs properly exports xdr_repr::XDR with the spec feature,
+// switch to using: use payment_channel::ChannelState;
+// and output.push_str(&format!("{}", ChannelState::def()));
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -22,17 +28,10 @@ fn main() {
         output.push_str(&format!("namespace {} {{\n\n", ns));
     }
 
-    // Manually define ChannelState XDR struct
-    // This matches the Rust struct in interface.rs
-    output.push_str(
-        r#"struct ChannelState {
-    uint64 channel_id;
-    int128 balance_a;
-    int128 balance_b;
-    uint64 nonce;
-};
-"#,
-    );
+    // ChannelState XDR struct - must match the Rust struct in interface.rs
+    // The field order and types must be identical for signature compatibility
+
+    output.push_str(&format!("{}", payment_channel::ChannelState::def()));
 
     if namespace.is_some() {
         output.push_str("\n\n} // namespace\n");

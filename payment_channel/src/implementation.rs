@@ -10,10 +10,9 @@ use xdrs::WriteXDR;
 
 // Payment Channel Contract
 //
-// IMPORTANT: Token deposits require that the caller first transfer tokens to this contract
-// before calling open_channel, join_channel, or deposit. This follows the same pattern
-// as the HTLC contract. The contract holds tokens in its balance and distributes them
-// on finalization.
+// Token deposits are handled via ERC20 transfer_from. Callers must first approve
+// this contract to spend their tokens before calling open_channel, join_channel,
+// or deposit. The contract pulls tokens atomically during these operations.
 //
 // Channel states:
 // - Open: Channel is active, parties can deposit and exchange off-chain state updates
@@ -125,11 +124,6 @@ impl PaymentChannel for PaymentChannelContract {
             ])
         };
 
-        // Check channel doesn't already exist
-        if self.channels.try_get(&channel_id).unwrap().is_some() {
-            panic!("Channel already exists (use different salt)");
-        }
-
         let channel = Channel {
             party_a_pubkey: party_a_pubkey.clone(),
             party_a_dest: party_a_dest.clone(),
@@ -150,7 +144,15 @@ impl PaymentChannel for PaymentChannelContract {
             dispute_deadline: 0,
         };
 
-        self.channels.set(&channel_id, &channel).unwrap();
+        // Transfer tokens from caller to this contract
+        let mut token_client = channel.token_client();
+        let self_address = sdk::get_current_address().unwrap();
+        token_client
+            .transfer_from(&party_a_dest, &self_address, amount as u128)
+            .unwrap();
+
+        // Atomically create channel (fails if already exists)
+        self.channels.set_exclusive(&channel_id, &channel).unwrap();
 
         channel_id
     }
@@ -162,6 +164,14 @@ impl PaymentChannel for PaymentChannelContract {
 
         assert!(!channel.joined, "Channel already joined");
         assert!(!channel.is_closing(), "Channel is closing");
+
+        // Transfer tokens from caller (party B) to this contract
+        let caller = sdk::get_caller().unwrap();
+        let mut token_client = channel.token_client();
+        let self_address = sdk::get_current_address().unwrap();
+        token_client
+            .transfer_from(&caller, &self_address, amount as u128)
+            .unwrap();
 
         channel.deposit_b = amount;
         channel.joined = true;
@@ -178,8 +188,14 @@ impl PaymentChannel for PaymentChannelContract {
         assert!(!channel.is_closing(), "Channel is closing");
 
         // Determine which party is depositing based on caller
-        // For simplicity, we'll require the caller to be one of the destination addresses
         let caller = sdk::get_caller().unwrap();
+
+        // Transfer tokens from caller to this contract
+        let mut token_client = channel.token_client();
+        let self_address = sdk::get_current_address().unwrap();
+        token_client
+            .transfer_from(&caller, &self_address, amount as u128)
+            .unwrap();
 
         if caller == channel.party_a_dest {
             channel.deposit_a += amount;
