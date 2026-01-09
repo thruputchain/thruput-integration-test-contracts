@@ -39,8 +39,6 @@ pub trait PaymentChannel {
     // Open a new channel. The caller deposits `amount` tokens.
     // Returns the channel ID (derived deterministically from params).
     //
-    // IMPORTANT: Caller must first transfer `amount` tokens to this contract.
-    //
     // party_a_pubkey: Public key for signing state updates (caller's key)
     // party_b_pubkey: Public key of the counterparty
     // party_b_dest: Where party B's funds go on close

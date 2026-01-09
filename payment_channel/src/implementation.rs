@@ -201,7 +201,7 @@ impl PaymentChannel for PaymentChannelContract {
             panic!("Caller is not a channel party");
         }
 
-        self.channels.set(&channel_id, &channel).unwrap();
+        self.channels.set_exclusive(&channel_id, &channel).unwrap();
     }
 
     fn close_channel(
@@ -254,6 +254,7 @@ impl PaymentChannel for PaymentChannelContract {
         channel.submitted_nonce = nonce;
         channel.dispute_deadline = get_block_height() + channel.dispute_period as i64;
 
+        // shared write is ok here: multiple closes in the same block are idempotent
         self.channels.set(&channel_id, &channel).unwrap();
     }
 
@@ -307,11 +308,15 @@ impl PaymentChannel for PaymentChannelContract {
             "Invalid signature from party B"
         );
 
-        // Update to the newer state (but don't extend dispute deadline)
+        // Update to the newer state
         channel.submitted_balance_a = balance_a;
         channel.submitted_balance_b = balance_b;
         channel.submitted_nonce = nonce;
+        // We have to bump the dispute deadline; otherwise someone could DOS the dispute by submitting
+        // one nonce per block, if the dispute period << number of nonces (for a long lived channel)
+        channel.dispute_deadline = get_block_height() + channel.dispute_period as i64;
 
+        // shared write is ok here: multiple disputes (of the same nonce) in the same block are idempotent
         self.channels.set(&channel_id, &channel).unwrap();
     }
 
