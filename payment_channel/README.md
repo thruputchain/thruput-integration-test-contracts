@@ -104,7 +104,7 @@ During the dispute period, either party can challenge with a newer state (higher
 dispute(channel_id, balance_a, balance_b, higher_nonce, sig_a, sig_b)
 ```
 
-This updates the final balances but doesn't extend the dispute deadline.
+This updates the final balance and extends the dispute deadline.
 
 ### 6. Finalizing
 
