@@ -83,11 +83,7 @@ fn serialize_state(state: &ChannelState) -> sdk::Vec<u8> {
 #[contract(exports = "guest_exports")]
 impl PaymentChannel for PaymentChannelContract {
     #[init]
-    fn initialize(&mut self) -> () {
-        self.default_dispute_period = 100; // Default: 100 blocks
-    }
-
-    fn set_dispute_period(&mut self, dispute_period: u64) -> () {
+    fn initialize(&mut self, dispute_period: u64) -> () {
         assert!(dispute_period > 0, "Dispute period must be positive");
         self.default_dispute_period = dispute_period;
     }
