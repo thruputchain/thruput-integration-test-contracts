@@ -172,7 +172,8 @@ impl PaymentChannel for PaymentChannelContract {
         channel.deposit_b = amount;
         channel.joined = true;
 
-        self.channels.set(&channel_id, &channel).unwrap();
+        // Must be exclusive; cannot allow two joins in the same block, or else funds will be lost
+        self.channels.set_exclusive(&channel_id, &channel).unwrap();
     }
 
     fn deposit(&mut self, channel_id: u64, amount: i128) -> () {
