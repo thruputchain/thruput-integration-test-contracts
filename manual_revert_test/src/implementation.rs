@@ -69,7 +69,7 @@ impl ManualRevertTest for ManualRevertTestContract {
             }
             2 => {
                 // Different syscall error triggers manual revert
-                Err(SysErr::from(SyscallErrorCode::kSyscallErrorCodeInsufficientGasForInvocation).into())
+                Err(SysErr::from(SyscallErrorCode::kSyscallErrorCodeFault).into())
             }
             3 => {
                 // Custom contract error triggers manual revert
@@ -130,7 +130,7 @@ impl ManualRevertTest for ManualRevertTestContract {
 
         if should_revert {
             return Err(SysErr::from(
-                SyscallErrorCode::kSyscallErrorCodeCalldataParseError,
+                SyscallErrorCode::kSyscallErrorCodeNoReturnBufferAvailable,
             )
             .into());
         }
