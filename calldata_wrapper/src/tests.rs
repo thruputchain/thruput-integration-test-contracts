@@ -21,7 +21,7 @@ fn test_calldata_wrapper() {
     });
 
     let res = handler.root_invoke();
-    assert_eq!(res.result.panic, sdk::InvokeErrorCode::kInvokeNone as i32);
+    assert_eq!(res.status, sdk::InvokeErrorCode::kInvokeNone);
 }
 
 fn test_calldata_wrapper_inner(

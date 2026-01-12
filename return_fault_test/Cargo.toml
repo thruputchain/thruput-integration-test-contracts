@@ -1,0 +1,31 @@
+cargo-features = ["trim-paths", "profile-rustflags"] #unstable
+
+[package]
+name = "return_fault_test"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sdk = { workspace = true }
+
+[[bin]]
+name = "generate_spec_return_fault_test"
+path = "src/bin/generate_spec.rs"
+required-features = ["spec"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+
+[features]
+default = ["guest"]
+client = []
+guest = ["client"] # needs client of self
+mock = ["guest", "sdk/mock", "std"]
+spec = ["sdk/spec", "std", "client"]
+std = ["sdk/std"]
+logging = ["sdk/logging"]
+
+[dev-dependencies]
+return_fault_test = { path = ".", features = ["mock", "client"] }
+

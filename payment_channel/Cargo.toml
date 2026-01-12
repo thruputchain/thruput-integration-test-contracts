@@ -1,0 +1,37 @@
+cargo-features = ["trim-paths", "profile-rustflags"] #unstable
+
+[package]
+name = "payment_channel"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sdk = { workspace = true , features = ["storage"] }
+xdrs = { workspace = true, features = ["derive", "extras", "int128_xdr"] }
+groundhog-erc20-if = { workspace = true }
+
+[[bin]]
+name = "generate_spec_payment_channel"
+path = "src/bin/generate_spec.rs"
+required-features = ["spec"]
+
+[[bin]]
+name = "generate_types_payment_channel"
+path = "src/bin/generate_types.rs"
+required-features = ["spec"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+
+[features]
+default = ["guest"]
+client = []
+guest = []
+mock = ["guest", "sdk/mock", "std"]
+spec = ["sdk/spec", "std", "client"]
+std = ["sdk/std"]
+logging = ["sdk/logging"]
+
+[dev-dependencies]
+payment_channel = { path = ".", features = ["mock", "client"] }
