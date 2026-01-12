@@ -2,6 +2,7 @@
 
 use super::interface::Fibonacci;
 use sdk::*;
+use sdk::NonceConfig;
 
 #[derive(Default)]
 struct FibonacciContract;
@@ -30,6 +31,13 @@ impl Fibonacci for FibonacciContract {
             return 1;
         }
         self.slow_fibonacci(n - 1) + self.slow_fibonacci(n - 2)
+    }
+
+    fn change_nonce_config(&self, required_weight: u32) {
+        sdk::set_nonce_config(NonceConfig{
+            accepted_keys: 0x01,
+            required_weight: required_weight,
+        }).unwrap();
     }
 }
 
