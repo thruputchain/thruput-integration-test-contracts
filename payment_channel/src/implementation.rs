@@ -5,7 +5,7 @@ use sdk::*;
 
 use groundhog_erc20_if::ERC20Client;
 
-use xdrs::serialize_cxs;
+use xdrs::cxs::encode as encode_xdr;
 use xdrs::WriteXDR;
 
 // Payment Channel Contract
@@ -77,7 +77,7 @@ fn get_block_height() -> BlockHeight {
 
 // Serialize ChannelState to bytes for signing
 fn serialize_state(state: &ChannelState) -> sdk::Vec<u8> {
-    serialize_cxs::encode(state).unwrap()
+    encode_xdr(state).unwrap()
 }
 
 #[contract(exports = "guest_exports")]

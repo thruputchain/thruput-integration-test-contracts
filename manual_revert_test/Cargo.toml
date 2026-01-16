@@ -12,7 +12,7 @@ test = false
 sdk = { workspace = true , features = ["storage", "logging"] }
 thiserror = { version = "2.0.10", default-features = false }
 xdrs = { workspace = true }
-groundhog_xdr = { workspace = true }
+groundhog-xdr = { workspace = true }
 
 [[bin]]
 name = "generate_spec_manual_revert_test"
