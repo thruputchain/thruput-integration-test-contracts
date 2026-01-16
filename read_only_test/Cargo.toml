@@ -6,7 +6,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sdk = { workspace = true, features = ["storage"] }
+sdk = { workspace = true, features = ["storage", "single-threaded"] }
 groundhog-xdr = { workspace = true, features = ["xdrs"]}
 xdrs = { workspace = true, features = ["alloc", "xdr_common", "derive"] }
 

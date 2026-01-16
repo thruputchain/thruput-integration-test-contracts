@@ -6,7 +6,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sdk = { workspace = true }
+sdk = { workspace = true, features = ["single-threaded"] }
 
 [[bin]]
 name = "generate_spec_return_fault_test"
