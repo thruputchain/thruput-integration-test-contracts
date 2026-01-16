@@ -4,7 +4,7 @@ use crate::interface::CxsRoundtrip;
 use alloc::format;
 use alloc::vec::Vec;
 use sdk::*;
-use xdrs::serialize_cxs;
+use xdrs::cxs;
 use xdrs::{ReadXDR, WriteXDR};
 
 #[derive(Default)]
@@ -15,12 +15,12 @@ where
     T: ReadXDR<'a> + WriteXDR + core::fmt::Debug,
 {
     log(format!("roundtrip: {:02X?}", data).as_bytes()).unwrap();
-    let parsed: T = serialize_cxs::decode(data).unwrap_or_else(|e| {
+    let parsed: T = cxs::decode(data).unwrap_or_else(|e| {
         log(format!("decode error: {:?}", e).as_bytes()).unwrap();
         panic!("decode error")
     });
     log(format!("parsed as {:?}", parsed).as_bytes()).unwrap();
-    let out = serialize_cxs::encode(&parsed).unwrap();
+    let out = cxs::encode(&parsed).unwrap();
     log(format!("out: {:02X?}", out).as_bytes()).unwrap();
     out
 }

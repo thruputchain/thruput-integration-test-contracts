@@ -22,7 +22,7 @@ fn test_fibonacci() {
     });
 
     let res = handler.root_invoke();
-    assert_eq!(res.result.panic, sdk::InvokeErrorCode::kInvokeNone as i32);
+    assert_eq!(res.status, InvokeErrorCode::kInvokeNone);
 }
 
 fn test_fibonacci_inner(client: &mut Client) -> InvokeResult<()> {
