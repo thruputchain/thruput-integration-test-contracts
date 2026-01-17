@@ -23,7 +23,7 @@ impl BottleTest for BT {
         let target_addr = self.target_addr.as_ref().unwrap_or_else(||
             panic!("bottle-test: target_addr unset; please run setup() before run()"));
 
-        let mut return_len = 0;
+        let mut return_len : core::mem::MaybeUninit<u32> = core::mem::MaybeUninit::uninit();
 
         let flag: i32 = transaction::InvokeFlag::kInvokeFlagReadOnly as i32;
 
