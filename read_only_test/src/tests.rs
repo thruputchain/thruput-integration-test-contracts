@@ -28,7 +28,7 @@ fn test_read_only_bytestring_set_inner(
     let nonce = SHA256Hash::from([7; 32]);
     let deployed_addr = deploy_contract(&nonce, contract_hash)?;
 
-    let mut return_len = 0;
+    let mut return_len: core::mem::MaybeUninit<u32> = core::mem::MaybeUninit::uninit();
 
     let flag: i32 =
         groundhog_xdr::transaction::InvokeFlag::kInvokeFlagReadOnly as i32;
