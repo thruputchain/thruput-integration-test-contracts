@@ -9,7 +9,7 @@ doctest = false
 test = false
 
 [dependencies]
-sdk = { workspace = true , features = ["storage", "logging", "single-threaded"] }
+sdk = { workspace = true , features = ["storage", "logging"] }
 thiserror = { version = "2.0.10", default-features = false }
 xdrs = { workspace = true }
 groundhog-xdr = { workspace = true }

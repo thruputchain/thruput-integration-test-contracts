@@ -6,7 +6,7 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-sdk = { workspace = true, features = ["storage", "single-threaded"] }
+sdk = { workspace = true, features = ["storage"] }
 xdrs = { workspace = true, features = ["derive"] }
 
 # Optional

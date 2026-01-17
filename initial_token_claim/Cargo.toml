@@ -6,7 +6,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sdk = { workspace = true, features = ["alloc", "single-threaded"] }
+sdk = { workspace = true, features = ["alloc"] }
 xdrs = { workspace = true, optional = true, features = ["derive", "alloc", "extras", "int128_xdr"] }
 groundhog-erc20-if = { workspace = true }
 

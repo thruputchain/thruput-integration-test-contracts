@@ -4,7 +4,7 @@ version = "0.1.1"
 edition = "2024"
 
 [dependencies]
-sdk = { workspace = true, features = ["single-threaded"] }
+sdk = { workspace = true }
 groundhog-erc20-if = { workspace = true }
 xdrs = { workspace = true, features = ["derive"] }
 

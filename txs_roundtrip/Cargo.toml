@@ -6,7 +6,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sdk = { workspace = true, features = ["storage", "single-threaded"] }
+sdk = { workspace = true, features = ["storage"] }
 xdrs = { workspace = true, features = ["derive", "alloc", "extras", "int128_xdr", "xdr_common"] }
 xdr_common = { workspace = true, features = ["alloc"] }
 
