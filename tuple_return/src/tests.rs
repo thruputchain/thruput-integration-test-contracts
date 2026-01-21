@@ -1,0 +1,33 @@
+use crate::implementation;
+use crate::Client;
+use sdk::*;
+
+#[test]
+fn test_tuple_return() {
+    let mut env = sdk::TestEnvironment::new();
+
+    let test_contract = implementation::test_setup::register(&mut env);
+    let contract_hash = env.setup_create_contract(&test_contract);
+
+    // sdk::TestEnvironment::enable_syscall_logging();
+
+    let mut handler = env.prepare_test(move || -> () {
+        let nonce = SHA256Hash::from([7; 32]);
+        let deployed_addr = deploy_contract(&nonce, &contract_hash).unwrap();
+        let mut client = Client::new(&deployed_addr);
+        match test_tuple_return_inner(&mut client) {
+            Ok(_) => (),
+            Err(error) => panic!("test failed: {}", error),
+        }
+    });
+
+    let res = handler.root_invoke();
+    assert_eq!(res.status, InvokeErrorCode::kInvokeNone);
+}
+
+fn test_tuple_return_inner(client: &mut Client) -> InvokeResult<()> {
+    assert_eq!(client.call1(0)?, (1, 2));
+    assert_eq!(client.call2(0)?, (3, (4, 5)));
+
+    Ok(())
+}

@@ -1,0 +1,32 @@
+cargo-features = ["trim-paths", "profile-rustflags"] #unstable
+
+[package]
+name = "tuple_return"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sdk = { workspace = true, features = ["storage"] }
+xdrs = { workspace = true, features = ["derive", "alloc", "extras", "int128_xdr"] }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+
+[[bin]]
+name = "generate_spec_tuple_return"
+path = "src/bin/generate_spec.rs"
+required-features = ["spec"]
+
+[features]
+default = ["guest"]
+client = []
+guest = []
+mock = ["guest", "sdk/mock"]
+spec = ["sdk/spec", "std", "client", "sdk/alloc"]
+std = ["sdk/std"]
+logging = ["sdk/logging", "sdk/alloc", "alloc"]
+alloc = []
+
+[dev-dependencies]
+tuple_return = { path = ".", features = ["mock", "client"] }
