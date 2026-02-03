@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 sdk = { workspace = true }
-xdrs = { workspace = true, features = ["derive", "extras"] }
+xdrs = { workspace = true, features = ["derive"] }
 
 [[bin]]
 name = "generate_spec_simple_wallet_authclaim"

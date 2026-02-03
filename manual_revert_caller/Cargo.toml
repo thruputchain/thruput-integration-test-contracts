@@ -16,7 +16,7 @@ required-features = ["spec"]
 [dependencies]
 sdk = { workspace = true, features = ["storage", "logging"] }
 manual_revert_test = { path = "../manual_revert_test", features = ["client"] }
-xdrs = { workspace = true, features = ["derive", "alloc", "extras"] }
+xdrs = { workspace = true, features = ["derive", "alloc"] }
 
 [dev-dependencies]
 manual_revert_caller = { path = ".", features = ["mock", "client"] }
