@@ -1,7 +1,6 @@
 use super::interface::*;
 use sdk::*;
 
-pub use sdk::contract_result::*;
 use sdk::storage::Map;
 
 use groundhog_erc20_if::ERC20Client;

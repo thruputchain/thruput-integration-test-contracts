@@ -1,9 +1,6 @@
 use super::interface::*;
 use sdk::*;
 
-pub use sdk::contract_result::*;
-pub use sdk::auth_claim::*;
-
 #[derive(Default)]
 pub struct AuthClaimTestContract;
 
