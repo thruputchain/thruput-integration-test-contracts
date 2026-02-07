@@ -1,5 +1,3 @@
-cargo-features = ["trim-paths", "profile-rustflags"] #unstable
-
 [package]
 name = "sha256_raw"
 version = "0.1.0"

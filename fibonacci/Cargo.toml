@@ -1,4 +1,4 @@
-cargo-features = ["trim-paths", "profile-rustflags"] #unstable
+#cargo-features = ["trim-paths", "profile-rustflags"] #unstable
 
 [package]
 name = "fibonacci"
