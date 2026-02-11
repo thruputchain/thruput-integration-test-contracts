@@ -6,7 +6,7 @@ use std::vec;
 
 #[test]
 fn test_calldata_wrapper() {
-    let mut env = sdk::TestEnvironment::new();
+    let mut env = sdk::TestEnvironment::new(None);
 
     let test_contract = implementation::test_setup::register(&mut env);
     let contract_hash = env.setup_create_contract(&test_contract);

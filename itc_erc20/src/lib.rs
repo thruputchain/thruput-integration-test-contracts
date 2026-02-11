@@ -20,6 +20,3 @@ pub use implementation::*;
 
 #[cfg(feature = "mock")]
 pub use implementation::test_setup;
-
-#[cfg(feature = "bottle-test")]
-pub use erc20_bottle_test::*;
