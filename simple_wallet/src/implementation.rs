@@ -12,7 +12,7 @@ pub struct SimpleWalletContract {
     owner: Ed25519PublicKey,
 }
 
-#[contract(exports = "erc1271_exports", test_setup = "erc1271_test_setup")]
+#[contract(exports = "erc1271_exports", test_setup = "erc1271_test_setup", version = "0.1.0")]
 impl ERC1271 for SimpleWalletContract {
     fn is_valid_signature(
         &self,
