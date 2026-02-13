@@ -17,6 +17,11 @@ sha2 = { workspace = true, optional = true }
 crate-type = ["cdylib", "rlib"]
 doctest = false
 
+[[bin]]
+name = "generate_spec_sha256_wrapper"
+path = "src/bin/generate_spec.rs"
+required-features = ["spec"]
+
 [features]
 default = ["guest"]
 client = []
@@ -24,6 +29,7 @@ guest = []
 mock = ["guest", "sdk/mock"]
 logging = ["sdk/logging"]
 bottle-test = ["dep:bottle-test-if", "client", "dep:sha2"]
+spec = ["sdk/spec"]
 
 [dev-dependencies]
 sha256_wrapper = { path = ".", features = ["mock", "client"] }
