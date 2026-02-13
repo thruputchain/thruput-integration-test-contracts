@@ -26,7 +26,7 @@ impl NoSyscallTest for NoSyscallTestContract {
 
     fn run_test(&self, syscall: u64) {
         let res = unsafe { syscall_wrapper_impl(syscall, 0, 0, 0, 0, 0, 0, 0) };
-        if res != 0 {
+        if res != SyscallErrorCode::kSyscallErrorCodeNoSyscall as i32 {
             panic!("syscall {} failed", syscall);
         }
     }
