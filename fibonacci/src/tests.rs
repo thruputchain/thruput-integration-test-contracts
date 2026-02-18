@@ -1,7 +1,7 @@
 use crate::implementation;
 use crate::Client;
 use sdk::*;
-
+use sdk::transaction::InvocationFrameStatusCode;
 #[test]
 fn test_fibonacci() {
     let mut env = sdk::TestEnvironment::new(None);
@@ -22,7 +22,7 @@ fn test_fibonacci() {
     });
 
     let res = handler.root_invoke();
-    assert_eq!(res.status, InvokeErrorCode::kInvokeNone);
+    assert_eq!(res.output.status_code(), InvocationFrameStatusCode::kInvocationFrameStatusCodeReturn as i32);
 }
 
 fn test_fibonacci_inner(client: &mut Client) -> InvokeResult<()> {

@@ -2,6 +2,7 @@ use crate::implementation;
 use crate::Client;
 use sdk::*;
 use sha2::{Digest, Sha256};
+use sdk::transaction::InvocationFrameStatusCode;
 
 use std::vec;
 
@@ -25,7 +26,7 @@ fn test_sha256_wrapper() {
     });
 
     let res = handler.root_invoke();
-    assert_eq!(res.status, sdk::InvokeErrorCode::kInvokeNone);
+    assert_eq!(res.output.status_code(), InvocationFrameStatusCode::kInvocationFrameStatusCodeReturn as i32);
 }
 
 fn test_sha256_wrapper_inner(client: &mut Client) -> InvokeResult<()> {

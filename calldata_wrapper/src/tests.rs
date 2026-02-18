@@ -2,6 +2,7 @@ use crate::implementation;
 use crate::Client;
 pub use sdk::contract_result::Result;
 use sdk::*;
+use sdk::transaction::InvocationFrameStatusCode;
 use std::vec;
 
 #[test]
@@ -21,7 +22,7 @@ fn test_calldata_wrapper() {
     });
 
     let res = handler.root_invoke();
-    assert_eq!(res.status, sdk::InvokeErrorCode::kInvokeNone);
+    assert_eq!(res.output.status_code(), InvocationFrameStatusCode::kInvocationFrameStatusCodeReturn as i32);
 }
 
 fn test_calldata_wrapper_inner(

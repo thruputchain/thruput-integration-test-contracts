@@ -1,6 +1,7 @@
 use crate::implementation;
 use crate::interface::*;
 use sdk::*;
+use sdk::transaction::InvocationFrameStatusCode;
 
 #[test]
 fn test_read_only_bytestring_set() {
@@ -19,7 +20,7 @@ fn test_read_only_bytestring_set() {
     });
 
     let res = handler.root_invoke();
-    assert_eq!(res.status, sdk::InvokeErrorCode::kInvokeNone);
+    assert_eq!(res.output.status_code(), InvocationFrameStatusCode::kInvocationFrameStatusCodeReturn as i32);
 }
 
 fn test_read_only_bytestring_set_inner(
