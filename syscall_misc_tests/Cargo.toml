@@ -1,0 +1,35 @@
+
+[package]
+name = "syscall_misc_tests"
+version = "0.2.0"
+edition = "2021"
+
+[dependencies]
+sdk = { workspace = true, features = ["storage"] }
+xdrs = { workspace = true, features = ["derive"] }
+groundhog-xdr = { workspace = true, features = ["xdrs", "syscalls"] }
+
+# Optional
+bottle-test-if = { workspace = true, optional = true }
+sha2 = { workspace = true, optional = true }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+
+[[bin]]
+name = "generate_spec_syscall_misc_tests"
+path = "src/bin/generate_spec.rs"
+required-features = ["spec"]
+
+[features]
+default = ["guest"]
+client = []
+guest = []
+mock = ["guest", "sdk/mock"]
+logging = ["sdk/logging"]
+spec = ["sdk/spec"]
+
+[dev-dependencies]
+syscall_misc_tests = { path = ".", features = ["mock", "client"] }
+sha2 = { workspace = true }
