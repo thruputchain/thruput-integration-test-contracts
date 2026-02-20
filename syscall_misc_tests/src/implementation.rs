@@ -473,9 +473,8 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let entrypoint =
             u64::from_be_bytes(INTERNAL_RETURN_TOO_LONG_EXPORT_NUM.into_inner());
 
-        // Use limited gas so the inner frame doesn't consume the parent's gas budget
         let res = groundhog_xdr::syscalls::raw_Invoke(
-            &addr, entrypoint, 10_000_000, &[], 0, &mut return_buffer_len,
+            &addr, entrypoint, u64::MAX, &[], 0, &mut return_buffer_len,
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeDeterministicWasm);
 
