@@ -18,4 +18,17 @@ impl ReadOnlyTest for ReadOnlyTestContract {
             assert_eq!(res, Ok(()));
         }
     }
+
+    fn read_only_log_event(&self, expect_error: bool) {
+        let data = b"test event";
+        let res = groundhog_xdr::syscalls::raw_LogEvent(None, None, None, data);
+        sdk::debug_log!("log_event res: {:?}", res);
+        if expect_error {
+            assert!(res.err().unwrap().is_code(
+                SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput
+            ));
+        } else {
+            assert_eq!(res, Ok(()));
+        }
+    }
 }
