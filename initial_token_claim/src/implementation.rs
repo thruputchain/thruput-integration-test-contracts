@@ -29,7 +29,7 @@ impl InitialTokenClaim for InitialTokenClaimContract {
         key_data.extend_from_slice(nonce.as_ref());
         key_data.extend_from_slice(&entrypoint.into_inner());
         key_data.extend_from_slice(calldata);
-        let storage_key = sdk::crypto::sha_256(&key_data).unwrap();
+        let storage_key = sdk::crypto::sha256(&key_data);
         let contract_data_key = StorageKeyContractData::from(storage_key);
 
         // Load the allocation amount

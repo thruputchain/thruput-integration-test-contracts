@@ -82,7 +82,7 @@ impl HTLC for HTLCContract {
             panic!("HTLC expired");
         }
 
-        if sdk::crypto::sha256(preimage) != *hash {
+        if sdk::crypto::sha256(preimage.as_ref()) != *hash {
             panic!("Invalid preimage");
         }
 

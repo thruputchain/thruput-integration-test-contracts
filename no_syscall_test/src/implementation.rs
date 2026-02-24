@@ -1,8 +1,6 @@
 use super::interface::*;
 use sdk::*;
 
-pub use sdk::contract_result::*;
-
 #[derive(Default)]
 pub struct NoSyscallTestContract;
 

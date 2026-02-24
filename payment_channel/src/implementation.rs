@@ -238,11 +238,11 @@ impl PaymentChannel for PaymentChannelContract {
 
         // Verify signatures
         assert!(
-            verify_signature_ed25519(&channel.party_a_pubkey, sig_a, &msg).is_ok(),
+            verify_signature_ed25519(&channel.party_a_pubkey, sig_a, &msg),
             "Invalid signature from party A"
         );
         assert!(
-            verify_signature_ed25519(&channel.party_b_pubkey, sig_b, &msg).is_ok(),
+            verify_signature_ed25519(&channel.party_b_pubkey, sig_b, &msg),
             "Invalid signature from party B"
         );
 
@@ -298,11 +298,11 @@ impl PaymentChannel for PaymentChannelContract {
 
         // Verify signatures
         assert!(
-            verify_signature_ed25519(&channel.party_a_pubkey, sig_a, &msg).is_ok(),
+            verify_signature_ed25519(&channel.party_a_pubkey, sig_a, &msg),
             "Invalid signature from party A"
         );
         assert!(
-            verify_signature_ed25519(&channel.party_b_pubkey, sig_b, &msg).is_ok(),
+            verify_signature_ed25519(&channel.party_b_pubkey, sig_b, &msg),
             "Invalid signature from party B"
         );
 

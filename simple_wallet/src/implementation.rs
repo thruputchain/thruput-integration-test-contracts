@@ -24,7 +24,7 @@ impl ERC1271 for SimpleWalletContract {
 
         let signature = Ed25519Signature::new(signature.try_into().unwrap());
 
-        verify_signature_ed25519(&self.owner, &signature, &msg).is_ok()
+        verify_signature_ed25519(&self.owner, &signature, &msg)
     }
 }
 

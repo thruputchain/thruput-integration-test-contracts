@@ -18,7 +18,6 @@ impl Ed25519VerifyWrapper for Ed25519VerifyWrapperContract {
         public_key: &Ed25519PublicKey,
     ) -> bool {
         sdk::crypto::verify_signature_ed25519(public_key, signature, &message)
-            .is_ok()
     }
 
     fn ed25519_verify_repeated(

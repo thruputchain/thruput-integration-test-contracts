@@ -12,7 +12,7 @@ pub struct Sha256WrapperContract;
 #[contract(storage = "false")]
 impl Sha256Wrapper for Sha256WrapperContract {
     fn sha256(&self, data: &[u8]) -> SHA256Hash {
-        sdk::crypto::sha_256(data).unwrap()
+        sdk::crypto::sha256(data)
     }
 
     fn sha256_repeated(&self, n: u32, data: &[u8]) {
