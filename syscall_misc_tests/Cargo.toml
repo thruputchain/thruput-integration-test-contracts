@@ -23,13 +23,9 @@ path = "src/bin/generate_spec.rs"
 required-features = ["spec"]
 
 [features]
-default = ["guest"]
-client = []
-guest = []
-mock = ["guest", "sdk/mock"]
-logging = ["sdk/logging"]
+dev = ["sdk/dev"]
 spec = ["sdk/spec"]
 
 [dev-dependencies]
-syscall_misc_tests = { path = ".", features = ["mock", "client"] }
+syscall_misc_tests = { path = ".", features = ["dev"] }
 sha2 = { workspace = true }

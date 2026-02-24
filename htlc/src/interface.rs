@@ -1,7 +1,5 @@
 use sdk::*;
 
-pub use sdk::contract_result::*;
-
 #[contract(client = Client)]
 pub trait HTLC {
 
@@ -23,4 +21,3 @@ pub trait HTLC {
     fn refund_htlc(&mut self, 
         hash: &SHA256Hash) -> ();
 }
-

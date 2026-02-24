@@ -80,10 +80,10 @@ fn serialize_state(state: &ChannelState) -> sdk::Vec<u8> {
     encode_xdr(state).unwrap()
 }
 
-#[contract(exports = "guest_exports")]
+#[contract]
 impl PaymentChannel for PaymentChannelContract {
     #[init]
-    fn initialize(&mut self, dispute_period: u64) -> () {
+    fn initialize(&mut self, dispute_period: u64) {
         assert!(dispute_period > 0, "Dispute period must be positive");
         self.default_dispute_period = dispute_period;
     }
@@ -102,7 +102,7 @@ impl PaymentChannel for PaymentChannelContract {
         assert!(dispute_period > 0, "Dispute period must be set");
 
         // Get caller as party_a_dest
-        let party_a_dest = sdk::get_caller().unwrap();
+        let party_a_dest = sdk::get_caller();
 
         // Generate deterministic channel_id from inputs
         // This avoids contention when multiple channels are opened in the same block
@@ -142,13 +142,12 @@ impl PaymentChannel for PaymentChannelContract {
 
         // Transfer tokens from caller to this contract
         let mut token_client = channel.token_client();
-        let self_address = sdk::get_current_address().unwrap();
+        let self_address = sdk::get_current_address();
         token_client
-            .transfer_from(&party_a_dest, &self_address, amount as u128)
-            .unwrap();
+            .transfer_from(&party_a_dest, &self_address, amount as u128);
 
         // Atomically create channel (fails if already exists)
-        self.channels.set_exclusive(&channel_id, &channel).unwrap();
+        self.channels.set_exclusive(&channel_id, &channel);
 
         channel_id
     }
@@ -156,43 +155,41 @@ impl PaymentChannel for PaymentChannelContract {
     fn join_channel(&mut self, channel_id: u64, amount: i128) -> () {
         assert!(amount > 0, "Deposit must be positive");
 
-        let mut channel = self.channels.get(&channel_id).unwrap();
+        let mut channel = self.channels.get(&channel_id);
 
         assert!(!channel.joined, "Channel already joined");
         assert!(!channel.is_closing(), "Channel is closing");
 
         // Transfer tokens from caller (party B) to this contract
-        let caller = sdk::get_caller().unwrap();
+        let caller = sdk::get_caller();
         let mut token_client = channel.token_client();
-        let self_address = sdk::get_current_address().unwrap();
+        let self_address = sdk::get_current_address();
         token_client
-            .transfer_from(&caller, &self_address, amount as u128)
-            .unwrap();
+            .transfer_from(&caller, &self_address, amount as u128);
 
         channel.deposit_b = amount;
         channel.joined = true;
 
         // Must be exclusive; cannot allow two joins in the same block, or else funds will be lost
-        self.channels.set_exclusive(&channel_id, &channel).unwrap();
+        self.channels.set_exclusive(&channel_id, &channel);
     }
 
-    fn deposit(&mut self, channel_id: u64, amount: i128) -> () {
+    fn deposit(&mut self, channel_id: u64, amount: i128) {
         assert!(amount > 0, "Deposit must be positive");
 
-        let mut channel = self.channels.get(&channel_id).unwrap();
+        let mut channel = self.channels.get(&channel_id);
 
         assert!(channel.joined, "Channel not yet joined");
         assert!(!channel.is_closing(), "Channel is closing");
 
         // Determine which party is depositing based on caller
-        let caller = sdk::get_caller().unwrap();
+        let caller = sdk::get_caller();
 
         // Transfer tokens from caller to this contract
         let mut token_client = channel.token_client();
-        let self_address = sdk::get_current_address().unwrap();
+        let self_address = sdk::get_current_address();
         token_client
-            .transfer_from(&caller, &self_address, amount as u128)
-            .unwrap();
+            .transfer_from(&caller, &self_address, amount as u128);
 
         if caller == channel.party_a_dest {
             channel.deposit_a += amount;
@@ -202,7 +199,7 @@ impl PaymentChannel for PaymentChannelContract {
             panic!("Caller is not a channel party");
         }
 
-        self.channels.set_exclusive(&channel_id, &channel).unwrap();
+        self.channels.set_exclusive(&channel_id, &channel);
     }
 
     fn close_channel(
@@ -213,12 +210,12 @@ impl PaymentChannel for PaymentChannelContract {
         nonce: u64,
         sig_a: &Ed25519Signature,
         sig_b: &Ed25519Signature,
-    ) -> () {
+    ) {
         assert!(nonce > 0, "Nonce must be positive");
         assert!(balance_a >= 0, "Balance A must be non-negative");
         assert!(balance_b >= 0, "Balance B must be non-negative");
 
-        let mut channel = self.channels.get(&channel_id).unwrap();
+        let mut channel = self.channels.get(&channel_id);
 
         assert!(channel.joined, "Channel not yet joined");
         assert!(!channel.is_closing(), "Channel already closing");
@@ -256,7 +253,7 @@ impl PaymentChannel for PaymentChannelContract {
         channel.dispute_deadline = get_block_height() + channel.dispute_period as i64;
 
         // shared write is ok here: multiple closes in the same block are idempotent
-        self.channels.set(&channel_id, &channel).unwrap();
+        self.channels.set(&channel_id, &channel);
     }
 
     fn dispute(
@@ -267,11 +264,11 @@ impl PaymentChannel for PaymentChannelContract {
         nonce: u64,
         sig_a: &Ed25519Signature,
         sig_b: &Ed25519Signature,
-    ) -> () {
+    ) {
         assert!(balance_a >= 0, "Balance A must be non-negative");
         assert!(balance_b >= 0, "Balance B must be non-negative");
 
-        let mut channel = self.channels.get(&channel_id).unwrap();
+        let mut channel = self.channels.get(&channel_id);
 
         assert!(channel.is_closing(), "Channel is not closing");
         assert!(
@@ -318,11 +315,11 @@ impl PaymentChannel for PaymentChannelContract {
         channel.dispute_deadline = get_block_height() + channel.dispute_period as i64;
 
         // shared write is ok here: multiple disputes (of the same nonce) in the same block are idempotent
-        self.channels.set(&channel_id, &channel).unwrap();
+        self.channels.set(&channel_id, &channel);
     }
 
-    fn finalize(&mut self, channel_id: u64) -> () {
-        let channel = self.channels.get(&channel_id).unwrap();
+    fn finalize(&mut self, channel_id: u64) {
+        let channel = self.channels.get(&channel_id);
 
         assert!(channel.is_closing(), "Channel is not closing");
         assert!(
@@ -335,22 +332,20 @@ impl PaymentChannel for PaymentChannelContract {
 
         if channel.submitted_balance_a > 0 {
             token_client
-                .transfer(&channel.party_a_dest, channel.submitted_balance_a as u128)
-                .unwrap();
+                .transfer(&channel.party_a_dest, channel.submitted_balance_a as u128);
         }
 
         if channel.submitted_balance_b > 0 {
             token_client
-                .transfer(&channel.party_b_dest, channel.submitted_balance_b as u128)
-                .unwrap();
+                .transfer(&channel.party_b_dest, channel.submitted_balance_b as u128);
         }
 
         // Delete the channel
-        self.channels.delete_exclusive(&channel_id).unwrap();
+        self.channels.delete_exclusive(&channel_id);
     }
 
     fn get_dispute_period(&self, channel_id: u64) -> u64 {
-        let channel = self.channels.get(&channel_id).unwrap();
+        let channel = self.channels.get(&channel_id);
         channel.dispute_period
     }
 }

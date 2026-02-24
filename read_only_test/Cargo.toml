@@ -21,16 +21,10 @@ crate-type = ["cdylib", "rlib"]
 doctest = false
 
 [features]
-default = ["guest", "alloc", "xdrs"]
-client = []
-guest = []
-mock = ["guest", "sdk/mock"]
-alloc = []
-xdrs = []
-spec = ["sdk/spec", "std", "client"]
+dev = ["sdk/dev"]
+spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
-logging = ["sdk/logging"]
-bottle-test = ["dep:bottle-test-if", "client"]
+bottle-test = ["dep:bottle-test-if"]
 
 [dev-dependencies]
-read_only_test = { path = ".", features = ["mock", "client"] }
+read_only_test = { path = ".", features = ["dev"] }

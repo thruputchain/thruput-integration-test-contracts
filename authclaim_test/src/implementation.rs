@@ -4,7 +4,7 @@ use sdk::*;
 #[derive(Default)]
 pub struct AuthClaimTestContract;
 
-#[contract(exports = "guest_exports", storage = "false")]
+#[contract(storage = "false")]
 impl AuthClaimTest for AuthClaimTestContract {
     fn test_invoked_address_signature(&self) {
         let auth_claim = sdk::get_auth_claim(0).unwrap();

@@ -5,7 +5,6 @@ use sdk::crypto::verify_signature_ed25519;
 use sdk::*;
 
 use groundhog_erc1271_if::ERC1271;
-use sdk::contract_result::caller_error;
 
 #[storage]
 pub struct SimpleWalletContract {
@@ -18,20 +17,21 @@ impl ERC1271 for SimpleWalletContract {
         &self,
         msg: &[u8],
         signature: &[u8],
-    ) -> Result<bool, sdk::contract_result::Error> {
+    ) -> bool {
         if signature.len() != 64 {
-            return caller_error("Invalid signature length");
+            panic!("Invalid signature length");
         }
 
         let signature = Ed25519Signature::new(signature.try_into().unwrap());
-        Ok(verify_signature_ed25519(&self.owner, &signature, &msg).is_ok())
+
+        verify_signature_ed25519(&self.owner, &signature, &msg).is_ok()
     }
 }
 
 // This implements the Fibonacci interface.  The `contract` macro provides
 // an exported entrypoint for each method; these will be placed in a
 // module with the specified name ("guest_exports").
-#[contract(exports = "guest_exports", test_setup = "simple_wallet_test_setup")]
+#[contract(test_setup = "simple_wallet_test_setup")]
 impl SimpleWallet for SimpleWalletContract {
     #[init]
     fn initialize(&mut self, owner: &Ed25519PublicKey) {
@@ -45,31 +45,22 @@ impl SimpleWallet for SimpleWalletContract {
     ) {
         if !self
             .is_valid_signature(invocation_bytes, signature.as_ref())
-            .unwrap()
         {
-            sdk::log::log(&format!("invalid signature").as_bytes()).unwrap();
+            sdk::log(&format!("invalid signature").as_bytes());
             trap();
         }
 
-        let res = xdrs::txs::decode(&invocation_bytes);
         let (addr, entrypoint, gas_limit, calldata): (
             ContractAddress,
             ContractEntrypointID,
             u64,
             &[u8],
-        ) = res.unwrap();
+        ) = xdrs::txs::decode(&invocation_bytes).unwrap();
 
-        let mut return_len = 0;
-        let method_id = u64::from_be_bytes(entrypoint.into_inner());
-
-        sdk::sys::raw_Invoke(
-            &addr,
-            method_id,
+        let _ = sdk::call::contract_call(&addr,
+            entrypoint,
             gas_limit,
-            &calldata,
-            0, // TODO(geoff): invoke flags go here
-            &mut return_len,
-        )
-        .unwrap();
+            calldata,
+        ).unwrap();
     }
 }

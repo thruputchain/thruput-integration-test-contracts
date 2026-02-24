@@ -25,61 +25,20 @@ impl ManualRevertTest for ManualRevertTestContract {
     fn test_basic_manual_revert(
         &self,
         should_revert: bool,
-    ) -> Result<(), ManualRevertTestError> {
+    ) {
         // Write some state first
         let test_key: StorageKeyContractData = static_key!("test_basic_revert");
-        bytestring_set(&test_key, b"state_before_revert").unwrap();
+        bytestring_set(&test_key, b"state_before_revert");
 
         if should_revert {
-            let err: Result<(), ManualRevertTestError> = Err(SysErr::from(
-                SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput,
-            )
-            .into());
-            log(format!("err as {:?}", err).as_bytes()).unwrap();
-            // When we return Err, the SDK's Returnable trait automatically:
-            // 1. Calls force_revert() which returns true for Result::Err
-            // 2. Triggers Return syscall with revert_frame=true
-            // 3. Serializes error data and makes it available to parent
-            // 4. Reverts state changes but commits transaction successfully
-            return Err(SysErr::from(
-                SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput,
-            )
-            .into());
-        }
+            let syscall = sdk::sys::kBytestringSet;
+            let syserr = SysErr::from(SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
 
-        Ok(())
-    }
-
-    // Test manual revert with different error types
-    fn test_error_type_revert(
-        &self,
-        error_type: u32,
-    ) -> Result<(), ManualRevertTestError> {
-        // Write test state
-        let key: StorageKeyContractData = static_key!("error_type_test");
-        bytestring_set(&key, b"test_data")?;
-
-        match error_type {
-            1 => {
-                // Syscall error triggers manual revert
-                Err(SysErr::from(
-                    SyscallErrorCode::kSyscallErrorCodeStorageKeyNotExist,
-                )
-                .into())
-            }
-            2 => {
-                // Different syscall error triggers manual revert
-                Err(SysErr::from(SyscallErrorCode::kSyscallErrorCodeFault).into())
-            }
-            3 => {
-                // Custom contract error triggers manual revert
-                internal_err("Test custom contract error")
-            }
-            4 => {
-                // Caller error triggers manual revert
-                caller_error("Test caller error")
-            }
-            _ => Ok(()),
+            // When we abort, the SDK automatically:
+            // 1. Triggers Return syscall with revert_frame=true
+            // 2. Serializes error data and makes it available to parent
+            // 3. Reverts state changes but commits transaction successfully
+            sdk::syscall_abort2(syscall, syserr);
         }
     }
 

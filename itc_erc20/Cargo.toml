@@ -1,7 +1,15 @@
 [package]
 name = "itc_erc20"
-version = "0.2.0"
-edition = "2024"
+description = "ERC20 contract"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+publish.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+edition.workspace = true
 
 [dependencies]
 sdk = { workspace = true }
@@ -26,10 +34,9 @@ crate-type = ["cdylib", "rlib"]
 doctest = false
 
 [features]
-guest = []
-mock = ["guest", "std", "sdk/mock", "groundhog-erc20-if/mock", "dep:erc20-native-test"]
+dev = ["std", "sdk/dev", "groundhog-erc20-if/dev", "dep:erc20-native-test"]
 spec = ["sdk/spec", "std", "groundhog-erc20-if/spec", "sdk/alloc"]
-std = ["sdk/std", "groundhog-erc20-if/std"]
+std = ["sdk/std"]
 logging = ["sdk/logging", "sdk/alloc", "alloc"]
 alloc = []
 
@@ -38,4 +45,4 @@ alloc = []
 checked = []
 
 [dev-dependencies]
-itc_erc20 = { path = ".", features = ["mock"] }
+itc_erc20 = { path = ".", features = ["dev"] }

@@ -22,15 +22,12 @@ path = "src/bin/generate_spec.rs"
 required-features = ["spec"]
 
 [features]
-default = ["guest"]
-client = []
-guest = []
-mock = ["guest", "sdk/mock"]
-spec = ["sdk/spec", "std", "client", "sdk/alloc"]
+dev = ["sdk/dev"]
+spec = ["sdk/spec", "std", "sdk/alloc"]
 std = ["sdk/std"]
 logging = ["sdk/logging", "sdk/alloc", "alloc"]
-bottle-test = ["dep:bottle-test-if", "client"]
+bottle-test = ["dep:bottle-test-if"]
 alloc = []
 
 [dev-dependencies]
-fibonacci = { path = ".", features = ["mock", "client"] }
+fibonacci = { path = ".", features = ["dev"] }

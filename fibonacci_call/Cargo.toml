@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 sdk = { workspace = true, features = ["storage"] }
-fibonacci = { path = "../fibonacci", features = ["client"] }
+fibonacci = { path = "../fibonacci" }
 xdrs = { workspace = true, features = ["derive", "alloc", "int128"] }
 
 [[bin]]
@@ -21,13 +21,9 @@ doctest = false
 test = false
 
 [features]
-default = ["guest"]
-client = []
-guest = []
-mock = ["guest", "sdk/mock", "fibonacci/mock"]
-spec = ["sdk/spec", "std", "client"]
+dev = ["sdk/dev", "fibonacci/dev"]
+spec = ["sdk/spec", "std"]
 std = ["sdk/std", "fibonacci/std"]
-logging = ["sdk/logging"]
 
 [dev-dependencies]
-fibonacci_call = { path = ".", features = ["mock", "client"] }
+fibonacci_call = { path = ".", features = ["dev"] }

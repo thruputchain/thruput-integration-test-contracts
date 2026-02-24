@@ -1,8 +1,6 @@
 use sdk::*;
 use xdrs::{ReadXDR, WriteXDR};
 
-pub use sdk::contract_result::*;
-
 #[cfg(feature = "spec")]
 use xdrs::XDR;
 
@@ -62,13 +60,13 @@ pub trait PaymentChannel {
     // The caller must be party_b_dest (or a contract calling on their behalf).
     // channel_id: The channel to join
     // amount: Amount to deposit (must be > 0)
-    fn join_channel(&mut self, channel_id: u64, amount: i128) -> ();
+    fn join_channel(&mut self, channel_id: u64, amount: i128); 
 
     // Either party can deposit additional funds into the channel.
     // The deposit goes to whichever party the caller matches.
     // channel_id: The channel to deposit into
     // amount: Amount to deposit (must be > 0)
-    fn deposit(&mut self, channel_id: u64, amount: i128) -> ();
+    fn deposit(&mut self, channel_id: u64, amount: i128);
 
     // Initiate channel closure by submitting a signed state.
     // This starts the dispute period. Either party can call this.
@@ -87,7 +85,7 @@ pub trait PaymentChannel {
         nonce: u64,
         sig_a: &Ed25519Signature,
         sig_b: &Ed25519Signature,
-    ) -> ();
+    );
 
     // Challenge a pending close with a newer signed state.
     // Can only be called during the dispute period.
@@ -106,12 +104,12 @@ pub trait PaymentChannel {
         nonce: u64,
         sig_a: &Ed25519Signature,
         sig_b: &Ed25519Signature,
-    ) -> ();
+    );
 
     // Finalize a channel after the dispute period has passed.
     // Distributes funds according to the final submitted state.
     // Anyone can call this once the dispute period is over.
-    fn finalize(&mut self, channel_id: u64) -> ();
+    fn finalize(&mut self, channel_id: u64);
 
     // Query the dispute period for a specific channel
     fn get_dispute_period(&self, channel_id: u64) -> u64;

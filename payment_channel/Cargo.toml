@@ -23,13 +23,9 @@ crate-type = ["cdylib", "rlib"]
 doctest = false
 
 [features]
-default = ["guest"]
-client = []
-guest = []
-mock = ["guest", "sdk/mock", "std"]
-spec = ["sdk/spec", "std", "client"]
+dev = ["sdk/dev", "std"]
+spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
-logging = ["sdk/logging"]
 
 [dev-dependencies]
-payment_channel = { path = ".", features = ["mock", "client"] }
+payment_channel = { path = ".", features = ["dev"] }

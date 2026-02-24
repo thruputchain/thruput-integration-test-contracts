@@ -21,14 +21,10 @@ path = "src/bin/generate_spec.rs"
 required-features = ["spec"]
 
 [features]
-default = ["guest"]
-client = []
-guest = []
-mock = ["guest", "sdk/mock", "std"]
+dev = ["sdk/dev", "std"]
 std = ["sdk/std"]
-spec = ["std", "sdk/spec", "client", "dep:xdrs"]
-logging = ["sdk/logging", "alloc", "sdk/alloc"]
+spec = ["std", "sdk/spec", "dep:xdrs"]
 alloc = []
 
 [dev-dependencies]
-initial_token_claim = { path = ".", features = ["mock", "client"] }
+initial_token_claim = { path = ".", features = ["dev"] }

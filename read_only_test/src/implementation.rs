@@ -19,7 +19,7 @@ const ERC20_TRANSFER: u64 = entrypoint_id(sdk::hash_to_array!("ERC200.2transfer"
 #[derive(Default)]
 struct ReadOnlyTestContract;
 
-#[contract(exports = "guest_exports", storage = "false")]
+#[contract(storage = "false")]
 impl ReadOnlyTest for ReadOnlyTestContract {
     fn read_only_bytestring_set(&self, expect_error: bool) {
         let key: StorageKeyContractData = static_key!("test");
