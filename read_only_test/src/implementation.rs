@@ -1,6 +1,21 @@
 use crate::interface::*;
 use sdk::*;
 
+// TODO(geoff): Add option in the SDK to get these method numbers exported as part of the client interface,
+// not just the implementation handler
+/// Derive a u64 entrypoint ID from the first 8 bytes of a SHA-256 hash.
+/// The preimage for an SDK-derived entrypoint is: IFACE_NAME || MAJOR_VERSION || METHOD_NAME
+/// (see groundhog-contract-util for the canonical implementation).
+const fn entrypoint_id(hash: [u8; 32]) -> u64 {
+    u64::from_be_bytes([
+        hash[0], hash[1], hash[2], hash[3], hash[4], hash[5], hash[6], hash[7],
+    ])
+}
+
+// ERC20 v0.2.x entrypoints, derived from SHA256("ERC20" || "0.2" || method_name)
+const ERC20_GET_BALANCE_OF: u64 = entrypoint_id(sdk::hash_to_array!("ERC200.2get_balance_of"));
+const ERC20_TRANSFER: u64 = entrypoint_id(sdk::hash_to_array!("ERC200.2transfer"));
+
 #[derive(Default)]
 struct ReadOnlyTestContract;
 
@@ -30,5 +45,39 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         } else {
             assert_eq!(res, Ok(()));
         }
+    }
+
+    fn read_only_native_get_balance(&self, target_addr: &ContractAddress) {
+        let flag = groundhog_xdr::transaction::InvokeFlag::kInvokeFlagReadOnly as i32;
+        let calldata: &[u8] = target_addr.as_ref();
+        let mut return_len = 0u32;
+        let res = sdk::sys::raw_Invoke(
+            &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
+            ERC20_GET_BALANCE_OF,
+            u64::MAX,
+            calldata,
+            flag,
+            &mut return_len,
+        );
+        assert!(res.is_ok(), "get_balance_of should succeed in read-only mode");
+    }
+
+    fn read_only_native_transfer(&self, receiver_addr: &ContractAddress) {
+        let flag = groundhog_xdr::transaction::InvokeFlag::kInvokeFlagReadOnly as i32;
+        let mut calldata = [0u8; 48];
+        calldata[..32].copy_from_slice(receiver_addr.as_ref());
+        // amount = (0, 100) = 100 units
+        calldata[40..48].copy_from_slice(&100u64.to_be_bytes());
+        let mut return_len = 0u32;
+        let res = sdk::sys::raw_Invoke(
+            &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
+            ERC20_TRANSFER,
+            u64::MAX,
+            &calldata,
+            flag,
+            &mut return_len,
+        );
+        // Transfer should fail in read-only mode
+        assert!(res.is_err(), "transfer should fail in read-only mode");
     }
 }
