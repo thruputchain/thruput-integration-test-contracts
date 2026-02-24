@@ -7,11 +7,6 @@
 
 use crate::interface::*;
 use sdk::*;
-use sdk::bytestring::asys::{
-    bytestring_exists,
-    bytestring_set,
-    bytestring_get_sized,
-};
 
 #[cfg(feature = "checked")]
 // use checked nnint operation to fail before commit

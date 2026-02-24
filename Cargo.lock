@@ -1978,7 +1978,6 @@ dependencies = [
 name = "syscall_misc_tests"
 version = "0.2.0"
 dependencies = [
- "bottle-test-if",
  "groundhog-xdr",
  "sdk",
  "sha2",

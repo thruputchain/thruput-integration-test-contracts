@@ -10,7 +10,6 @@ xdrs = { workspace = true, features = ["derive"] }
 groundhog-xdr = { workspace = true, features = ["xdrs", "syscalls"] }
 
 # Optional
-bottle-test-if = { workspace = true, optional = true }
 sha2 = { workspace = true, optional = true }
 
 [lib]

@@ -14,7 +14,7 @@ impl BottleTest for BT {
     #[init]
     fn setup(&mut self, target_contract_hash: &SHA256Hash) {
         let nonce: SHA256Hash = [7; 32].into();
-        let target_addr = deploy_contract(&nonce, target_contract_hash).unwrap();
+        let target_addr = deploy_contract(&nonce, target_contract_hash);
 
         self.target_addr = Some(target_addr);
     }
@@ -27,7 +27,7 @@ impl BottleTest for BT {
 
         let flag: i32 = transaction::InvokeFlag::kInvokeFlagReadOnly as i32;
 
-        use crate::implementation::guest_exports::READ_ONLY_BYTESTRING_SET_EXPORT_NUM;
+        use crate::implementation::exports::READ_ONLY_BYTESTRING_SET_EXPORT_NUM;
 
         sys::uninit_Invoke(
             &target_addr,

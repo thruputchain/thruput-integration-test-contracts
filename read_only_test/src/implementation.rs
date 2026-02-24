@@ -23,7 +23,7 @@ struct ReadOnlyTestContract;
 impl ReadOnlyTest for ReadOnlyTestContract {
     fn read_only_bytestring_set(&self, expect_error: bool) {
         let key: StorageKeyContractData = static_key!("test");
-        let res = bytestring_set(&key, b"test");
+        let res = try_bytestring_set(&key, b"test");
         sdk::debug_log!("res: {:?}", res);
         if expect_error {
             assert!(res.err().unwrap().is_code(
