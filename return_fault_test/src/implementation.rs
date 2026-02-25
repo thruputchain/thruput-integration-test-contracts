@@ -1,4 +1,5 @@
 use crate::{ReturnFaultTest, Client};
+use sdk::sys::SyscallErrorCode;
 use sdk::*;
 
 #[derive(Default)]

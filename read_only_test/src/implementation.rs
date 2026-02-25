@@ -1,5 +1,6 @@
 use crate::interface::*;
 use sdk::*;
+use sdk::sys::SyscallErrorCode;
 
 // TODO(geoff): Add option in the SDK to get these method numbers exported as part of the client interface,
 // not just the implementation handler

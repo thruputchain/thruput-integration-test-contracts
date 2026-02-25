@@ -6,8 +6,7 @@ use crate::{
 };
 
 use crate::SyscallMiscTests;
-use sdk::SyscallErrorCode;
-use sdk::sys;
+use sdk::sys::{self, SyscallErrorCode};
 use sdk::*;
 
 #[derive(Default)]

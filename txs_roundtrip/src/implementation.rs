@@ -14,14 +14,14 @@ fn roundtrip<'a, T>(data: &'a [u8]) -> Vec<u8>
 where
     T: ReadXDR<'a> + WriteXDR + core::fmt::Debug,
 {
-    log(format!("roundtrip: {:02X?}", data).as_bytes()).unwrap();
+    log(format!("roundtrip: {:02X?}", data).as_bytes());
     let parsed: T = txs::decode(data).unwrap_or_else(|e| {
-        log(format!("decode error: {:?}", e).as_bytes()).unwrap();
+        log(format!("decode error: {:?}", e).as_bytes());
         panic!("decode error")
     });
-    log(format!("parsed as {:?}", parsed).as_bytes()).unwrap();
+    log(format!("parsed as {:?}", parsed).as_bytes());
     let out = txs::encode(&parsed).unwrap();
-    log(format!("out: {:02X?}", out).as_bytes()).unwrap();
+    log(format!("out: {:02X?}", out).as_bytes());
     out
 }
 
@@ -54,8 +54,6 @@ impl_roundtrip_methods! {
     roundtrip_storage_delta_vec: crate::roundtrip::StorageDeltaVec,
     roundtrip_i32: i32,
     roundtrip_u32: u32,
-    roundtrip_error_xdr: sdk::contract_result::Error,
-    roundtrip_contract_error_xdr: sdk::contract_result::ContractError,
     roundtrip_storage_err_xdr: sdk::storage::error::StorageError,
     roundtrip_opaque_vector: Vec<u8>,
     roundtrip_opaque_slice: &[u8],

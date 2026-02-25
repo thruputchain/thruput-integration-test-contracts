@@ -1,5 +1,6 @@
 use super::interface::*;
 use sdk::*;
+use sdk::sys::SyscallErrorCode;
 
 #[derive(Default)]
 pub struct NoSyscallTestContract;
