@@ -20,10 +20,10 @@ impl ReturnFaultTest for ReturnFaultTestContract {
                     if !exn.has_code(SyscallErrorCode::kSyscallErrorCodeDeterministicWasm) {
                         panic!("Unexpected error code in {exn}");
                     })
-                .unwrap_or_else(|| panic!("Expected a syscall exception: {e}"))
+                .unwrap_or_else(|| panic!("Expected a syscall exception: {e:?}"))
             }
             Err(e) =>
-                panic!("Expected the call to abort: {e}"),
+                panic!("Expected the call to abort: {e:?}"),
         }
     }
 
@@ -50,4 +50,3 @@ impl ReturnFaultTest for ReturnFaultTestContract {
         sdk::sys::raw_Return(slice, false);
     }
 }
-

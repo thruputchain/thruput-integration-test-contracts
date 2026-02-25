@@ -17,14 +17,9 @@ crate-type = ["cdylib", "rlib"]
 doctest = false
 
 [features]
-default = ["guest"]
-client = []
-guest = ["client"] # needs client of self
-mock = ["guest", "sdk/mock", "std"]
-spec = ["sdk/spec", "std", "client"]
+dev = ["sdk/dev", "std"]
+spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
-logging = ["sdk/logging"]
 
 [dev-dependencies]
-return_fault_test = { path = ".", features = ["mock", "client"] }
-
+return_fault_test = { path = ".", features = ["dev"] }
