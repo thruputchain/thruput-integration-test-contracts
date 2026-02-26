@@ -44,6 +44,7 @@ fn get_owner() -> ContractAddress {
 fn ensure_caller_is_owner() {
     let caller = get_caller();
     let owner = get_owner();
+
     ensure(caller == owner, ERC20Error::MustBeContractOwner)
 }
 
@@ -81,9 +82,7 @@ impl ERC20 for Token {
         let key = get_owner_key();
 
         // Make sure we haven't already been initialized
-        if bytestring_exists(&key) {
-            return caller_error(ERC20Error::AlreadyInitialized);
-        }
+        ensure(!bytestring_exists(&key), ERC20Error::AlreadyInitialized);
 
         // Store ourselves
         bytestring_set(&key, contract_owner.as_ref());
