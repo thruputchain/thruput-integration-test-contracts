@@ -8,4 +8,6 @@ pub trait ReadOnlyTest {
     fn read_only_log_event(&self, expect_error: bool);
     fn read_only_native_get_balance(&self, target_addr: &ContractAddress);
     fn read_only_native_transfer(&self, receiver_addr: &ContractAddress);
+    fn read_only_deploy_output_preserved(&self);
+    fn read_only_deploy_inner(&self);
 }

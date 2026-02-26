@@ -80,4 +80,45 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         // Transfer should fail in read-only mode
         assert!(res.is_err(), "transfer should fail in read-only mode");
     }
+
+    fn read_only_deploy_output_preserved(&self) {
+        let addr = sdk::get_current_address().unwrap();
+        let entrypoint =
+            u64::from_be_bytes(crate::READ_ONLY_DEPLOY_INNER_EXPORT_NUM.into_inner());
+        let flag = groundhog_xdr::transaction::InvokeFlag::kInvokeFlagReadOnly as i32;
+        let mut return_len = 0u32;
+        let res = sdk::sys::raw_Invoke(
+            &addr,
+            entrypoint,
+            u64::MAX,
+            &[],
+            flag,
+            &mut return_len,
+        );
+        // The inner method handles the deploy error and returns normally
+        assert!(res.is_ok(), "read-only self-invoke should succeed");
+    }
+
+    fn read_only_deploy_inner(&self) {
+        let nonce = SHA256Hash::default();
+        let contract_hash = SHA256Hash::from([0xFFu8; 32]);
+        let mut deployed_address = ContractAddress::from([0xABu8; 32]);
+
+        let res = sdk::sys::raw_DeployContract(
+            &nonce, &contract_hash, &mut deployed_address,
+        );
+
+        // Deploy should fail in read-only mode
+        assert!(res.is_err(), "deploy should fail in read-only mode");
+        assert!(res.err().unwrap().is_code(
+            SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput
+        ));
+
+        // The output address should NOT have been zeroed
+        assert_eq!(
+            deployed_address,
+            ContractAddress::from([0xABu8; 32]),
+            "deployed_address was overwritten by failing deploy syscall"
+        );
+    }
 }
