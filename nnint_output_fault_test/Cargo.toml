@@ -1,0 +1,29 @@
+
+[package]
+name = "nnint_output_fault_test"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sdk = { workspace = true, features = ["storage"] }
+
+[[bin]]
+name = "generate_spec_nnint_output_fault_test"
+path = "src/bin/generate_spec.rs"
+required-features = ["spec"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+
+[features]
+default = ["guest"]
+client = []
+guest = ["client"]
+mock = ["guest", "sdk/mock", "std"]
+spec = ["sdk/spec", "std", "client"]
+std = ["sdk/std"]
+logging = ["sdk/logging"]
+
+[dev-dependencies]
+nnint_output_fault_test = { path = ".", features = ["mock", "client"] }

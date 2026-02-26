@@ -1,0 +1,8 @@
+use sdk::*;
+
+#[contract(client = Client)]
+pub trait NnintOutputFaultTest {
+    fn test_fault_valid_first(&self);
+    fn test_fault_invalid_first(&self);
+    fn test_validation_failure(&self);
+}
