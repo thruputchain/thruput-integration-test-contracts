@@ -8,7 +8,7 @@ use sdk::{get_calldata, get_calldata_len};
 
 pub fn calldata_len(count: u32) {
     for _ in 0..count {
-        let _ = get_calldata_len().unwrap();
+        let _ = get_calldata_len();
     }
 }
 
@@ -31,7 +31,7 @@ pub fn calldata(count: u32) {
     let mut len: usize = 0;
 
     for _ in 0..count {
-        let x = get_calldata().unwrap();
+        let x = get_calldata();
         if len > 0 {
             assert_eq!(x.len(), len);
         }
@@ -55,7 +55,7 @@ pub extern "C" fn calldata_1000() -> () {
 }
 
 pub fn calldata_raw(count: u32) {
-    let len = get_calldata_len().unwrap();
+    let len = get_calldata_len();
     let mut buf: Vec<u8> = vec![0; len as usize];
     let mut written_len = 0;
 

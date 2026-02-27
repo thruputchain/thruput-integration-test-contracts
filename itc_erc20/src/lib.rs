@@ -11,12 +11,10 @@ pub use interface::ERC20Client;
 extern crate alloc;
 
 // An implementation of the contract interface
-#[cfg(feature = "guest")]
 mod implementation;
 
 // Contract methods exposed with C ABI for running as guest
-#[cfg(feature = "guest")]
 pub use implementation::*;
 
-#[cfg(feature = "mock")]
+#[cfg(feature = "dev")]
 pub use implementation::test_setup;

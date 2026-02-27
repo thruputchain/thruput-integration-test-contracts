@@ -1,29 +1,23 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[cfg(feature = "mock")]
+#[cfg(feature = "dev")]
 extern crate std;
 
 extern crate alloc;
 
-// A trait describing the contract interface
-pub mod interface;
+mod interface;
+mod implementation;
 
 // A client stub that provides the interface via cross-contract calls
-#[cfg(feature = "client")]
 pub use interface::Client;
 
 // An implementation of the contract interface
-#[cfg(feature = "guest")]
-pub mod implementation;
+pub use implementation::FibonacciContract;
 
 // Contract methods exposed with C ABI for running as guest
-#[cfg(feature = "guest")]
-pub use implementation::guest_exports::*;
+pub use implementation::exports::*;
 
-#[cfg(feature = "mock")]
-pub use implementation::test_setup;
-
-#[cfg(all(test, feature = "mock"))]
+#[cfg(all(test, feature = "dev"))]
 mod tests;
 
 #[cfg(feature = "bottle-test")]

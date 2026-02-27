@@ -62,7 +62,7 @@ impl ManualRevertCallerContract {
     }
 }
 
-#[contract(exports = "guest_exports")]
+#[contract]
 impl ManualRevertCaller for ManualRevertCallerContract {
     /// Initialize the contract with the target ManualRevertTest contract address
     #[init]
@@ -72,7 +72,7 @@ impl ManualRevertCaller for ManualRevertCallerContract {
 
     /// Call the target contract's test_basic_manual_revert method
     /// Tests basic cross-contract revert propagation
-    fn call_basic_manual_revert(&mut self, should_revert: bool) -> () {
+    fn call_basic_manual_revert(&mut self, should_revert: bool) {
         // Write some state to this contract first
         let own_key: StorageKeyContractData = static_key!("caller_state");
         bytestring_set(&own_key, b"caller_data_before_call").unwrap();
@@ -91,7 +91,7 @@ impl ManualRevertCaller for ManualRevertCallerContract {
 
     /// Call the target contract's test_nested_manual_revert method
     /// Tests nested revert scenarios across contracts
-    fn call_nested_manual_revert(&mut self, child_should_revert: bool) -> () {
+    fn call_nested_manual_revert(&mut self, child_should_revert: bool) {
         // Write some state to this contract
         let own_key: StorageKeyContractData =
             static_key!("caller_nested_state");
@@ -108,7 +108,7 @@ impl ManualRevertCaller for ManualRevertCallerContract {
 
     /// Call the target contract's test_error_type_revert method
     /// Tests different error types in cross-contract calls
-    fn call_error_type_revert(&mut self, error_type: u32) -> () {
+    fn call_error_type_revert(&mut self, error_type: u32) {
         // Write some state to this contract
         let own_key: StorageKeyContractData =
             static_key!("caller_error_state");
@@ -126,7 +126,7 @@ impl ManualRevertCaller for ManualRevertCallerContract {
 
     /// Call the target contract's test_storage_manual_revert method
     /// Tests storage operations with cross-contract revert
-    fn call_storage_manual_revert(&mut self, should_revert: bool) -> () {
+    fn call_storage_manual_revert(&mut self, should_revert: bool) {
         // Write some state to this contract
         let own_key: StorageKeyContractData =
             static_key!("caller_storage_state");
@@ -151,7 +151,7 @@ impl ManualRevertCaller for ManualRevertCallerContract {
 
     /// Write some state to this contract to verify it persists
     /// while the target contract's state gets reverted
-    fn write_own_state(&mut self, data: &[u8]) -> () {
+    fn write_own_state(&mut self, data: &[u8]) {
         let own_key: StorageKeyContractData =
             static_key!("caller_persistent_state");
         bytestring_set(&own_key, data).unwrap();

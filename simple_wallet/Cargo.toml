@@ -20,14 +20,9 @@ doctest = false
 test = false
 
 [features]
-default = ["guest"]
-client = []
-guest = []
-mock = ["guest", "sdk/mock", "sdk/std", "groundhog-erc1271-if/mock"]
-spec = ["sdk/spec", "std", "client", "groundhog-erc1271-if/spec"]
+dev = ["sdk/dev", "sdk/std", "groundhog-erc1271-if/dev"]
+spec = ["sdk/spec", "std", "groundhog-erc1271-if/spec"]
 std = ["sdk/std", "groundhog-erc1271-if/std"]
-logging = ["sdk/logging"]
-
 
 [dev-dependencies]
-simple_wallet = { path = ".", features = ["mock", "client"] }
+simple_wallet = { path = ".", features = ["dev"] }

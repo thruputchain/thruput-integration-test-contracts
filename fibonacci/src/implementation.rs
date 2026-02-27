@@ -5,12 +5,12 @@ use sdk::*;
 use sdk::NonceConfig;
 
 #[derive(Default)]
-struct FibonacciContract;
+pub struct FibonacciContract;
 
 // This implements the Fibonacci interface.  The `contract` macro provides
 // an exported entrypoint for each method; these will be placed in a
 // module with the specified name ("guest_exports").
-#[contract(exports = "guest_exports", storage = "false")]
+#[contract(storage = "false")]
 impl Fibonacci for FibonacciContract {
     fn fibonacci(&self, n: u32) -> u32 {
         let mut a = 0;

@@ -23,15 +23,9 @@ path = "src/bin/generate_types.rs"
 required-features = ["spec"]
 
 [features]
-default = ["guest", "alloc", "xdrs"]
-client = []
-guest = []
-mock = ["guest", "sdk/mock"]
-alloc = []
-xdrs = []
-spec = ["sdk/spec", "std", "client"]
+dev = ["sdk/dev"]
+spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
-logging = ["sdk/logging"]
 
 [dev-dependencies]
-txs_roundtrip = { path = ".", features = ["mock", "client"] }
+txs_roundtrip = { path = ".", features = ["dev"] }

@@ -1,5 +1,3 @@
-#cargo-features = ["trim-paths", "profile-rustflags"] #unstable
-
 [package]
 name = "calldata_raw"
 version.workspace = true
@@ -14,10 +12,7 @@ doctest = false
 test = false
 
 [features]
-default = ["guest"]
-client = []
-guest = []
-mock = ["guest", "sdk/mock"]
+dev = ["sdk/dev"]
 
 [dev-dependencies]
-calldata_raw = { path = ".", features = ["mock", "client"] }
+calldata_raw = { path = ".", features = ["dev"] }

@@ -1,5 +1,3 @@
-#cargo-features = ["trim-paths", "profile-rustflags"] #unstable
-
 [package]
 name = "authclaim_test"
 version = "0.1.0"
@@ -16,17 +14,13 @@ required-features = ["spec"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
+test = false
 doctest = false
 
 [features]
-default = ["guest"]
-client = []
-guest = []
-mock = ["guest", "sdk/mock", "std"]
-spec = ["sdk/spec", "std", "client"]
-std = ["sdk/std"]
-logging = ["sdk/logging"]
+std = []
+dev = ["sdk/dev", "std"]
+spec = ["std", "sdk/spec"]
 
 [dev-dependencies]
-authclaim_test = { path = ".", features = ["mock", "client"] }
-
+authclaim_test = { path = ".", features = ["dev"] }

@@ -4,7 +4,7 @@ use super::interface::TupleReturn;
 use sdk::*;
 
 #[derive(Default)]
-struct TupleReturnContract;
+pub struct TupleReturnContract;
 
 // Check to make sure specs are properly generated for tuple return types.
 #[contract(exports = "guest_exports", storage = "false")]

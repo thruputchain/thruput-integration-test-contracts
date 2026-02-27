@@ -3,18 +3,14 @@
 #[cfg(feature = "std")]
 extern crate std;
 
-// A trait describing the contract interface
-pub mod interface;
+mod interface;
+mod implementation;
+
+pub use interface::ReturnFaultTest;
 
 // A client stub that provides the interface via cross-contract calls
-#[cfg(feature = "client")]
 pub use interface::Client;
 
-// An implementation of the contract interface
-#[cfg(feature = "guest")]
-pub mod implementation;
-
 // Contract methods exposed with C ABI for running as guest
-#[cfg(feature = "guest")]
-pub use implementation::guest_exports::*;
+pub use implementation::exports::*;
 

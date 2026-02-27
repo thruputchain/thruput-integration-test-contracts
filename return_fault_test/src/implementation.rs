@@ -1,51 +1,53 @@
-use super::interface::*;
+use crate::{ReturnFaultTest, Client};
+use sdk::sys::SyscallErrorCode;
 use sdk::*;
-
-pub use sdk::contract_result::*;
-use sdk::sys::raw_Return;
 
 #[derive(Default)]
 pub struct ReturnFaultTestContract;
 
-#[contract(exports = "guest_exports", storage = "false")]
+#[contract(storage = "false")]
 impl ReturnFaultTest for ReturnFaultTestContract {
 
     fn run_test(&self) {
-        let addr = sdk::get_current_address().unwrap();
+        let addr = sdk::get_current_address();
         let mut client = Client::new(&addr);
-        let expected_err_code : SysErr = SysErr(SyscallErrorCode::kSyscallErrorCodeDeterministicWasm as i32);
-        match client.test_inner() {
+
+        match client.try_test_inner() {
             Ok(_) => {
                 panic!("test_inner should have failed");
             }
-            Err(e) => {
-                match e {
-                   InvokeError::Syscall(x) => {
-                    assert_eq!(x, expected_err_code);
-                    return;
-                   },
-                   _ => {
-                    panic!("test_inner should have failed: {:?}", e);
-                   }
-                }
+            Err(sdk::call::CallError::Abort(e)) => {
+                e.as_syscall_exn().map(|exn|
+                    if !exn.has_code(SyscallErrorCode::kSyscallErrorCodeDeterministicWasm) {
+                        panic!("Unexpected error code in {exn}");
+                    })
+                .unwrap_or_else(|| panic!("Expected a syscall exception: {e:?}"))
             }
+            Err(e) =>
+                panic!("Expected the call to abort: {e:?}"),
         }
     }
 
     fn test_inner(&self) {
         let ptr: *const u8 = 65536 as *const u8;
         let slice = unsafe { core::slice::from_raw_parts(ptr, 1) as &[u8] };
+
         // this function is expected to fail
         // so returning success is a test failure
-        let fault_res = sdk::log(slice);
-        if fault_res.is_ok() {
-            return;
+        match sdk::sys::raw_ConsoleLog(slice) {
+            Ok(_) => {
+                // Unexpected
+                return;
+            }
+            Err(syserr) => {
+                if syserr.is_code(SyscallErrorCode::kSyscallErrorCodeDeterministicWasm) {
+                    // Unexpected
+                    return;
+                }
+            }
         }
-        if !fault_res.err().unwrap().is_code(SyscallErrorCode::kSyscallErrorCodeFault) {
-            return;
-        }
+
         // this should fail, because slice is out of bounds
-        raw_Return(slice, false);
+        sdk::sys::raw_Return(slice, false);
     }
 }
-

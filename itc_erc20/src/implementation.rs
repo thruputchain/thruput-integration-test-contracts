@@ -37,77 +37,68 @@ fn get_allowance_key(
 
 // Read/write permanent state
 
-fn get_owner() -> Result<ContractAddress> {
-    if let Some(bytes) = bytestring_get_sized(&get_owner_key())? {
-        Ok(bytes.into())
-    } else {
-        internal_err("Unexpected bytestring size")
-    }
+fn get_owner() -> ContractAddress {
+    bytestring_get_sized(&get_owner_key()).into()
 }
 
-fn ensure_caller_is_owner() -> Result<()> {
-    let caller = get_caller()?;
-    let owner = get_owner()?;
-    caller_ensure(caller == owner, ERC20Error::MustBeContractOwner)
+fn ensure_caller_is_owner() {
+    let caller = get_caller();
+    let owner = get_owner();
+
+    ensure(caller == owner, ERC20Error::MustBeContractOwner)
 }
 
-fn add_to_total_supply(diff: Difference) -> Result<()> {
-    Ok(non_negative_int_inc(
+fn add_to_total_supply(diff: Difference) {
+    non_negative_int_inc(
         &get_total_supply_key(),
         diff,
-    )?)
+    )
 }
 
-fn add_to_balance(addr: &ContractAddress, diff: Difference) -> Result<()> {
-    Ok(non_negative_int_inc(
+fn add_to_balance(addr: &ContractAddress, diff: Difference) {
+    non_negative_int_inc(
         &get_balance_key(addr),
         diff,
-    )?)
+    )
 }
 
 fn add_to_allowance(
     owner: &ContractAddress,
     spender: &ContractAddress,
     diff: Difference,
-) -> Result<()> {
-    Ok(non_negative_int_inc(
+) {
+    non_negative_int_inc(
         &get_allowance_key(owner, spender),
         diff,
-    )?)
+    )
 }
 
 #[derive(Default)]
 struct Token;
 
-#[contract(storage = "false", err_type = Error, version = "0.2.0")]
+#[contract(storage = "false", version = "0.2.0")]
 impl ERC20 for Token {
-    fn initialize(&mut self, contract_owner: &ContractAddress) -> Result<()> {
+    fn initialize(&mut self, contract_owner: &ContractAddress) {
         let key = get_owner_key();
 
         // Make sure we haven't already been initialized
-        if bytestring_exists(&key)? {
-            return caller_error(ERC20Error::AlreadyInitialized);
-        }
+        ensure(!bytestring_exists(&key), ERC20Error::AlreadyInitialized);
 
         // Store ourselves
-        bytestring_set(&key, contract_owner.as_ref())?;
-
-        Ok(())
+        bytestring_set(&key, contract_owner.as_ref());
     }
 
     fn transfer(
         &mut self,
         to: &ContractAddress,
         amount: Amount,
-    ) -> Result<()> {
-        let caller = get_caller()?;
-        let diff = amount_to_diff(amount)?;
-        add_to_balance(&caller, -diff)?;
-        add_to_balance(to, diff)?;
+    ) {
+        let caller = get_caller();
+        let diff = amount_to_diff(amount);
+        add_to_balance(&caller, -diff);
+        add_to_balance(to, diff);
 
-        log_transfer_event(&caller, to, amount)?;
-
-        Ok(())
+        log_transfer_event(&caller, to, amount);
     }
 
     fn transfer_from(
@@ -115,78 +106,68 @@ impl ERC20 for Token {
         owner: &ContractAddress,
         receiver: &ContractAddress,
         amount: Amount,
-    ) -> Result<()> {
-        let spender = get_caller()?;
-        let diff = amount_to_diff(amount)?;
-        add_to_allowance(owner, &spender, -diff)?;
-        add_to_balance(owner, -diff)?;
-        add_to_balance(receiver, diff)?;
+    ) {
+        let spender = get_caller();
+        let diff = amount_to_diff(amount);
+        add_to_allowance(owner, &spender, -diff);
+        add_to_balance(owner, -diff);
+        add_to_balance(receiver, diff);
 
-        log_transfer_event(owner, receiver, amount)?;
-
-        Ok(())
+        log_transfer_event(owner, receiver, amount);
     }
 
     fn adjust_allowance(
         &mut self,
         spender: &ContractAddress,
         diff: Difference,
-    ) -> Result<()> {
-        let owner = get_caller()?;
+    ) {
+        let owner = get_caller();
 
-        add_to_allowance(&owner, spender, diff)?;
+        add_to_allowance(&owner, spender, diff);
 
-        log_approval_event(&owner, spender, diff)?;
-
-        Ok(())
+        log_approval_event(&owner, spender, diff);
     }
 
     fn allowance(
         &self,
         owner: &ContractAddress,
         spender: &ContractAddress,
-    ) -> Result<Amount> {
-        Ok(
-            non_negative_int_try_get(&get_allowance_key(owner, spender))?
-                .unwrap_or(0) as Amount,
-        )
+    ) -> Amount {
+        non_negative_int_try_get(&get_allowance_key(owner, spender))
+            .unwrap_or(0) as Amount
     }
 
-    fn get_balance_of(&self, addr: &ContractAddress) -> Result<Amount> {
-        Ok(non_negative_int_try_get(&get_balance_key(addr))?.unwrap_or(0)
-            as Amount)
+    fn get_balance_of(&self, addr: &ContractAddress) -> Amount {
+        non_negative_int_try_get(&get_balance_key(addr)).unwrap_or(0)
+            as Amount
     }
 
-    fn get_balance(&self) -> Result<Amount> {
-        self.get_balance_of(&get_caller()?)
+    fn get_balance(&self) -> Amount {
+        self.get_balance_of(&get_caller())
     }
 
-    fn mint(&mut self, receiver: &ContractAddress, amount: Amount) -> Result<()> {
-        ensure_caller_is_owner()?;
+    fn mint(&mut self, receiver: &ContractAddress, amount: Amount) {
+        ensure_caller_is_owner();
 
-        let diff = amount_to_diff(amount)?;
-        add_to_balance(receiver, diff)?;
-        add_to_total_supply(diff)?;
+        let diff = amount_to_diff(amount);
+        add_to_balance(receiver, diff);
+        add_to_total_supply(diff);
 
-        log_transfer_event(CONTRACT_ADDR_ZERO, receiver, amount)?;
-
-        Ok(())
+        log_transfer_event(CONTRACT_ADDR_ZERO, receiver, amount);
     }
 
-    fn burn(&mut self, owner: &ContractAddress, amount: Amount) -> Result<()> {
-        ensure_caller_is_owner()?;
+    fn burn(&mut self, owner: &ContractAddress, amount: Amount) {
+        ensure_caller_is_owner();
 
-        let diff = amount_to_diff(amount)?;
-        add_to_balance(owner, -diff)?;
-        add_to_total_supply(-diff)?;
+        let diff = amount_to_diff(amount);
+        add_to_balance(owner, -diff);
+        add_to_total_supply(-diff);
 
-        log_transfer_event(owner, CONTRACT_ADDR_ZERO, amount)?;
-
-        Ok(())
+        log_transfer_event(owner, CONTRACT_ADDR_ZERO, amount);
     }
 
-    fn total_supply(&self) -> Result<Amount> {
-        Ok(non_negative_int_try_get(&get_total_supply_key())?.unwrap_or(0)
-            as Amount)
+    fn total_supply(&self) -> Amount {
+        non_negative_int_try_get(&get_total_supply_key()).unwrap_or(0)
+            as Amount
     }
 }

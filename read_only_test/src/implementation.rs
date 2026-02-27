@@ -1,5 +1,6 @@
 use crate::interface::*;
 use sdk::*;
+use sdk::sys::SyscallErrorCode;
 
 // TODO(geoff): Add option in the SDK to get these method numbers exported as part of the client interface,
 // not just the implementation handler
@@ -19,11 +20,11 @@ const ERC20_TRANSFER: u64 = entrypoint_id(sdk::hash_to_array!("ERC200.2transfer"
 #[derive(Default)]
 struct ReadOnlyTestContract;
 
-#[contract(exports = "guest_exports", storage = "false")]
+#[contract(storage = "false")]
 impl ReadOnlyTest for ReadOnlyTestContract {
     fn read_only_bytestring_set(&self, expect_error: bool) {
         let key: StorageKeyContractData = static_key!("test");
-        let res = bytestring_set(&key, b"test");
+        let res = try_bytestring_set(&key, b"test");
         sdk::debug_log!("res: {:?}", res);
         if expect_error {
             assert!(res.err().unwrap().is_code(
