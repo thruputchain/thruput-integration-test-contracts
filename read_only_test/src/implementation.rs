@@ -83,7 +83,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
     }
 
     fn read_only_deploy_output_preserved(&self) {
-        let addr = sdk::get_current_address().unwrap();
+        let addr = sdk::get_current_address();
         let entrypoint =
             u64::from_be_bytes(crate::READ_ONLY_DEPLOY_INNER_EXPORT_NUM.into_inner());
         let flag = groundhog_xdr::transaction::InvokeFlag::kInvokeFlagReadOnly as i32;
