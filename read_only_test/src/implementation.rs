@@ -12,6 +12,23 @@ const fn entrypoint_id(hash: [u8; 32]) -> u64 {
     ])
 }
 
+#[link(wasm_import_module = "marmot")]
+unsafe extern "C" {
+    #[link_name = "syscall"]
+    fn direct_syscall(
+        syscall_no: u64,
+        arg1: u64,
+        arg2: u64,
+        arg3: u64,
+        arg4: u64,
+        arg5: u64,
+        arg6: u64,
+        arg7: u64,
+    ) -> i32;
+}
+
+const K_SYSCALL_BYTESTRING_SET: u64 = groundhog_xdr::syscalls::SyscallNo::kBytestringSet as u64;
+
 // ERC20 v0.2.x entrypoints, derived from SHA256("ERC20" || "0.2" || method_name)
 const ERC20_GET_BALANCE_OF: u64 = entrypoint_id(sdk::hash_to_array!("ERC200.2get_balance_of"));
 const ERC20_TRANSFER: u64 = entrypoint_id(sdk::hash_to_array!("ERC200.2transfer"));
@@ -121,4 +138,47 @@ impl ReadOnlyTest for ReadOnlyTestContract {
             "deployed_address was overwritten by failing deploy syscall"
         );
     }
+
+    fn read_only_aliasing_before_read_only_check(&self)
+    {
+        let addr = sdk::get_current_address().unwrap();
+        let entrypoint =
+            u64::from_be_bytes(crate::READ_ONLY_ALIASING_BEFORE_READ_ONLY_CHECK_INNER_EXPORT_NUM.into_inner());
+        let flag = groundhog_xdr::transaction::InvokeFlag::kInvokeFlagReadOnly as i32;
+        let mut return_len = 0u32;
+        let res = sdk::sys::raw_Invoke(
+            &addr,
+            entrypoint,
+            u64::MAX,
+            &[],
+            flag,
+            &mut return_len,
+        );
+        // The inner method handles the deploy error and returns normally
+        assert!(res.is_ok(), "read-only self-invoke should succeed");
+    }
+
+    fn read_only_aliasing_before_read_only_check_inner(&self)
+    {
+        let mut buf : [u8;64] = [0xAB;64];
+        let key_ptr = buf.as_mut_ptr() as u64;
+        let bytestring_ptr = (buf.as_mut_ptr() as u64) + 16;
+        let flags = 0;
+        let err_code = unsafe {
+            direct_syscall(
+                K_SYSCALL_BYTESTRING_SET,
+                key_ptr,
+                bytestring_ptr,
+                flags,
+                0,
+                0,
+                0,
+                0
+            )
+        };
+        assert_eq!(err_code, groundhog_xdr::syscall_error::SyscallErrorCode::kSyscallErrorCodeFault as i32);
+        assert_eq!(buf, [0xAB;64]);
+    }
+
+
 }
