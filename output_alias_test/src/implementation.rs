@@ -160,4 +160,32 @@ impl OutputAliasTest for OutputAliasTestContract {
 
         assert_not_fault(err_code);
     }
+
+    fn test_nnint_input_alias_output(&self) {
+
+        let mut buf = [0xAAu8; 64];
+        let mut opt: bool = false;
+
+        let current_set_ptr = buf.as_mut_ptr() as u64;
+        let current_add_ptr = (buf.as_mut_ptr() as u64) + 32;
+        let key_ptr = buf.as_mut_ptr() as u64;
+
+        let err_code = unsafe {
+            direct_syscall(
+                K_SYSCALL_NONNEGATIVE_INT_GET,
+                key_ptr,
+                1, // force_load = true
+                current_set_ptr,                   // current_set at buf[0..16] (overlaps input key)
+                &mut opt as *mut bool as u64,      // current_set_opt
+                current_add_ptr,                   // current_add at buf[32..48] (no overlap)
+                0,
+                0,
+            )
+        };
+
+        assert_fault(err_code);
+        // Verify the buffer was not modified.
+        assert_eq!(buf, [0xAAu8; 64], "overlapping output was overwritten");
+
+    }
 }
