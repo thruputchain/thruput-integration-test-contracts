@@ -324,10 +324,11 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     // ── #23: LogEvent → kInvalidSyscallInput (noncontinuous topics) ─
 
     fn test_log_event_noncontinuous_topics(&self) {
-        let topic = [0u8; 32];
+        let topic0 = [0u8; 32];
+        let topic2 = [1u8; 32];
         // topic0=Some, topic1=None, topic2=Some → gap
         let res = groundhog_xdr::syscalls::raw_LogEvent(
-            Some(&topic), None, Some(&topic), &[],
+            Some(&topic0), None, Some(&topic2), &[],
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
