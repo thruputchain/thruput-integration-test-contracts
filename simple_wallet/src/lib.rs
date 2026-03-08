@@ -1,30 +1,23 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[cfg(feature = "mock")]
+#[cfg(feature = "dev")]
 extern crate std;
 
 extern crate alloc;
 
-// A trait describing the contract interface
-pub mod interface;
+mod interface;
+mod implementation;
 
 // A client stub that provides the interface via cross-contract calls
-#[cfg(feature = "client")]
 pub use interface::Client;
 
-// An implementation of the contract interface
-#[cfg(feature = "guest")]
-pub mod implementation;
-
 // Contract methods exposed with C ABI for running as guest
-#[cfg(feature = "guest")]
+pub use implementation::exports::*;
 pub use implementation::erc1271_exports::*;
-#[cfg(feature = "guest")]
-pub use implementation::guest_exports::*;
 
-#[cfg(feature = "mock")]
+#[cfg(feature = "dev")]
 pub fn register(
-    env: &std::rc::Rc<::sdk::TestEnvironment>,
+    env: &sdk::TestEnvironmentHandle,
 ) -> ::sdk::types::Contract {
     let mut contract = env.add_contract();
     implementation::erc1271_test_setup::register_mock(&mut contract);

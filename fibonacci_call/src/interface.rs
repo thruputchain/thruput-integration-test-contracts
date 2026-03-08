@@ -1,8 +1,6 @@
 use sdk::*;
 
-pub use sdk::contract_result::*;
-
-#[contract(client = "Client")]
+#[contract(client = "CallerClient")]
 pub trait FibonacciCaller {
     fn initialize(&mut self, address: &ContractAddress);
     fn call_fibonacci(&mut self, n: u32, gas_limit: u64);

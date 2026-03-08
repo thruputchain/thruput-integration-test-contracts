@@ -8,7 +8,7 @@ use sdk::*;
 
 #[unsafe(export_name = "0")]
 pub extern "C" fn calldata_len_raw_1() -> () {
-    let len = get_calldata_len().unwrap();
+    let len = get_calldata_len();
     let mut buf: Vec<u8> = vec![0; len as usize];
     let mut written_len = 0;
 

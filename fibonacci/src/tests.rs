@@ -1,65 +1,45 @@
-use crate::implementation;
-use crate::Client;
+use crate::{Client, FibonacciContract};
 use sdk::*;
-use sdk::transaction::InvocationFrameStatusCode;
-#[test]
-fn test_fibonacci() {
-    let mut env = sdk::TestEnvironment::new(None);
 
-    let test_contract = implementation::test_setup::register(&mut env);
-    let contract_hash = env.setup_create_contract(&test_contract);
-
-    // sdk::TestEnvironment::enable_syscall_logging();
-
-    let mut handler = env.prepare_test(move || -> () {
-        let nonce = SHA256Hash::from([7; 32]);
-        let deployed_addr = deploy_contract(&nonce, &contract_hash).unwrap();
-        let mut client = Client::new(&deployed_addr);
-        match test_fibonacci_inner(&mut client) {
-            Ok(_) => (),
-            Err(error) => panic!("test failed: {}", error),
-        }
-    });
-
-    let res = handler.root_invoke();
-    assert_eq!(res.output.status_code(), InvocationFrameStatusCode::kInvocationFrameStatusCodeReturn as i32);
+client_test! { FibonacciContract =>
+    fn test_fibonacci(client: &mut Client) {
+        test_fibonacci_inner(client)
+    }
 }
 
-fn test_fibonacci_inner(client: &mut Client) -> InvokeResult<()> {
-    assert_eq!(client.fibonacci(0)?, 0);
-    assert_eq!(client.fibonacci(1)?, 1);
-    assert_eq!(client.fibonacci(2)?, 1);
-    assert_eq!(client.fibonacci(3)?, 2);
-    assert_eq!(client.fibonacci(4)?, 3);
-    assert_eq!(client.fibonacci(5)?, 5);
-    assert_eq!(client.fibonacci(6)?, 8);
+fn test_fibonacci_inner(client: &mut Client) {
+    assert_eq!(client.fibonacci(0), 0);
+    assert_eq!(client.fibonacci(1), 1);
+    assert_eq!(client.fibonacci(2), 1);
+    assert_eq!(client.fibonacci(3), 2);
+    assert_eq!(client.fibonacci(4), 3);
+    assert_eq!(client.fibonacci(5), 5);
+    assert_eq!(client.fibonacci(6), 8);
 
-    assert_eq!(client.slow_fibonacci(0)?, 0);
-    assert_eq!(client.slow_fibonacci(1)?, 1);
-    assert_eq!(client.slow_fibonacci(2)?, 1);
-    assert_eq!(client.slow_fibonacci(3)?, 2);
-    assert_eq!(client.slow_fibonacci(4)?, 3);
-    assert_eq!(client.slow_fibonacci(5)?, 5);
-    assert_eq!(client.slow_fibonacci(6)?, 8);
+    assert_eq!(client.slow_fibonacci(0), 0);
+    assert_eq!(client.slow_fibonacci(1), 1);
+    assert_eq!(client.slow_fibonacci(2), 1);
+    assert_eq!(client.slow_fibonacci(3), 2);
+    assert_eq!(client.slow_fibonacci(4), 3);
+    assert_eq!(client.slow_fibonacci(5), 5);
+    assert_eq!(client.slow_fibonacci(6), 8);
 
-    assert_eq!(client.fibonacci(0)?, 0);
-    assert_eq!(client.fibonacci(1)?, 1);
-    assert_eq!(client.fibonacci(2)?, 1);
-    assert_eq!(client.fibonacci(3)?, 2);
-    assert_eq!(client.fibonacci(4)?, 3);
-    assert_eq!(client.fibonacci(5)?, 5);
-    assert_eq!(client.fibonacci(6)?, 8);
+    assert_eq!(client.fibonacci(0), 0);
+    assert_eq!(client.fibonacci(1), 1);
+    assert_eq!(client.fibonacci(2), 1);
+    assert_eq!(client.fibonacci(3), 2);
+    assert_eq!(client.fibonacci(4), 3);
+    assert_eq!(client.fibonacci(5), 5);
+    assert_eq!(client.fibonacci(6), 8);
 
-    assert_eq!(client.slow_fibonacci(0)?, 0);
-    assert_eq!(client.slow_fibonacci(1)?, 1);
-    assert_eq!(client.slow_fibonacci(2)?, 1);
-    assert_eq!(client.slow_fibonacci(3)?, 2);
-    assert_eq!(client.slow_fibonacci(4)?, 3);
-    assert_eq!(client.slow_fibonacci(5)?, 5);
-    assert_eq!(client.slow_fibonacci(6)?, 8);
+    assert_eq!(client.slow_fibonacci(0), 0);
+    assert_eq!(client.slow_fibonacci(1), 1);
+    assert_eq!(client.slow_fibonacci(2), 1);
+    assert_eq!(client.slow_fibonacci(3), 2);
+    assert_eq!(client.slow_fibonacci(4), 3);
+    assert_eq!(client.slow_fibonacci(5), 5);
+    assert_eq!(client.slow_fibonacci(6), 8);
 
-    assert_eq!(client.fibonacci(10)?, client.slow_fibonacci(10)?);
-    assert_eq!(client.fibonacci(40)?, client.slow_fibonacci(40)?);
-
-    Ok(())
+    assert_eq!(client.fibonacci(10), client.slow_fibonacci(10));
+    assert_eq!(client.fibonacci(40), client.slow_fibonacci(40));
 }

@@ -1,7 +1,5 @@
 use sdk::*;
 
-pub use sdk::contract_result::*;
-
 #[contract(client = Client)]
 pub trait AuthClaimTest {
     /// Test kInvokedAddressSignature authclaim from index 0

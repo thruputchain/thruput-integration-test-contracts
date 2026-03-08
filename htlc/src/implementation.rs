@@ -1,11 +1,9 @@
-use super::interface::*;
+use crate::HTLC;
 use sdk::*;
 
 use sdk::storage::Map;
 
 use groundhog_erc20_if::ERC20Client;
-
-use xdrs::WriteXDR;
 
 // An HTLC can be in 3 states:
 // 1. Created: The HTLC has been created and can be claimed.
@@ -30,7 +28,7 @@ impl HTLCEntry {
 }
 
 #[storage]
-pub struct HTLCContract {
+struct HTLCContract {
     htlcs: Map<SHA256Hash, HTLCEntry>,
 }
 
@@ -40,29 +38,27 @@ fn get_block_height() -> BlockHeight {
     height
 }
 
-#[contract(exports = "guest_exports")]
+#[contract]
 impl HTLC for HTLCContract {
 
     #[init]
-    fn initialize(&mut self) -> () {
-        ()
-    }
+    fn initialize(&mut self) {}
 
     fn create_htlc(&mut self, 
         receiver: &ContractAddress, 
         token: &ContractAddress, 
         amount: i128, 
         expiration_height: BlockHeight, 
-        hash: &SHA256Hash) -> () {
+        hash: &SHA256Hash) {
 
         assert!(amount > 0);
 
-        if self.htlcs.try_get(hash).unwrap().is_some() {
+        if self.htlcs.try_get(hash).is_some() {
             panic!("HTLC already exists");
         }
 
         let htlc = HTLCEntry {
-            sender: sdk::get_caller().unwrap(),
+            sender: sdk::get_caller(),
             receiver: receiver.clone(),
             token: token.clone(),
             amount: amount.clone(),
@@ -70,44 +66,44 @@ impl HTLC for HTLCContract {
         };
 
         let mut token_client = htlc.token_client();
-        let self_address = sdk::get_current_address().unwrap();
-        token_client.transfer_from(&htlc.sender, &self_address, htlc.amount as u128).unwrap();
+        let self_address = sdk::get_current_address();
+        token_client.transfer_from(&htlc.sender, &self_address, htlc.amount as u128);
 
-        self.htlcs.set_exclusive(hash, &htlc).unwrap();
+        self.htlcs.set_exclusive(hash, &htlc);
     }
 
     fn claim_htlc(&mut self, 
         hash: &SHA256Hash, 
-        preimage: &SHA256Hash) -> () {
-        
-        let htlc = self.htlcs.get(hash).unwrap();
+        preimage: &SHA256Hash) {
+
+        let htlc = self.htlcs.get(hash);
 
         if htlc.expiration_height < get_block_height() {
             panic!("HTLC expired");
         }
 
-        if sdk::crypto::sha256(preimage) != *hash {
+        if sdk::crypto::sha256(preimage.as_ref()) != *hash {
             panic!("Invalid preimage");
         }
 
         let mut token_client = htlc.token_client();
-        token_client.transfer(&htlc.receiver, htlc.amount as u128).unwrap();
+        token_client.transfer(&htlc.receiver, htlc.amount as u128);
 
-        self.htlcs.delete_exclusive(hash).unwrap();
+        self.htlcs.delete_exclusive(hash);
     }
 
     fn refund_htlc(&mut self, 
         hash: &SHA256Hash) -> () {
-        let htlc = self.htlcs.get(hash).unwrap();
+        let htlc = self.htlcs.get(hash);
 
         if htlc.expiration_height >= get_block_height() {
             panic!("HTLC not expired");
         }
 
         let mut token_client = htlc.token_client();
-        token_client.transfer(&htlc.sender, htlc.amount as u128).unwrap();
+        token_client.transfer(&htlc.sender, htlc.amount as u128);
 
-        self.htlcs.delete_exclusive(hash).unwrap();
+        self.htlcs.delete_exclusive(hash);
     }
 }
 

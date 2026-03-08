@@ -18,16 +18,11 @@ path = "src/bin/generate_spec.rs"
 required-features = ["spec"]
 
 [features]
-default = ["guest"]
-client = []
-guest = []
-mock = ["guest", "sdk/mock", "std"]
-spec = ["sdk/spec", "std", "client"]
+dev = ["sdk/dev", "std"]
+spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
-logging = ["sdk/logging"]
-
 
 [dev-dependencies]
-ed25519_verify_wrapper = { path = ".", features = ["mock", "client"] }
+ed25519_verify_wrapper = { path = ".", features = ["dev"] }
 ed25519-dalek = { version = "2.1", features = ["rand_core"] }
 rand = "0.8"
