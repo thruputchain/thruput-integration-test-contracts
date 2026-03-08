@@ -16,10 +16,10 @@ unsafe extern "C" {
     ) -> i32;
 }
 
-// NonnegativeIntGet: args = (key, force_load, current_set, current_set_opt, current_add, 0, 0)
-const K_SYSCALL_NONNEGATIVE_INT_GET: u64 = 16;
-// GetCalldata: args = (output_buffer_ptr, output_buffer_len, output_written_len, 0, 0, 0, 0)
-const K_SYSCALL_GET_CALLDATA: u64 = 3;
+const K_SYSCALL_NONNEGATIVE_INT_GET: u64 =
+    sdk::sys::SyscallNo::kNonnegativeIntGet as u64;
+const K_SYSCALL_GET_CALLDATA: u64 = sdk::sys::SyscallNo::kGetCalldata as u64;
+const K_SYSCALL_LOG_EVENT: u64 = sdk::sys::SyscallNo::kLogEvent as u64;
 
 const K_FAULT: i32 = 1; // SyscallErrorCode::kSyscallErrorCodeFault
 
@@ -159,5 +159,56 @@ impl OutputAliasTest for OutputAliasTestContract {
         };
 
         assert_not_fault(err_code);
+    }
+
+    // Two optional input pointers at the same address must fault.
+    // LogEvent: (topic0_ptr, topic1_ptr, topic2_ptr, data_ptr, data_len, 0, 0)
+    fn test_log_event_input_input_alias(&self) {
+        let topic = [0u8; 32];
+        let topic_ptr = &topic as *const _ as u64;
+
+        // Pass the same topic pointer for topic0 and topic2 (topic1=None).
+        let err_code = unsafe {
+            direct_syscall(
+                K_SYSCALL_LOG_EVENT,
+                topic_ptr,         // topic0
+                u64::MAX,          // topic1 = None
+                topic_ptr,         // topic2 = same address as topic0!
+                0,                 // data ptr (empty)
+                0,                 // data len
+                0,
+                0,
+            )
+        };
+
+        assert_fault(err_code);
+    }
+
+    fn test_nnint_input_alias_output(&self) {
+
+        let mut buf = [0xAAu8; 64];
+        let mut opt: bool = false;
+
+        let current_set_ptr = buf.as_mut_ptr() as u64;
+        let current_add_ptr = (buf.as_mut_ptr() as u64) + 32;
+        let key_ptr = buf.as_mut_ptr() as u64;
+
+        let err_code = unsafe {
+            direct_syscall(
+                K_SYSCALL_NONNEGATIVE_INT_GET,
+                key_ptr,
+                1, // force_load = true
+                current_set_ptr,                   // current_set at buf[0..16] (overlaps input key)
+                &mut opt as *mut bool as u64,      // current_set_opt
+                current_add_ptr,                   // current_add at buf[32..48] (no overlap)
+                0,
+                0,
+            )
+        };
+
+        assert_fault(err_code);
+        // Verify the buffer was not modified.
+        assert_eq!(buf, [0xAAu8; 64], "overlapping output was overwritten");
+
     }
 }
