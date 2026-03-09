@@ -24,6 +24,7 @@ test = false
 dev = ["sdk/dev", "fibonacci/dev"]
 spec = ["sdk/spec", "std"]
 std = ["sdk/std", "fibonacci/std"]
+logging = ["sdk/logging"]
 
 [dev-dependencies]
 fibonacci_call = { path = ".", features = ["dev"] }
