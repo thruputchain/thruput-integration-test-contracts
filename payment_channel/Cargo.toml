@@ -26,6 +26,7 @@ doctest = false
 dev = ["sdk/dev", "std"]
 spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
+logging = ["sdk/logging"]
 
 [dev-dependencies]
 payment_channel = { path = ".", features = ["dev"] }

@@ -24,6 +24,7 @@ doctest = false
 dev = ["sdk/dev"]
 spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
+logging = ["sdk/logging"]
 bottle-test = ["dep:bottle-test-if"]
 
 [dev-dependencies]

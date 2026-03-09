@@ -1,10 +1,7 @@
-use sdk::spec::HasSpecification;
 use std::env;
 use std::fs;
-use xdrs::xdr_repr::XDR;
 
 fn main() {
-    // Note: the cxs roundtrip test uses the same types as the txs roundtrip test.
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
@@ -25,15 +22,8 @@ fn main() {
         output.push_str(&format!("namespace {} {{\n\n", ns));
     }
 
-    output.push_str("typedef int SysErr;\n");
-
-    output.push_str(&format!("{}", sdk::storage::error::StorageError::spec()));
-
-    output.push_str(&format!("{}", sdk::sysresult::ErrorMsg::def()));
-    output
-        .push_str(&format!("{}", sdk::contract_result::ContractError::spec()));
-
-    output.push_str(&format!("{}", sdk::contract_result::Error::spec()));
+    // StorageError, ContractError, Error types were removed in SDK Exceptions PR.
+    // No additional types needed for roundtrip testing.
 
     if namespace.is_some() {
         output.push_str("\n\n} // namespace\n");

@@ -23,9 +23,12 @@ path = "src/bin/generate_types.rs"
 required-features = ["spec"]
 
 [features]
+default = ["xdrs"]
+xdrs = []
 dev = ["sdk/dev"]
 spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
+logging = ["sdk/logging"]
 
 [dev-dependencies]
 txs_roundtrip = { path = ".", features = ["dev"] }

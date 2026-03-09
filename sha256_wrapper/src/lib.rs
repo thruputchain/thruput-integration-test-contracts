@@ -5,7 +5,7 @@ extern crate std;
 
 extern crate alloc;
 
-mod interface;
+pub mod interface;
 mod implementation;
 
 pub use interface::Sha256Wrapper;

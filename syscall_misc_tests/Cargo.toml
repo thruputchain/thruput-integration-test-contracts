@@ -24,6 +24,7 @@ required-features = ["spec"]
 [features]
 dev = ["sdk/dev"]
 spec = ["sdk/spec"]
+logging = ["sdk/logging"]
 
 [dev-dependencies]
 syscall_misc_tests = { path = ".", features = ["dev"] }

@@ -16,15 +16,11 @@ impl ReturnFaultTest for ReturnFaultTestContract {
             Ok(_) => {
                 panic!("test_inner should have failed");
             }
-            Err(sdk::call::CallError::Abort(e)) => {
-                e.as_syscall_exn().map(|exn|
-                    if !exn.has_code(SyscallErrorCode::kSyscallErrorCodeDeterministicWasm) {
-                        panic!("Unexpected error code in {exn}");
-                    })
-                .unwrap_or_else(|| panic!("Expected a syscall exception: {e:?}"))
+            Err(sdk::call::CallError::Fault(_)) => {
+                // Expected: inner contract faulted due to out-of-bounds memory access
             }
             Err(e) =>
-                panic!("Expected the call to abort: {e:?}"),
+                panic!("Expected the call to fault: {e:?}"),
         }
     }
 

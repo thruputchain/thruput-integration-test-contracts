@@ -67,13 +67,13 @@ impl ReadOnlyTest for ReadOnlyTestContract {
 
     fn read_only_native_get_balance(&self, target_addr: &ContractAddress) {
         let flag = groundhog_xdr::transaction::InvokeFlag::kInvokeFlagReadOnly as i32;
-        let calldata: &[u8] = target_addr.as_ref();
+        let calldata = cxs::encode(target_addr).unwrap();
         let mut return_len = 0u32;
         let res = sdk::sys::raw_Invoke(
             &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
             ERC20_GET_BALANCE_OF,
             u64::MAX,
-            calldata,
+            &calldata,
             flag,
             &mut return_len,
         );
@@ -82,10 +82,8 @@ impl ReadOnlyTest for ReadOnlyTestContract {
 
     fn read_only_native_transfer(&self, receiver_addr: &ContractAddress) {
         let flag = groundhog_xdr::transaction::InvokeFlag::kInvokeFlagReadOnly as i32;
-        let mut calldata = [0u8; 48];
-        calldata[..32].copy_from_slice(receiver_addr.as_ref());
-        // amount = (0, 100) = 100 units
-        calldata[40..48].copy_from_slice(&100u64.to_be_bytes());
+        // CXS-encode the arguments: (ContractAddress, (u64, u64))
+        let calldata = cxs::encode(&(*receiver_addr, (0u64, 100u64))).unwrap();
         let mut return_len = 0u32;
         let res = sdk::sys::raw_Invoke(
             &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,

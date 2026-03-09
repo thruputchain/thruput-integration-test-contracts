@@ -24,6 +24,7 @@ required-features = ["spec"]
 dev = ["sdk/dev", "std"]
 std = ["sdk/std"]
 spec = ["std", "sdk/spec", "dep:xdrs"]
+logging = ["sdk/logging"]
 alloc = []
 
 [dev-dependencies]

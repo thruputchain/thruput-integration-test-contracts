@@ -23,6 +23,7 @@ doctest = false
 dev = ["sdk/dev", "std"]
 spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
+logging = ["sdk/logging"]
 
 [dev-dependencies]
 htlc = { path = ".", features = ["dev"] }

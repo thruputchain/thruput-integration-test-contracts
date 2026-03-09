@@ -1,5 +1,4 @@
-use manual_revert_test::interface::ManualRevertTestError as Error;
-use sdk::spec::HasSpecification;
+use manual_revert_test::interface::ManualRevertTestError;
 use std::env;
 use std::fs;
 use xdrs::xdr_repr::XDR;
@@ -25,15 +24,7 @@ fn main() {
         output.push_str(&format!("namespace {} {{\n\n", ns));
     }
 
-    output.push_str("typedef int SysErr;\n");
-
-    output.push_str(&format!("{}", sdk::storage::error::StorageError::spec()));
-
-    output.push_str(&format!("{}", sdk::sysresult::ErrorMsg::def()));
-    output
-        .push_str(&format!("{}", sdk::contract_result::ContractError::spec()));
-
-    output.push_str(&format!("{}", Error::spec()));
+    output.push_str(&format!("{}", ManualRevertTestError::def()));
 
     if namespace.is_some() {
         output.push_str("\n\n} // namespace\n");

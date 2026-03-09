@@ -5,7 +5,7 @@ extern crate std;
 
 extern crate alloc;
 
-mod interface;
+pub mod interface;
 mod implementation;
 
 // A trait describing the contract interface

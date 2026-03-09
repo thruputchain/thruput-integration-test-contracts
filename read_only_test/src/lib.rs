@@ -6,6 +6,7 @@ extern crate std;
 extern crate alloc;
 
 pub mod interface;
+pub use interface::Client;
 
 mod implementation;
 

@@ -1,5 +1,6 @@
 use super::interface::*;
 use sdk::*;
+use sdk::sys::SyscallErrorCode;
 
 #[link(wasm_import_module = "marmot")]
 unsafe extern "C" {

@@ -1,19 +1,35 @@
 use sdk::*;
+use thiserror::Error;
 
-#[contract(client = "Client")]
+#[derive(WriteXDR, ReadXDR, Copy, Clone, Debug, PartialEq, Error)]
+#[cfg_attr(feature = "spec", derive(xdrs::XDR))]
+#[repr(i32)]
+pub enum ManualRevertTestError {
+    #[error("Basic revert")]
+    BasicRevert = 1,
+
+    #[error("Error type revert")]
+    ErrorTypeRevert = 2,
+
+    #[error("Nested revert")]
+    NestedRevert = 3,
+
+    #[error("Storage revert")]
+    StorageRevert = 4,
+}
+
+#[contract(client = "Client", throws = ManualRevertTestError)]
 pub trait ManualRevertTest {
     /// Tests basic manual revert functionality.
-    /// When should_revert=true, writes storage then returns Err (triggering manual revert).
-    /// When should_revert=false, writes storage and returns Ok (normal success).
-    /// The manual revert should preserve error data while reverting storage changes.
+    /// When should_revert=true, writes storage then aborts (triggering manual revert).
+    /// When should_revert=false, writes storage and returns normally.
     fn test_basic_manual_revert(
         &self,
         should_revert: bool,
     );
 
     /// Tests different error types to verify they all trigger manual revert.
-    /// Uses contract_error! and caller_error! macros to generate different error variants.
-    /// All non-zero error_type values should trigger manual revert via Result::Err.
+    /// All non-zero error_type values should trigger manual revert via abort.
     fn test_error_type_revert(
         &self,
         error_type: u32,
@@ -21,7 +37,6 @@ pub trait ManualRevertTest {
 
     /// Tests nested manual revert by calling internal_revert_method.
     /// Verifies that manual revert works correctly when triggered from a nested call.
-    /// The parent method should be able to handle the child's manual revert gracefully.
     fn test_nested_manual_revert(
         &self,
         child_should_revert: bool,
@@ -36,15 +51,11 @@ pub trait ManualRevertTest {
     );
 
     /// Internal helper method for testing nested manual revert scenarios.
-    /// Called by test_nested_manual_revert to simulate a child contract that may revert.
-    /// Demonstrates how manual revert propagates through the call stack.
     fn internal_revert_method(
         &self,
         should_revert: bool,
     );
 
     /// Utility method to check if test storage exists.
-    /// Returns true if the test storage key exists, false otherwise.
-    /// Used to verify that storage changes were properly reverted during manual revert.
     fn check_storage_exists(&self) -> bool;
 }

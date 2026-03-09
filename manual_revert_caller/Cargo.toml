@@ -19,9 +19,11 @@ xdrs = { workspace = true, features = ["derive", "alloc"] }
 manual_revert_test = { path = "../manual_revert_test" }
 
 [dev-dependencies]
-manual_revert_caller = { path = ".", features = ["mock", "client"] }
+manual_revert_caller = { path = ".", features = ["dev"] }
 
 [features]
+guest = []
 dev = ["sdk/dev", "manual_revert_test/dev"]
 std = ["sdk/std", "manual_revert_test/std"]
 spec = ["sdk/spec", "std"]
+logging = ["sdk/logging", "manual_revert_test/logging"]
