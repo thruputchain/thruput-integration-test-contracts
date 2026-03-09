@@ -328,7 +328,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let topic2 = [1u8; 32];
         // topic0=Some, topic1=None, topic2=Some → gap
         let res = sys::raw_LogEvent(
-            Some(&topic), None, Some(&topic), &[],
+            Some(&topic0), None, Some(&topic2), &[],
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }

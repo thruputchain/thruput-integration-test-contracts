@@ -28,7 +28,7 @@ unsafe extern "C" {
     ) -> i32;
 }
 
-const K_SYSCALL_BYTESTRING_SET: u64 = groundhog_xdr::syscalls::SyscallNo::kBytestringSet as u64;
+const K_SYSCALL_BYTESTRING_SET: u64 = groundhog_xdr::SyscallNo::kBytestringSet as u64;
 
 // ERC20 v0.2.x entrypoints, derived from SHA256("ERC20" || "0.2" || method_name)
 const ERC20_GET_BALANCE_OF: u64 = entrypoint_id(sdk::hash_to_array!("ERC200.2get_balance_of"));
@@ -142,7 +142,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
 
     fn read_only_aliasing_before_read_only_check(&self)
     {
-        let addr = sdk::get_current_address().unwrap();
+        let addr = sdk::get_current_address();
         let entrypoint =
             u64::from_be_bytes(crate::READ_ONLY_ALIASING_BEFORE_READ_ONLY_CHECK_INNER_EXPORT_NUM.into_inner());
         let flag = groundhog_xdr::transaction::InvokeFlag::kInvokeFlagReadOnly as i32;
