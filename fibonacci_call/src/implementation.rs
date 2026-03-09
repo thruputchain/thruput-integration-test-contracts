@@ -40,6 +40,11 @@ impl FibonacciCaller for FibonacciContractCaller {
         }
     }
 
+    fn call_burn_gas(&mut self, gas_limit: u64) {
+        let mut client = fibonacci::Client::new(&self.address);
+        client.with_gas_limit(gas_limit).burn_gas();
+    }
+
     fn call_burn_gas_expect_out_of_gas(&mut self, gas_limit: u64) {
         let mut client = fibonacci::Client::new(&self.address);
         let result = client
