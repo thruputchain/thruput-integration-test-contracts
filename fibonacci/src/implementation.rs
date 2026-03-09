@@ -33,6 +33,13 @@ impl Fibonacci for FibonacciContract {
         self.slow_fibonacci(n - 1) + self.slow_fibonacci(n - 2)
     }
 
+    fn burn_gas(&self) {
+        let mut buf = [0u8; 32];
+        loop {
+            buf = sdk::crypto::sha256(&buf).into_inner();
+        }
+    }
+
     fn change_nonce_config(&self, required_weight: u32) {
         sdk::set_nonce_config(NonceConfig{
             accepted_keys: 0x01,

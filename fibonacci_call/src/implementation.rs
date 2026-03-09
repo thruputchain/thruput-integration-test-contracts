@@ -39,4 +39,15 @@ impl FibonacciCaller for FibonacciContractCaller {
             other => panic!("Expected Fault from out-of-gas, got: {:?}", other),
         }
     }
+
+    fn call_burn_gas_expect_out_of_gas(&mut self, gas_limit: u64) {
+        let mut client = fibonacci::Client::new(&self.address);
+        let result = client
+            .with_gas_limit(gas_limit)
+            .try_burn_gas();
+        match result {
+            Err(sdk::call::CallError::Fault(_)) => {} // expected out-of-gas fault
+            other => panic!("Expected Fault from out-of-gas, got: {:?}", other),
+        }
+    }
 }
