@@ -9,7 +9,7 @@ pub struct BT {
     target_addr: Option<ContractAddress>,
 }
 
-#[contract]
+#[contract(version = "0.1.0")]
 impl BottleTest for BT {
 
     #[init]
