@@ -22,7 +22,7 @@ test = false
 [features]
 dev = ["sdk/dev", "sdk/std", "groundhog-erc1271-if/dev"]
 spec = ["sdk/spec", "std", "groundhog-erc1271-if/spec"]
-std = ["sdk/std", "groundhog-erc1271-if/std"]
+std = ["sdk/std"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]

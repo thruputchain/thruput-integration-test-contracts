@@ -1,13 +1,11 @@
-use crate::{Client, FibonacciContract};
-use sdk::*;
+use crate::{Client, implementation::test_setup};
 
-client_test! { FibonacciContract =>
-    fn test_fibonacci(client: &mut Client) {
-        test_fibonacci_inner(client)
-    }
+#[test]
+fn test_fibonacci() {
+    sdk::client_test(test_setup::register, test_fibonacci_client)
 }
 
-fn test_fibonacci_inner(client: &mut Client) {
+fn test_fibonacci_client(client: &mut Client) {
     assert_eq!(client.fibonacci(0), 0);
     assert_eq!(client.fibonacci(1), 1);
     assert_eq!(client.fibonacci(2), 1);

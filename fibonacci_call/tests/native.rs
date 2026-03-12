@@ -1,16 +1,14 @@
-use sdk::TestRegister;
-
 static FIBONACCI_NONCE: sdk::SHA256Hash = sdk::sha256_static!("FIBONACCI_TEST_NONCE");
 static CALLER_NONCE: sdk::SHA256Hash = sdk::sha256_static!("FIBONACCI_CALLER_TEST_NONCE");
 
 fn setup_env() -> (sdk::TestEnvironmentHandle, sdk::SHA256Hash, sdk::SHA256Hash) {
     let mut env = sdk::TestEnvironment::no_cost();
 
-    let fibonacci_contract = fibonacci::FibonacciContract::register(&mut env);
+    let fibonacci_contract = fibonacci::test_setup::register(&mut env);
     let fibonacci_hash = env.setup_create_contract(&fibonacci_contract);
 
     let caller_contract =
-        fibonacci_call::FibonacciContractCaller::register(&mut env);
+        fibonacci_call::test_setup::register(&mut env);
     let caller_hash = env.setup_create_contract(&caller_contract);
 
     (env, fibonacci_hash, caller_hash)
