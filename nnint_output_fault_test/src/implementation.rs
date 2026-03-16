@@ -21,7 +21,7 @@ const K_SYSCALL_NONNEGATIVE_INT_GET: u64 = 16;
 const K_OOB_PTR: u64 = u64::MAX - 1;
 
 fn assert_fault(actual: i32) {
-    assert_eq!(actual, SyscallErrorCode::kSyscallErrorCodeFault as i32);
+    assert_eq!(actual, SyscallErrorCode::kSyscallErrorCodeFault.0);
 }
 
 #[derive(Default)]

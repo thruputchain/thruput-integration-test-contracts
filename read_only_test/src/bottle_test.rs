@@ -25,7 +25,7 @@ impl BottleTest for BT {
 
         let mut return_len : core::mem::MaybeUninit<u32> = core::mem::MaybeUninit::uninit();
 
-        let flag: i32 = transaction::InvokeFlag::kInvokeFlagReadOnly as i32;
+        let flag: i32 = transaction::InvokeFlag::kInvokeFlagReadOnly.0;
 
         use crate::implementation::exports::READ_ONLY_BYTESTRING_SET_EXPORT_NUM;
 

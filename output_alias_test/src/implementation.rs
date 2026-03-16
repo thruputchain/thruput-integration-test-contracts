@@ -17,9 +17,9 @@ unsafe extern "C" {
 }
 
 const K_SYSCALL_NONNEGATIVE_INT_GET: u64 =
-    sdk::sys::SyscallNo::kNonnegativeIntGet as u64;
-const K_SYSCALL_GET_CALLDATA: u64 = sdk::sys::SyscallNo::kGetCalldata as u64;
-const K_SYSCALL_LOG_EVENT: u64 = sdk::sys::SyscallNo::kLogEvent as u64;
+    sdk::sys::SyscallNo::kNonnegativeIntGet.0 as u64;
+const K_SYSCALL_GET_CALLDATA: u64 = sdk::sys::SyscallNo::kGetCalldata.0 as u64;
+const K_SYSCALL_LOG_EVENT: u64 = sdk::sys::SyscallNo::kLogEvent.0 as u64;
 
 const K_FAULT: i32 = 1; // SyscallErrorCode::kSyscallErrorCodeFault
 

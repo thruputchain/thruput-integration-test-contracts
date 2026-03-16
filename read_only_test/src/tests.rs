@@ -24,7 +24,7 @@ fn test_read_only_bytestring_set_inner(
     let mut return_len: core::mem::MaybeUninit<u32> = core::mem::MaybeUninit::uninit();
 
     let flag: i32 =
-        groundhog_xdr::transaction::InvokeFlag::kInvokeFlagReadOnly as i32;
+        groundhog_xdr::transaction::InvokeFlag::kInvokeFlagReadOnly.0;
 
     let entrypoint_id =
         u64::from_be_bytes(READ_ONLY_BYTESTRING_SET_EXPORT_NUM.into_inner());
