@@ -13,7 +13,7 @@ pub struct SimpleWalletAuthClaimContract;
 impl SimpleWalletAuthClaim for SimpleWalletAuthClaimContract {
     #[init]
     fn initialize(&mut self, owner: &Ed25519PublicKey) {
-        let scheme = CryptographicScheme::Ed25519 as i32;
+        let scheme = CryptographicScheme::Ed25519.0;
         let weight = 1u32;
         raw_ChangePublicKeyRegistration(0, Some(&scheme), owner.as_ref(), Some(&weight)).unwrap();
 

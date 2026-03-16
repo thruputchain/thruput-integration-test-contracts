@@ -23,7 +23,7 @@ const K_SYSCALL_CHANGE_PUBLIC_KEY_REGISTRATION: u64 = 23;
 const K_OOB_PTR: u64 = u64::MAX - 1;
 
 fn assert_code(actual: i32, expected: SyscallErrorCode) {
-    assert_eq!(actual, expected as i32);
+    assert_eq!(actual, expected.0);
 }
 
 #[derive(Default)]
