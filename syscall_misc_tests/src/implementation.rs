@@ -533,7 +533,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let entrypoint =
             u64::from_be_bytes(INTERNAL_TRY_BYTESTRING_SET_EXPORT_NUM.into_inner());
 
-        // Invoke with read-only flag (0x2 = kInvokeFlagReadOnly)
+        // Invoke with read-only flag (0x2 = ReadOnly)
         // internal_try_bytestring_set will verify that BytestringSet
         // returns kInvalidSyscallInput, then return normally
         let res = sys::raw_Invoke(

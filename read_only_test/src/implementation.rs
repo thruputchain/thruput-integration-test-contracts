@@ -66,7 +66,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
     }
 
     fn read_only_native_get_balance(&self, target_addr: &ContractAddress) {
-        let flag = groundhog_xdr::transaction::InvokeFlag::kInvokeFlagReadOnly.0;
+        let flag = groundhog_xdr::transaction::InvokeFlag::ReadOnly.0;
         let calldata = cxs::encode(target_addr).unwrap();
         let mut return_len = 0u32;
         let res = sdk::sys::raw_Invoke(
@@ -81,7 +81,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
     }
 
     fn read_only_native_transfer(&self, receiver_addr: &ContractAddress) {
-        let flag = groundhog_xdr::transaction::InvokeFlag::kInvokeFlagReadOnly.0;
+        let flag = groundhog_xdr::transaction::InvokeFlag::ReadOnly.0;
         // CXS-encode the arguments: (ContractAddress, (u64, u64))
         let calldata = cxs::encode(&(*receiver_addr, (0u64, 100u64))).unwrap();
         let mut return_len = 0u32;
@@ -101,7 +101,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         let addr = sdk::get_current_address();
         let entrypoint =
             u64::from_be_bytes(crate::READ_ONLY_DEPLOY_INNER_EXPORT_NUM.into_inner());
-        let flag = groundhog_xdr::transaction::InvokeFlag::kInvokeFlagReadOnly.0;
+        let flag = groundhog_xdr::transaction::InvokeFlag::ReadOnly.0;
         let mut return_len = 0u32;
         let res = sdk::sys::raw_Invoke(
             &addr,
@@ -143,7 +143,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         let addr = sdk::get_current_address();
         let entrypoint =
             u64::from_be_bytes(crate::READ_ONLY_ALIASING_BEFORE_READ_ONLY_CHECK_INNER_EXPORT_NUM.into_inner());
-        let flag = groundhog_xdr::transaction::InvokeFlag::kInvokeFlagReadOnly.0;
+        let flag = groundhog_xdr::transaction::InvokeFlag::ReadOnly.0;
         let mut return_len = 0u32;
         let res = sdk::sys::raw_Invoke(
             &addr,
