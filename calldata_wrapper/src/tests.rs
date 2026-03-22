@@ -18,7 +18,7 @@ fn test_calldata_wrapper() {
     });
 
     let res = handler.root_invoke();
-    assert_eq!(res.output.status_code(), InvocationFrameStatusCode::kInvocationFrameStatusCodeReturn.0);
+    assert_eq!(res.output.status_code(), InvocationFrameStatusCode::Return);
 }
 
 fn test_calldata_wrapper_inner(
