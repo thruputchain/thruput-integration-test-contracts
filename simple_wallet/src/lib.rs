@@ -21,7 +21,7 @@ pub fn register(
     env: &sdk::TestEnvironmentHandle,
 ) -> ::sdk::types::Contract {
     let mut contract = env.add_contract();
-    contract.register(<SimpleWalletContract as ERC1271>::__register_mock);
-    contract.register(<SimpleWalletContract as SimpleWallet>::__register_mock);
+    contract.register(<SimpleWalletContract as ERC1271>::__mock);
+    contract.register(<SimpleWalletContract as SimpleWallet>::__mock);
     contract.as_contract()
 }
