@@ -9,10 +9,9 @@ pub struct Ed25519VerifyWrapperContract;
 // This implements the Fibonacci interface.  The `contract` macro provides
 // an exported entrypoint for each method; these will be placed in a
 // module with the specified name ("guest_exports").
-#[contract(storage = false)]
+#[contract]
 impl Ed25519VerifyWrapper for Ed25519VerifyWrapperContract {
     fn ed25519_verify(
-        &self,
         message: &[u8],
         signature: &Ed25519Signature,
         public_key: &Ed25519PublicKey,
@@ -21,14 +20,13 @@ impl Ed25519VerifyWrapper for Ed25519VerifyWrapperContract {
     }
 
     fn ed25519_verify_repeated(
-        &self,
         n: u32,
         message: &[u8],
         signature: &Ed25519Signature,
         public_key: &Ed25519PublicKey,
     ) {
         for _ in 0..n {
-            assert!(self.ed25519_verify(message, signature, public_key));
+            assert!(Self::ed25519_verify(message, signature, public_key));
         }
     }
 }
