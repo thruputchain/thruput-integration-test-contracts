@@ -3,7 +3,7 @@ use crate::Client;
 #[test]
 fn test_fibonacci() {
     sdk::client_test(
-        |env| env.register_mock::<crate::FibonacciContract, dyn crate::Fibonacci>(),
+        |env| env.register_mock(<crate::FibonacciContract as crate::Fibonacci>::__register_mock),
         test_fibonacci_client,
     )
 }

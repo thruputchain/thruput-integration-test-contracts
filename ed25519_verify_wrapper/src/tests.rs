@@ -7,7 +7,7 @@ use std::vec;
 #[test]
 fn test_ed25519_verify_wrapper() {
     sdk::client_test(
-        |env| env.register_mock::<Ed25519VerifyWrapperContract, dyn Ed25519VerifyWrapper>(),
+        |env| env.register_mock(<Ed25519VerifyWrapperContract as Ed25519VerifyWrapper>::__register_mock),
         test,
     );
 }

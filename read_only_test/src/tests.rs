@@ -5,7 +5,7 @@ use sdk::*;
 fn test_read_only_bytestring_set() {
     let env = sdk::TestEnvironment::no_cost();
 
-    let test_contract = env.register_mock::<ReadOnlyTestContract, dyn ReadOnlyTest>();
+    let test_contract = env.register_mock(<ReadOnlyTestContract as ReadOnlyTest>::__register_mock);
     let contract_hash = env.setup_create_contract(&test_contract);
 
     contract_exec(env, move ||

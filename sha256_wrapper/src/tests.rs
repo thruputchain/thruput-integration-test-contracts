@@ -6,7 +6,7 @@ use std::vec;
 #[test]
 fn test_sha256_wrapper() {
     sdk::client_test(
-        |env| env.register_mock::<Sha256WrapperContract, dyn Sha256Wrapper>(),
+        |env| env.register_mock(<Sha256WrapperContract as Sha256Wrapper>::__register_mock),
         client_test,
     )
 }
