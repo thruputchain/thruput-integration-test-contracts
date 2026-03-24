@@ -15,5 +15,4 @@ mod implementation;
 
 pub use implementation::Token;
 
-#[cfg(feature = "dev")]
-pub use implementation::ERC20TestSetup;
+pub use interface::ERC20;

@@ -1,11 +1,11 @@
-use crate::{ReadOnlyTestContract, ReadOnlyTestTestSetup};
+use crate::{ReadOnlyTestContract, ReadOnlyTest};
 use sdk::*;
 
 #[test]
 fn test_read_only_bytestring_set() {
     let env = sdk::TestEnvironment::no_cost();
 
-    let test_contract = env.register_mock::<ReadOnlyTestContract, ReadOnlyTestTestSetup>();
+    let test_contract = env.register_mock::<ReadOnlyTestContract, dyn ReadOnlyTest>();
     let contract_hash = env.setup_create_contract(&test_contract);
 
     contract_exec(env, move ||

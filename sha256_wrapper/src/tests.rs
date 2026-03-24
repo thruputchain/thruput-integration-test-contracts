@@ -1,4 +1,4 @@
-use crate::{Client, Sha256WrapperContract, Sha256WrapperTestSetup};
+use crate::{Client, Sha256WrapperContract, Sha256Wrapper};
 use sha2::{Digest, Sha256};
 
 use std::vec;
@@ -6,7 +6,7 @@ use std::vec;
 #[test]
 fn test_sha256_wrapper() {
     sdk::client_test(
-        |env| env.register_mock::<Sha256WrapperContract, Sha256WrapperTestSetup>(),
+        |env| env.register_mock::<Sha256WrapperContract, dyn Sha256Wrapper>(),
         client_test,
     )
 }

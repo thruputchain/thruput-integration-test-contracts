@@ -12,9 +12,6 @@ mod implementation;
 
 pub use implementation::CalldataWrapperContract;
 
-#[cfg(feature = "dev")]
-pub use implementation::CalldataWrapperTestSetup;
-
 #[cfg(test)]
 mod tests;
 

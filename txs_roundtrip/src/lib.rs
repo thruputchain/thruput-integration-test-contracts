@@ -17,8 +17,7 @@ pub use interface::Client;
 
 pub use implementation::TxsRoundtripContract;
 
-#[cfg(feature = "dev")]
-pub use implementation::TxsRoundtripTestSetup;
+pub use interface::TxsRoundtrip;
 
 #[cfg(test)]
 mod tests;

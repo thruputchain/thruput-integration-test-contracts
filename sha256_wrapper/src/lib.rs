@@ -15,9 +15,6 @@ pub use interface::Client;
 
 pub use implementation::Sha256WrapperContract;
 
-#[cfg(feature = "dev")]
-pub use implementation::Sha256WrapperTestSetup;
-
 #[cfg(test)]
 mod tests;
 

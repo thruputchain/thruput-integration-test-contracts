@@ -15,5 +15,4 @@ pub use interface::CallerClient as Client;
 // An implementation of the contract interface
 pub use implementation::FibonacciContractCaller;
 
-#[cfg(feature = "dev")]
-pub use implementation::FibonacciCallerTestSetup;
+pub use interface::FibonacciCaller;

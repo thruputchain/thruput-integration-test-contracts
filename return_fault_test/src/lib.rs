@@ -12,6 +12,3 @@ pub use interface::ReturnFaultTest;
 pub use interface::Client;
 
 pub use implementation::ReturnFaultTestContract;
-
-#[cfg(feature = "dev")]
-pub use implementation::ReturnFaultTestTestSetup;

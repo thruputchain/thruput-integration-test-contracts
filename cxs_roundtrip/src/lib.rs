@@ -27,7 +27,7 @@ pub use implementation::guest_exports::*;
 #[cfg(feature = "mock")]
 pub use implementation::CxsRoundtripContract;
 #[cfg(feature = "mock")]
-pub use implementation::CxsRoundtripTestSetup;
+pub use interface::CxsRoundtrip;
 
 #[cfg(test)]
 mod tests;

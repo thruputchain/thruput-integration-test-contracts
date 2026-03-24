@@ -14,8 +14,7 @@ pub use interface::Client;
 // An implementation of the contract interface
 pub use implementation::FibonacciContract;
 
-#[cfg(feature = "dev")]
-pub use implementation::FibonacciTestSetup;
+pub use interface::Fibonacci;
 
 #[cfg(all(test, feature = "dev"))]
 mod tests;

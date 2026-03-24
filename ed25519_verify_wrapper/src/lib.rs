@@ -13,8 +13,7 @@ pub use interface::Client;
 
 pub use implementation::Ed25519VerifyWrapperContract;
 
-#[cfg(feature = "dev")]
-pub use implementation::Ed25519VerifyWrapperTestSetup;
+pub use interface::Ed25519VerifyWrapper;
 
 #[cfg(test)]
 mod tests;

@@ -23,7 +23,7 @@ pub use implementation::guest_exports::*;
 #[cfg(feature = "mock")]
 pub use implementation::TupleReturnContract;
 #[cfg(feature = "mock")]
-pub use implementation::TupleReturnTestSetup;
+pub use interface::TupleReturn;
 
 #[cfg(all(test, feature = "mock"))]
 mod tests;

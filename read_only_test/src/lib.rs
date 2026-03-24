@@ -15,8 +15,7 @@ pub use implementation::ReadOnlyTestContract;
 // Contract methods exposed with C ABI for running as guest
 pub use implementation::read_only_test_exports::*;
 
-#[cfg(feature = "dev")]
-pub use implementation::ReadOnlyTestTestSetup;
+pub use interface::ReadOnlyTest;
 
 #[cfg(test)]
 mod tests;

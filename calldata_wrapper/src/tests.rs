@@ -1,4 +1,4 @@
-use crate::{CalldataWrapperContract, CalldataWrapperTestSetup};
+use crate::{CalldataWrapperContract, CalldataWrapper};
 use crate::Client;
 use sdk::*;
 use sdk::transaction::InvocationFrameStatusCode;
@@ -8,7 +8,7 @@ use std::vec;
 fn test_calldata_wrapper() {
     let env = sdk::TestEnvironment::new(None);
 
-    let test_contract = env.register_mock::<CalldataWrapperContract, CalldataWrapperTestSetup>();
+    let test_contract = env.register_mock::<CalldataWrapperContract, dyn CalldataWrapper>();
     let contract_hash = env.setup_create_contract(&test_contract);
 
     // sdk::TestEnvironment::enable_syscall_logging();
