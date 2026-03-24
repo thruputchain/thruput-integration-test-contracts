@@ -14,5 +14,3 @@ pub use interface::CallerClient as Client;
 
 // An implementation of the contract interface
 pub use implementation::FibonacciContractCaller;
-
-pub use interface::FibonacciCaller;
