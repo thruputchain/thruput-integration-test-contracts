@@ -10,11 +10,10 @@ pub use interface::*;
 
 mod implementation;
 
-#[cfg(not(feature = "bottle-test"))]
-pub use implementation::exports::*;
+pub use implementation::CalldataWrapperContract;
 
 #[cfg(feature = "dev")]
-pub use implementation::test_setup;
+pub use implementation::CalldataWrapperTestSetup;
 
 #[cfg(test)]
 mod tests;

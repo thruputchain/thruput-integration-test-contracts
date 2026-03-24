@@ -1,4 +1,4 @@
-use crate::{Client, test_setup};
+use crate::{Client, Ed25519VerifyWrapperTestSetup, Ed25519VerifyWrapperContract};
 use ed25519_dalek::{Signer, SigningKey};
 use rand::rngs::OsRng;
 use sdk::*;
@@ -6,7 +6,10 @@ use std::vec;
 
 #[test]
 fn test_ed25519_verify_wrapper() {
-    sdk::client_test(test_setup::register, test);
+    sdk::client_test(
+        |env| env.register_mock::<Ed25519VerifyWrapperContract, Ed25519VerifyWrapperTestSetup>(),
+        test,
+    );
 }
 
 fn test(client: &mut Client) {

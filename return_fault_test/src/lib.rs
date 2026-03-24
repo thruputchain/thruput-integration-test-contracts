@@ -11,6 +11,7 @@ pub use interface::ReturnFaultTest;
 // A client stub that provides the interface via cross-contract calls
 pub use interface::Client;
 
-// Contract methods exposed with C ABI for running as guest
-pub use implementation::exports::*;
+pub use implementation::ReturnFaultTestContract;
 
+#[cfg(feature = "dev")]
+pub use implementation::ReturnFaultTestTestSetup;

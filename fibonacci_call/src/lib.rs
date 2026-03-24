@@ -15,8 +15,5 @@ pub use interface::CallerClient as Client;
 // An implementation of the contract interface
 pub use implementation::FibonacciContractCaller;
 
-// Contract methods exposed with C ABI for running as guest
-pub use implementation::exports::*;
-
 #[cfg(feature = "dev")]
-pub use implementation::test_setup;
+pub use implementation::FibonacciCallerTestSetup;

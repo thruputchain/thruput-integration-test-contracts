@@ -1,8 +1,11 @@
-use crate::{Client, implementation::test_setup};
+use crate::Client;
 
 #[test]
 fn test_tuple_return() {
-    sdk::client_test(test_setup::register, client_test)
+    sdk::client_test(
+        |env| env.register_mock::<crate::TupleReturnContract, crate::TupleReturnTestSetup>(),
+        client_test,
+    )
 }
 
 fn client_test(client: &mut Client) {

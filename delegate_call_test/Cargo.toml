@@ -17,7 +17,7 @@ test = false
 default = ["guest"]
 client = []
 guest = []
-mock = ["guest", "sdk/mock"]
+mock = ["guest", "sdk/dev"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]

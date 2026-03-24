@@ -74,7 +74,7 @@ fn add_to_allowance(
 }
 
 #[derive(Default)]
-struct Token;
+pub struct Token;
 
 #[contract(storage = "false", version = "0.1.0")]
 impl ERC20 for Token {

@@ -8,7 +8,7 @@ use xdrs::cxs;
 use xdrs::{ReadXDR, WriteXDR};
 
 #[derive(Default)]
-struct CxsRoundtripContract;
+pub struct CxsRoundtripContract;
 
 fn roundtrip<'a, T>(data: &'a [u8]) -> Vec<u8>
 where

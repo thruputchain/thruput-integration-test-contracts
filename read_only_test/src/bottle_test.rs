@@ -27,7 +27,7 @@ impl BottleTest for BT {
 
         let flag: i32 = transaction::InvokeFlag::ReadOnly.0;
 
-        use crate::implementation::exports::READ_ONLY_BYTESTRING_SET_EXPORT_NUM;
+        use crate::implementation::read_only_test_exports::READ_ONLY_BYTESTRING_SET_EXPORT_NUM;
 
         sys::uninit_Invoke(
             &target_addr,

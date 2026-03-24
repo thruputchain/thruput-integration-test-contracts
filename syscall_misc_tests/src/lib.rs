@@ -15,4 +15,4 @@ pub use interface::SyscallMiscTests;
 pub use interface::Client;
 
 // Contract methods exposed with C ABI for running as guest
-pub use implementation::exports::*;
+pub use implementation::syscall_misc_tests_exports::*;

@@ -13,11 +13,8 @@ pub use interface::Client;
 
 pub use implementation::Ed25519VerifyWrapperContract;
 
-// Contract methods exposed with C ABI for running as guest
-pub use implementation::exports::*;
-
 #[cfg(feature = "dev")]
-pub use implementation::test_setup;
+pub use implementation::Ed25519VerifyWrapperTestSetup;
 
 #[cfg(test)]
 mod tests;

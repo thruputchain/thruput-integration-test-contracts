@@ -15,6 +15,3 @@ pub use interface::Client;
 
 // An implementation of the contract interface
 mod implementation;
-
-// Contract methods exposed with C ABI for running as guest
-pub use implementation::exports::*;

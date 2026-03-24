@@ -11,7 +11,3 @@ pub use interface::HTLC;
 
 // A client stub that provides the interface via cross-contract calls
 pub use interface::Client;
-
-// Contract methods exposed with C ABI for running as guest
-pub use implementation::exports::*;
-

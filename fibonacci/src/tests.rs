@@ -1,8 +1,11 @@
-use crate::{Client, implementation::test_setup};
+use crate::Client;
 
 #[test]
 fn test_fibonacci() {
-    sdk::client_test(test_setup::register, test_fibonacci_client)
+    sdk::client_test(
+        |env| env.register_mock::<crate::FibonacciContract, crate::FibonacciTestSetup>(),
+        test_fibonacci_client,
+    )
 }
 
 fn test_fibonacci_client(client: &mut Client) {

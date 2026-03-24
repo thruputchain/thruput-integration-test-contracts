@@ -35,7 +35,7 @@ const ERC20_GET_BALANCE_OF: u64 = entrypoint_id(sdk::hash_to_array!("ERC200.2get
 const ERC20_TRANSFER: u64 = entrypoint_id(sdk::hash_to_array!("ERC200.2transfer"));
 
 #[derive(Default)]
-struct ReadOnlyTestContract;
+pub struct ReadOnlyTestContract;
 
 #[contract(storage = "false")]
 impl ReadOnlyTest for ReadOnlyTestContract {

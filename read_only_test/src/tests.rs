@@ -1,11 +1,11 @@
-use crate::implementation;
+use crate::{ReadOnlyTestContract, ReadOnlyTestTestSetup};
 use sdk::*;
 
 #[test]
 fn test_read_only_bytestring_set() {
-    let mut env = sdk::TestEnvironment::no_cost();
+    let env = sdk::TestEnvironment::no_cost();
 
-    let test_contract = implementation::test_setup::register(&mut env);
+    let test_contract = env.register_mock::<ReadOnlyTestContract, ReadOnlyTestTestSetup>();
     let contract_hash = env.setup_create_contract(&test_contract);
 
     contract_exec(env, move ||
@@ -16,7 +16,7 @@ fn test_read_only_bytestring_set() {
 fn test_read_only_bytestring_set_inner(
     contract_hash: &sdk::types::SHA256Hash,
 ) {
-    use crate::implementation::exports::READ_ONLY_BYTESTRING_SET_EXPORT_NUM;
+    use crate::implementation::read_only_test_exports::READ_ONLY_BYTESTRING_SET_EXPORT_NUM;
 
     let nonce = SHA256Hash::from([7; 32]);
     let deployed_addr = deploy_contract(&nonce, contract_hash);

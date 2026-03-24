@@ -2,8 +2,8 @@ use itc_erc20 as erc20;
 
 #[test]
 fn run_test() {
-    let mut env = sdk::TestEnvironment::no_cost();
-    let test_contract = erc20::test_setup::register(&mut env);
+    let env = sdk::TestEnvironment::no_cost();
+    let test_contract = env.register_mock::<erc20::Token, erc20::ERC20TestSetup>();
 
     erc20_native_test::test_erc20_contract(env, &test_contract);
 }

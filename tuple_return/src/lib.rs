@@ -21,7 +21,9 @@ pub mod implementation;
 pub use implementation::guest_exports::*;
 
 #[cfg(feature = "mock")]
-pub use implementation::test_setup;
+pub use implementation::TupleReturnContract;
+#[cfg(feature = "mock")]
+pub use implementation::TupleReturnTestSetup;
 
 #[cfg(all(test, feature = "mock"))]
 mod tests;

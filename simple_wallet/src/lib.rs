@@ -11,16 +11,19 @@ mod implementation;
 // A client stub that provides the interface via cross-contract calls
 pub use interface::Client;
 
-// Contract methods exposed with C ABI for running as guest
-pub use implementation::exports::*;
-pub use implementation::erc1271_exports::*;
+pub use implementation::SimpleWalletContract;
+
+#[cfg(feature = "dev")]
+pub use implementation::ERC1271TestSetup;
+#[cfg(feature = "dev")]
+pub use implementation::SimpleWalletTestSetup;
 
 #[cfg(feature = "dev")]
 pub fn register(
     env: &sdk::TestEnvironmentHandle,
 ) -> ::sdk::types::Contract {
     let mut contract = env.add_contract();
-    implementation::erc1271_test_setup::register_mock(&mut contract);
-    implementation::simple_wallet_test_setup::register_mock(&mut contract);
+    contract.with_impl::<SimpleWalletContract, ERC1271TestSetup>();
+    contract.with_impl::<SimpleWalletContract, SimpleWalletTestSetup>();
     contract.as_contract()
 }

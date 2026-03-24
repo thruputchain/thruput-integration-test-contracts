@@ -11,5 +11,3 @@ pub use interface::ChannelState;
 
 // A client stub that provides the interface via cross-contract calls
 pub use interface::Client;
-
-pub use implementation::exports::*;

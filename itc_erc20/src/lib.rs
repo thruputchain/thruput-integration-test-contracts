@@ -13,8 +13,7 @@ extern crate alloc;
 // An implementation of the contract interface
 mod implementation;
 
-// Contract methods exposed with C ABI for running as guest
-pub use implementation::*;
+pub use implementation::Token;
 
 #[cfg(feature = "dev")]
-pub use implementation::test_setup;
+pub use implementation::ERC20TestSetup;
