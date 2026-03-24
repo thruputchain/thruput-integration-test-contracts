@@ -6,7 +6,7 @@ use sdk::*;
 #[derive(Default)]
 struct DelegateCallTestContract;
 
-#[contract(storage = "false")]
+#[contract(storage = false)]
 impl DelegateCallTest for DelegateCallTestContract {
     fn test_delegate_call_context(
         &self,

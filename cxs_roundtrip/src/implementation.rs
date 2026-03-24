@@ -28,7 +28,7 @@ where
 // Macro to generate all roundtrip implementations
 macro_rules! impl_roundtrip_methods {
     ($($method_name:ident: $type_name:ty),* $(,)?) => {
-        #[contract(exports = "guest_exports", storage = "false")]
+        #[contract(exports = "guest_exports", storage = false)]
         impl CxsRoundtrip for CxsRoundtripContract {
             $(
                 fn $method_name(&self, data: &[u8]) -> Vec<u8> {

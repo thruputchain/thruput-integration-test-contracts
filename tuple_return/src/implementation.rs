@@ -7,7 +7,7 @@ use sdk::*;
 pub struct TupleReturnContract;
 
 // Check to make sure specs are properly generated for tuple return types.
-#[contract(exports = "guest_exports", storage = "false")]
+#[contract(exports = "guest_exports", storage = false)]
 impl TupleReturn for TupleReturnContract {
     fn call1(&self, _n: u32) -> (u32, u32) {
         (1, 2)

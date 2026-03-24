@@ -9,7 +9,7 @@ use sdk::GasPermissionConfig;
 #[derive(Default)]
 pub struct SimpleWalletAuthClaimContract;
 
-#[contract(exports = "guest_exports", storage = "false")]
+#[contract(exports = "guest_exports", storage = false)]
 impl SimpleWalletAuthClaim for SimpleWalletAuthClaimContract {
     #[init]
     fn initialize(&mut self, owner: &Ed25519PublicKey) {

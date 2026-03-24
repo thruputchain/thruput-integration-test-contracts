@@ -27,7 +27,7 @@ fn assert_fault(actual: i32) {
 #[derive(Default)]
 pub struct NnintOutputFaultTestContract;
 
-#[contract(exports = "guest_exports", storage = "false")]
+#[contract(exports = "guest_exports", storage = false)]
 impl NnintOutputFaultTest for NnintOutputFaultTestContract {
     fn test_fault_valid_first(&self) {
         let key = static_key!("fault_test_key");

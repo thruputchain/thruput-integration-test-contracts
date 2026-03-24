@@ -5,7 +5,7 @@ use sdk::*;
 #[derive(Default)]
 pub struct ReturnFaultTestContract;
 
-#[contract(storage = "false")]
+#[contract(storage = false)]
 impl ReturnFaultTest for ReturnFaultTestContract {
 
     fn run_test(&self) {

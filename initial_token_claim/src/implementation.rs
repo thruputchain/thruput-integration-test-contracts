@@ -13,7 +13,7 @@ pub struct InitialTokenClaimContract {
 // This implements the InitialTokenClaim interface. The `contract` macro provides
 // an exported entrypoint for each method; these will be placed in a
 // module with the specified name ("guest_exports").
-#[contract(storage = "false")]
+#[contract(storage = false)]
 impl InitialTokenClaim for InitialTokenClaimContract {
     fn claim_initial_tokens(
         &mut self,

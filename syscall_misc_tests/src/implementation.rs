@@ -19,7 +19,7 @@ fn expect_err(res: Result<(), sys::SysErr>, expected: SyscallErrorCode) {
     }
 }
 
-#[contract(storage = "false")]
+#[contract(storage = false)]
 impl SyscallMiscTests for SyscallMiscTestsContract {
     // ── Existing tests ──────────────────────────────────────────────
 

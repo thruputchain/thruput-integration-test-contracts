@@ -29,7 +29,7 @@ fn assert_code(actual: i32, expected: SyscallErrorCode) {
 #[derive(Default)]
 pub struct SyscallParseHardeningTestContract;
 
-#[contract(exports = "guest_exports", storage = "false")]
+#[contract(exports = "guest_exports", storage = false)]
 impl SyscallParseHardeningTest for SyscallParseHardeningTestContract {
     fn test_verify_signature_noncanonical_scheme_fault(&self) {
         let signature = [0u8; 64];
