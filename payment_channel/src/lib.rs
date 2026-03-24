@@ -6,6 +6,8 @@ extern crate std;
 mod interface;
 mod implementation;
 
+pub use interface::PaymentChannel;
+
 // Re-export ChannelState for use in tests and types generation
 pub use interface::ChannelState;
 
