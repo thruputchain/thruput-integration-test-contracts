@@ -4,7 +4,7 @@ use sdk::*;
 #[derive(Default)]
 struct ManualRevertTestContract;
 
-#[contract(exports = "guest_exports", storage = false, throws = ManualRevertTestError)]
+#[contract(exports = "guest_exports", storage = false)]
 impl ManualRevertTest for ManualRevertTestContract {
     fn test_basic_manual_revert(
         &self,
