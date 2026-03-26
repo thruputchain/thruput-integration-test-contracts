@@ -22,11 +22,11 @@ test = false
 default = ["guest"]
 client = []
 guest = []
-mock = ["guest", "sdk/mock", "sdk/std"]
+dev = ["guest", "sdk/dev", "sdk/std"]
 spec = ["sdk/spec", "std", "client"]
 std = ["sdk/std", "alloc"]
 logging = ["sdk/logging"]
 alloc = []
 
 [dev-dependencies]
-simple_wallet_authclaim = { path = ".", features = ["mock", "client"] }
+simple_wallet_authclaim = { path = ".", features = ["dev", "client"] }

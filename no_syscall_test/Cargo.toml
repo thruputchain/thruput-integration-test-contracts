@@ -20,11 +20,11 @@ doctest = false
 default = ["guest"]
 client = []
 guest = ["client"] # needs client of self
-mock = ["guest", "sdk/mock", "std"]
+dev = ["guest", "sdk/dev", "std"]
 spec = ["sdk/spec", "std", "client"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]
-no_syscall_test = { path = ".", features = ["mock", "client"] }
+no_syscall_test = { path = ".", features = ["dev", "client"] }
 

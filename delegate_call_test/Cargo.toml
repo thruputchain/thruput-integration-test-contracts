@@ -17,8 +17,8 @@ test = false
 default = ["guest"]
 client = []
 guest = []
-mock = ["guest", "sdk/dev"]
+dev = ["guest", "sdk/dev"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]
-delegate_call_test = { path = ".", features = ["mock", "client"] } 
+delegate_call_test = { path = ".", features = ["dev", "client"] } 

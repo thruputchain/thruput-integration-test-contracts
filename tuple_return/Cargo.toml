@@ -21,10 +21,10 @@ required-features = ["spec"]
 default = ["guest"]
 client = []
 guest = ["sdk/alloc"]
-mock = ["guest", "sdk/dev"]
+dev = ["guest", "sdk/dev"]
 spec = ["sdk/spec", "std", "client", "sdk/alloc"]
 std = ["sdk/std"]
 logging = ["sdk/logging", "sdk/alloc"]
 
 [dev-dependencies]
-tuple_return = { path = ".", features = ["mock", "client"] }
+tuple_return = { path = ".", features = ["dev", "client"] }

@@ -1,6 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[cfg(feature = "mock")]
+#[cfg(feature = "dev")]
 extern crate std;
 
 extern crate alloc;
@@ -16,14 +16,8 @@ pub use interface::Client;
 #[cfg(feature = "guest")]
 pub mod implementation;
 
-// Contract methods exposed with C ABI for running as guest
-#[cfg(feature = "guest")]
-pub use implementation::guest_exports::*;
-
-#[cfg(feature = "mock")]
 pub use implementation::TupleReturnContract;
-#[cfg(feature = "mock")]
 pub use interface::TupleReturn;
 
-#[cfg(all(test, feature = "mock"))]
+#[cfg(all(test, feature = "dev"))]
 mod tests;

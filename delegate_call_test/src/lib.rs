@@ -1,6 +1,6 @@
 #![no_std]
 
-#[cfg(feature = "mock")]
+#[cfg(feature = "dev")]
 extern crate std;
 
 extern crate alloc;

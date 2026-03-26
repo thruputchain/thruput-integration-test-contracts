@@ -20,10 +20,10 @@ doctest = false
 default = ["guest"]
 client = []
 guest = ["client"]
-mock = ["guest", "sdk/mock", "std"]
+dev = ["guest", "sdk/dev", "std"]
 spec = ["sdk/spec", "std", "client"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]
-syscall_parse_hardening_test = { path = ".", features = ["mock", "client"] }
+syscall_parse_hardening_test = { path = ".", features = ["dev", "client"] }
