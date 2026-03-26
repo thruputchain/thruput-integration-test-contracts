@@ -1,9 +1,8 @@
 use sdk::*;
-use thiserror::Error;
 
-#[derive(WriteXDR, ReadXDR, Copy, Clone, Debug, PartialEq, Error, Exn)]
+#[derive(Copy)]
 #[cfg_attr(feature = "spec", derive(xdrs::XDR))]
-#[repr(i32)]
+#[contract_error]
 pub enum ManualRevertTestError {
     #[error("Basic revert")]
     BasicRevert = 1,
