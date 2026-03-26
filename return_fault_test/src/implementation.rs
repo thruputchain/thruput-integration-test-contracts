@@ -1,4 +1,4 @@
-use crate::{ReturnFaultTest, Client};
+use crate::{ReturnFaultTest, Client, ClientError};
 use sdk::sys::SyscallErrorCode;
 use sdk::*;
 
@@ -16,7 +16,7 @@ impl ReturnFaultTest for ReturnFaultTestContract {
             Ok(_) => {
                 panic!("test_inner should have failed");
             }
-            Err(sdk::call::CallError::Fault(_)) => {
+            Err(ClientError::Fault(_)) => {
                 // Expected: inner contract faulted due to out-of-bounds memory access
             }
             Err(e) =>

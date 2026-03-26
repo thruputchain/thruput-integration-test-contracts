@@ -1,7 +1,7 @@
 use sdk::*;
 use thiserror::Error;
 
-#[derive(WriteXDR, ReadXDR, Copy, Clone, Debug, PartialEq, Error)]
+#[derive(WriteXDR, ReadXDR, Copy, Clone, Debug, PartialEq, Error, Exn)]
 #[cfg_attr(feature = "spec", derive(xdrs::XDR))]
 #[repr(i32)]
 pub enum ManualRevertTestError {

@@ -14,7 +14,7 @@ fn setup_env() -> (sdk::TestEnvironmentHandle, sdk::SHA256Hash, sdk::SHA256Hash)
     (env, fibonacci_hash, caller_hash)
 }
 
-/// try_call with an inner out-of-gas should return Err(CallError::Fault(..))
+/// try_call with an inner out-of-gas should return Err(Fault(..))
 /// instead of aborting the caller.
 #[test]
 fn try_call_inner_out_of_gas() {
@@ -30,10 +30,10 @@ fn try_call_inner_out_of_gas() {
         client.initialize(&fibonacci_addr);
 
         // burn_gas loops on sha256 and will exhaust the gas budget.
-        // try_call should return Err(CallError::Fault(..)).
+        // try_call should return Err(Fault(..)).
         client.call_burn_gas_expect_out_of_gas(1000);
     })
-    .unwrap_or_else(|e| panic!("Test failed: {}", e));
+    .unwrap_or_else(|e| panic!("Test failed: {:?}", e));
 }
 
 /// The non-try call variant aborts the caller on inner out-of-gas.
@@ -42,7 +42,7 @@ fn try_call_inner_out_of_gas() {
 fn call_inner_out_of_gas_aborts_cleanly() {
     let (env, fibonacci_hash, caller_hash) = setup_env();
 
-    let result: sdk::call::CallResult<()> =
+    let result: Result<(), sdk::call::RawCallError> =
         sdk::contract_test(env, move || {
             let fibonacci_addr =
                 sdk::deploy_contract(&FIBONACCI_NONCE, &fibonacci_hash);

@@ -2,8 +2,8 @@ use crate::interface::*;
 use alloc::format;
 use manual_revert_test::ManualRevertTestError;
 use manual_revert_test::Client as ManualRevertTestClient;
+use manual_revert_test::ClientError as ManualRevertTestClientError;
 use sdk::*;
-use sdk::call::{CallResult, CallError};
 
 //
 // Implementation of ManualRevertCaller contract that tests cross-contract revert propagation.
@@ -16,7 +16,7 @@ pub struct ManualRevertCallerContract {
 
 impl ManualRevertCallerContract {
     fn check_result(
-        result: &CallResult<(), ManualRevertTestError>,
+        result: &Result<(), ManualRevertTestClientError>,
         should_revert: bool,
     ) {
         log(format!(
@@ -30,16 +30,15 @@ impl ManualRevertCallerContract {
                     panic!("Manual revert should have failed");
                 }
             }
-            Err(e) => match e {
-                CallError::Fault(_) => {
-                    panic!("Fault");
+            Err(ManualRevertTestClientError::Fault(_)) => {
+                panic!("Fault");
+            }
+            Err(_) => {
+                // Any abort (ManualRevertTestError, Library, or Unknown)
+                if !should_revert {
+                    panic!("Manual revert should not have failed");
                 }
-                CallError::Abort(_) => {
-                    if !should_revert {
-                        panic!("Manual revert should not have failed");
-                    }
-                }
-            },
+            }
         }
     }
 }

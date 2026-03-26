@@ -12,6 +12,7 @@ pub use interface::ManualRevertTestError;
 
 // A client stub that provides the interface via cross-contract calls
 pub use interface::Client;
+pub use interface::ClientError;
 
 // Contract methods exposed with C ABI for running as guest
 pub use implementation::guest_exports::*;

@@ -10,6 +10,7 @@ mod implementation;
 
 // A client stub that provides the interface via cross-contract calls
 pub use interface::Client;
+pub use interface::ClientError;
 
 // An implementation of the contract interface
 pub use implementation::FibonacciContract;

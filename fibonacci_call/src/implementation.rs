@@ -32,7 +32,7 @@ impl FibonacciCaller for FibonacciContractCaller {
             .with_gas_limit(gas_limit)
             .try_slow_fibonacci(n);
         match result {
-            Err(sdk::call::CallError::Fault(_)) => {} // expected out-of-gas fault
+            Err(fibonacci::ClientError::Fault(_)) => {} // expected out-of-gas fault
             other => panic!("Expected Fault from out-of-gas, got: {:?}", other),
         }
     }
@@ -48,7 +48,7 @@ impl FibonacciCaller for FibonacciContractCaller {
             .with_gas_limit(gas_limit)
             .try_burn_gas();
         match result {
-            Err(sdk::call::CallError::Fault(_)) => {} // expected out-of-gas fault
+            Err(fibonacci::ClientError::Fault(_)) => {} // expected out-of-gas fault
             other => panic!("Expected Fault from out-of-gas, got: {:?}", other),
         }
     }
