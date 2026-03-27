@@ -7,10 +7,11 @@
 
 use crate::interface::*;
 use sdk::*;
+use sdk::sys_exn::nnint::*;
 
 #[cfg(feature = "checked")]
 // use checked nnint operation to fail before commit
-use sdk::non_negative_int_checked_inc as non_negative_int_inc;
+use non_negative_int_checked_inc as non_negative_int_inc;
 
 // Compute keys for storing things
 
