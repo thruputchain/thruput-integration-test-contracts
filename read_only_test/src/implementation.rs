@@ -1,6 +1,7 @@
 use crate::interface::*;
 use sdk::*;
 use sdk::sys::SyscallErrorCode;
+use sdk::sys_result::bytestring::*;
 
 // TODO(geoff): Add option in the SDK to get these method numbers exported as part of the client interface,
 // not just the implementation handler
@@ -41,7 +42,7 @@ pub struct ReadOnlyTestContract;
 impl ReadOnlyTest for ReadOnlyTestContract {
     fn read_only_bytestring_set(&self, expect_error: bool) {
         let key: StorageKeyContractData = static_key!("test");
-        let res = try_bytestring_set(&key, b"test");
+        let res = bytestring_set(&key, b"test");
         sdk::debug_log!("res: {:?}", res);
         if expect_error {
             assert!(res.err().unwrap().is_code(

@@ -8,6 +8,7 @@
 use crate::interface::*;
 use sdk::*;
 use sdk::sys_exn::nnint::*;
+use sdk::sys_exn::bytestring::*;
 
 #[cfg(feature = "checked")]
 // use checked nnint operation to fail before commit
