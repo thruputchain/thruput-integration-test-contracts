@@ -1,8 +1,8 @@
 use sdk::*;
-use xdrs::{ReadXDR, WriteXDR};
+use sdk::{ReadXDR, WriteXDR};
 
 #[cfg(feature = "spec")]
-use xdrs::XDR;
+use sdk::XDR;
 
 // Payment Channel Contract Interface
 //
@@ -20,6 +20,7 @@ use xdrs::XDR;
 // This struct is serialized to XDR format before signing.
 // TODO: Add derive(xdrs::xdr_repr::XDR) once xdrs properly exports it
 #[derive(Clone, Debug, PartialEq, ReadXDR, WriteXDR)]
+#[xdrs(crate = "::sdk::__xdrs")]
 #[cfg_attr(feature = "spec", derive(XDR))]
 pub struct ChannelState {
     pub channel_id: u64,

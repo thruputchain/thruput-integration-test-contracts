@@ -55,7 +55,7 @@ impl SimpleWallet for SimpleWalletContract {
             ContractEntrypointID,
             u64,
             &[u8],
-        ) = xdrs::txs::decode(&invocation_bytes).unwrap();
+        ) = sdk::__xdrs::txs::decode(&invocation_bytes).unwrap();
 
         let _ = sdk::call::contract_call(&addr,
             entrypoint,

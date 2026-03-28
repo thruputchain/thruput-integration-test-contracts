@@ -44,7 +44,7 @@ impl SimpleWalletAuthClaim for SimpleWalletAuthClaimContract {
             }
         }
     
-        let res = xdrs::txs::decode(&invocation_bytes);
+        let res = sdk::__xdrs::txs::decode(&invocation_bytes);
         let (addr, entrypoint, gas_limit, calldata): (
             ContractAddress,
             ContractEntrypointID,

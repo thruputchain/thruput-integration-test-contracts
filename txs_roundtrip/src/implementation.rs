@@ -4,8 +4,8 @@ use crate::interface::TxsRoundtrip;
 use alloc::format;
 use alloc::vec::Vec;
 use sdk::*;
-use xdrs::txs;
-use xdrs::{ReadXDR, WriteXDR};
+use sdk::__xdrs::txs;
+use sdk::{ReadXDR, WriteXDR};
 
 #[derive(Default)]
 pub struct TxsRoundtripContract;

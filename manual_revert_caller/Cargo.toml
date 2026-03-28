@@ -15,7 +15,6 @@ required-features = ["spec"]
 
 [dependencies]
 sdk = { workspace = true, features = ["storage"] }
-xdrs = { workspace = true, features = ["derive", "alloc"] }
 manual_revert_test = { path = "../manual_revert_test" }
 
 [dev-dependencies]

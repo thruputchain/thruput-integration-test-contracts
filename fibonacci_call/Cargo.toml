@@ -8,7 +8,6 @@ edition = "2021"
 [dependencies]
 sdk = { workspace = true, features = ["storage"] }
 fibonacci = { path = "../fibonacci" }
-xdrs = { workspace = true, features = ["derive", "alloc", "int128"] }
 
 [[bin]]
 name = "generate_spec_fibonacci_call"

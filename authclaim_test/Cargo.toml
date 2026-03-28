@@ -5,7 +5,6 @@ edition = "2021"
 
 [dependencies]
 sdk = { workspace = true }
-xdrs = { workspace = true, features = ["derive"] }
 
 [[bin]]
 name = "generate_spec_authclaim_test"

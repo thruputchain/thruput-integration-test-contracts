@@ -10,7 +10,6 @@ test = false
 
 [dependencies]
 sdk = { workspace = true }
-xdrs = { workspace = true }
 
 [[bin]]
 name = "generate_spec_nocontract_wallet"

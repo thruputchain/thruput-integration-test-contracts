@@ -1,7 +1,7 @@
 use std::env;
 use std::fs;
 
-use xdrs::xdr_repr::XDR;
+use sdk::__xdrs::xdr_repr::XDR;
 
 // TODO: Once xdrs properly exports xdr_repr::XDR with the spec feature,
 // switch to using: use payment_channel::ChannelState;

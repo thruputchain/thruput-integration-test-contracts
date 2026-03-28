@@ -1,7 +1,7 @@
 use sdk::*;
 
 #[derive(Copy)]
-#[cfg_attr(feature = "spec", derive(xdrs::XDR))]
+#[cfg_attr(feature = "spec", derive(sdk::XDR))]
 #[contract_error]
 pub enum ManualRevertTestError {
     #[error("Basic revert")]

@@ -1,7 +1,7 @@
 use groundhog_erc20_if::ERC20Error as Error;
 use std::env;
 use std::fs;
-use xdrs::xdr_repr::XDR;
+use sdk::__xdrs::xdr_repr::XDR;
 
 fn main() {
     let args: Vec<String> = env::args().collect();

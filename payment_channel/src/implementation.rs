@@ -5,8 +5,8 @@ use sdk::*;
 
 use groundhog_erc20_if::ERC20Client;
 
-use xdrs::cxs::encode as encode_xdr;
-use xdrs::WriteXDR;
+use sdk::__xdrs::cxs::encode as encode_xdr;
+use sdk::WriteXDR;
 
 // Payment Channel Contract
 //
@@ -22,6 +22,7 @@ use xdrs::WriteXDR;
 // The nonce in submitted state must be > 0 (nonce 0 means no state submitted yet)
 
 #[derive(Storage, WriteXDR)]
+#[xdrs(crate = "::sdk::__xdrs")]
 struct Channel {
     // Party A (channel opener)
     party_a_pubkey: Ed25519PublicKey,

@@ -13,6 +13,7 @@ use groundhog_erc20_if::ERC20Client;
 // It is the user's responsibility to not reuse htlc hashes (otherwise funds can be immediately stolen).
 // Uses delete exclusive to ensure claims and refunds happen once and only once.
 #[derive(Storage, WriteXDR)]
+#[xdrs(crate = "::sdk::__xdrs")]
 struct HTLCEntry {
     sender: ContractAddress,
     receiver: ContractAddress,

@@ -7,7 +7,6 @@ edition = "2021"
 
 [dependencies]
 sdk = { workspace = true, features = ["storage"] }
-xdrs = { workspace = true, features = ["derive"] }
 
 # Optional
 bottle-test-if = { workspace = true, optional = true }
