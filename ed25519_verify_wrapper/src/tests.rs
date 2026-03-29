@@ -12,7 +12,7 @@ fn test_ed25519_verify_wrapper() {
     );
 }
 
-fn test(client: &mut Client) {
+fn test(client: &Client) {
     let msg = vec![1, 2, 3, 4, 5];
 
     // Generate Ed25519 keypair and sign the message

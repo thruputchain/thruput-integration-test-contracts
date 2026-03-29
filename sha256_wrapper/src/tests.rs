@@ -12,7 +12,7 @@ fn test_sha256_wrapper() {
     )
 }
 
-fn client_test(client: &mut Client) {
+fn client_test(client: &Client) {
     let data = vec![1, 2, 3, 4, 5];
     let hash = client.sha256(&data);
 
@@ -33,7 +33,7 @@ fn test_gas_limit_does_not_propagate() {
     )
 }
 
-fn gas_limit_does_not_propagate(client: &mut Client) {
+fn gas_limit_does_not_propagate(client: &Client) {
     let data = vec![1, 2, 3, 4, 5];
 
     // Call with tiny gas limit — should fail with OOG

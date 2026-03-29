@@ -8,7 +8,7 @@ fn test_tuple_return() {
     )
 }
 
-fn client_test(client: &mut Client) {
+fn client_test(client: &Client) {
     // Existing basic tests
     assert_eq!(client.call1(0), (1, 2));
     assert_eq!(client.call2(0), (3, (4, 5)));

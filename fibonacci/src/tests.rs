@@ -8,7 +8,7 @@ fn test_fibonacci() {
     )
 }
 
-fn test_fibonacci_client(client: &mut Client) {
+fn test_fibonacci_client(client: &Client) {
     assert_eq!(client.fibonacci(0), 0);
     assert_eq!(client.fibonacci(1), 1);
     assert_eq!(client.fibonacci(2), 1);
