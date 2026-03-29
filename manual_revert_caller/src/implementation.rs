@@ -56,7 +56,7 @@ impl ManualRevertCaller for ManualRevertCallerContract {
         let own_key: StorageKeyContractData = static_key!("caller_state");
         bytestring_set(&own_key, b"caller_data_before_call");
 
-        let mut client = ManualRevertTestClient::new(&self.target_address);
+        let client = ManualRevertTestClient::new(&self.target_address);
         let result = client.try_test_basic_manual_revert(should_revert);
 
         log(format!("result as {:?}", result).as_bytes());
@@ -70,7 +70,7 @@ impl ManualRevertCaller for ManualRevertCallerContract {
             static_key!("caller_nested_state");
         bytestring_set(&own_key, b"caller_nested_data");
 
-        let mut client = ManualRevertTestClient::new(&self.target_address);
+        let client = ManualRevertTestClient::new(&self.target_address);
         let result = client.try_test_nested_manual_revert(child_should_revert);
 
         Self::check_result(&result, child_should_revert);
@@ -82,7 +82,7 @@ impl ManualRevertCaller for ManualRevertCallerContract {
             static_key!("caller_error_state");
         bytestring_set(&own_key, b"caller_error_data");
 
-        let mut client = ManualRevertTestClient::new(&self.target_address);
+        let client = ManualRevertTestClient::new(&self.target_address);
         let result = client.try_test_error_type_revert(error_type);
 
         Self::check_result(&result, true);
@@ -94,7 +94,7 @@ impl ManualRevertCaller for ManualRevertCallerContract {
             static_key!("caller_storage_state");
         bytestring_set(&own_key, b"caller_storage_data");
 
-        let mut client = ManualRevertTestClient::new(&self.target_address);
+        let client = ManualRevertTestClient::new(&self.target_address);
         let result = client.try_test_storage_manual_revert(should_revert);
 
         Self::check_result(&result, should_revert);
@@ -102,7 +102,7 @@ impl ManualRevertCaller for ManualRevertCallerContract {
 
     /// Check if the target contract's storage exists
     fn check_target_storage_exists(&mut self) -> bool {
-        let mut client = ManualRevertTestClient::new(&self.target_address);
+        let client = ManualRevertTestClient::new(&self.target_address);
         client.check_storage_exists()
     }
 

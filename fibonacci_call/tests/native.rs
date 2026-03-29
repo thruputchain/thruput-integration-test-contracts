@@ -26,7 +26,7 @@ fn try_call_inner_out_of_gas() {
         let caller_addr =
             sdk::deploy_contract(&CALLER_NONCE, &caller_hash);
 
-        let mut client = fibonacci_call::Client::new(&caller_addr);
+        let client = fibonacci_call::Client::new(&caller_addr);
         client.initialize(&fibonacci_addr);
 
         // burn_gas loops on sha256 and will exhaust the gas budget.
@@ -49,7 +49,7 @@ fn call_inner_out_of_gas_aborts_cleanly() {
             let caller_addr =
                 sdk::deploy_contract(&CALLER_NONCE, &caller_hash);
 
-            let mut client = fibonacci_call::Client::new(&caller_addr);
+            let client = fibonacci_call::Client::new(&caller_addr);
             client.initialize(&fibonacci_addr);
 
             // call (not try_call) will abort the caller on inner OOG.

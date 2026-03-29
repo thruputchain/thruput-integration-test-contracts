@@ -66,7 +66,7 @@ impl HTLC for HTLCContract {
             expiration_height: expiration_height.clone(),
         };
 
-        let mut token_client = htlc.token_client();
+        let token_client = htlc.token_client();
         let self_address = sdk::get_current_address();
         token_client.transfer_from(&htlc.sender, &self_address, htlc.amount as u128);
 
@@ -87,7 +87,7 @@ impl HTLC for HTLCContract {
             panic!("Invalid preimage");
         }
 
-        let mut token_client = htlc.token_client();
+        let token_client = htlc.token_client();
         token_client.transfer(&htlc.receiver, htlc.amount as u128);
 
         self.htlcs.delete_exclusive(hash);
@@ -101,7 +101,7 @@ impl HTLC for HTLCContract {
             panic!("HTLC not expired");
         }
 
-        let mut token_client = htlc.token_client();
+        let token_client = htlc.token_client();
         token_client.transfer(&htlc.sender, htlc.amount as u128);
 
         self.htlcs.delete_exclusive(hash);

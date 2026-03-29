@@ -46,7 +46,7 @@ impl InitialTokenClaim for InitialTokenClaimContract {
         // Transfer tokens to the receiver via HOG token contract
         // TODO: Call the HOG token contract's transfer method
         // For now, we'll just log the transfer
-        let mut erc20_client =
+        let erc20_client =
             ERC20Client::new(&sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN);
 
         erc20_client.transfer(&receiver_addr, allocation);
