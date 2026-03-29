@@ -22,7 +22,7 @@ impl BottleTest for BT {
         let target_addr = self.target_addr.as_ref().unwrap_or_else(||
             panic!("bottle-test: target_addr unset; please run setup() before run()"));
 
-        let mut client = Client::new(&target_addr);
+        let client = Client::new(&target_addr);
 
         let data = vec![1, 2, 3, 4, 5];
         let echo = client.echo(&data);

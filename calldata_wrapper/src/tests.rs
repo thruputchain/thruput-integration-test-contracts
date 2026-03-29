@@ -27,7 +27,7 @@ fn test_calldata_wrapper_inner(
     let nonce = SHA256Hash::from([7; 32]);
     let deployed_addr = deploy_contract(&nonce, contract_hash);
 
-    let mut client = Client::new(&deployed_addr);
+    let client = Client::new(&deployed_addr);
 
     let data = vec![1, 2, 3, 4, 5];
     let echo = client.echo(&data);

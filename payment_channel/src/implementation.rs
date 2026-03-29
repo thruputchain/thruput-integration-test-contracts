@@ -142,7 +142,7 @@ impl PaymentChannel for PaymentChannelContract {
         };
 
         // Transfer tokens from caller to this contract
-        let mut token_client = channel.token_client();
+        let token_client = channel.token_client();
         let self_address = sdk::get_current_address();
         token_client
             .transfer_from(&party_a_dest, &self_address, amount as u128);
@@ -163,7 +163,7 @@ impl PaymentChannel for PaymentChannelContract {
 
         // Transfer tokens from caller (party B) to this contract
         let caller = sdk::get_caller();
-        let mut token_client = channel.token_client();
+        let token_client = channel.token_client();
         let self_address = sdk::get_current_address();
         token_client
             .transfer_from(&caller, &self_address, amount as u128);
@@ -187,7 +187,7 @@ impl PaymentChannel for PaymentChannelContract {
         let caller = sdk::get_caller();
 
         // Transfer tokens from caller to this contract
-        let mut token_client = channel.token_client();
+        let token_client = channel.token_client();
         let self_address = sdk::get_current_address();
         token_client
             .transfer_from(&caller, &self_address, amount as u128);
@@ -329,7 +329,7 @@ impl PaymentChannel for PaymentChannelContract {
         );
 
         // Transfer funds to each party
-        let mut token_client = channel.token_client();
+        let token_client = channel.token_client();
 
         if channel.submitted_balance_a > 0 {
             token_client

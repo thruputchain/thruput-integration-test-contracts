@@ -10,7 +10,7 @@ impl ReturnFaultTest for ReturnFaultTestContract {
 
     fn run_test(&self) {
         let addr = sdk::get_current_address();
-        let mut client = Client::new(&addr);
+        let client = Client::new(&addr);
 
         match client.try_test_inner() {
             Ok(_) => {
