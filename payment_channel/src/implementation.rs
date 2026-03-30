@@ -1,6 +1,6 @@
 use super::interface::*;
 use sdk::crypto::verify_signature_ed25519;
-use sdk::storage::Map;
+use sdk::storage::{Map, Value};
 use sdk::*;
 
 use groundhog_erc20_if::ERC20Client;
@@ -66,7 +66,7 @@ impl Channel {
 
 #[storage]
 pub struct PaymentChannelContract {
-    channels: Map<u64, Channel>,
+    channels: Map<u64, Value<Channel>>,
     default_dispute_period: u64,
 }
 
@@ -148,7 +148,7 @@ impl PaymentChannel for PaymentChannelContract {
             .transfer_from(&party_a_dest, &self_address, amount as u128);
 
         // Atomically create channel (fails if already exists)
-        self.channels.set_exclusive(&channel_id, &channel);
+        self.channels.at_mut_exclusive(&channel_id).set(&channel);
 
         channel_id
     }
@@ -156,7 +156,7 @@ impl PaymentChannel for PaymentChannelContract {
     fn join_channel(&mut self, channel_id: u64, amount: i128) -> () {
         assert!(amount > 0, "Deposit must be positive");
 
-        let mut channel = self.channels.get(&channel_id);
+        let mut channel = self.channels.at(&channel_id).get();
 
         assert!(!channel.joined, "Channel already joined");
         assert!(!channel.is_closing(), "Channel is closing");
@@ -172,13 +172,13 @@ impl PaymentChannel for PaymentChannelContract {
         channel.joined = true;
 
         // Must be exclusive; cannot allow two joins in the same block, or else funds will be lost
-        self.channels.set_exclusive(&channel_id, &channel);
+        self.channels.at_mut_exclusive(&channel_id).set(&channel);
     }
 
     fn deposit(&mut self, channel_id: u64, amount: i128) {
         assert!(amount > 0, "Deposit must be positive");
 
-        let mut channel = self.channels.get(&channel_id);
+        let mut channel = self.channels.at(&channel_id).get();
 
         assert!(channel.joined, "Channel not yet joined");
         assert!(!channel.is_closing(), "Channel is closing");
@@ -200,7 +200,7 @@ impl PaymentChannel for PaymentChannelContract {
             panic!("Caller is not a channel party");
         }
 
-        self.channels.set_exclusive(&channel_id, &channel);
+        self.channels.at_mut_exclusive(&channel_id).set(&channel);
     }
 
     fn close_channel(
@@ -216,7 +216,7 @@ impl PaymentChannel for PaymentChannelContract {
         assert!(balance_a >= 0, "Balance A must be non-negative");
         assert!(balance_b >= 0, "Balance B must be non-negative");
 
-        let mut channel = self.channels.get(&channel_id);
+        let mut channel = self.channels.at(&channel_id).get();
 
         assert!(channel.joined, "Channel not yet joined");
         assert!(!channel.is_closing(), "Channel already closing");
@@ -254,7 +254,7 @@ impl PaymentChannel for PaymentChannelContract {
         channel.dispute_deadline = get_block_height() + channel.dispute_period as i64;
 
         // shared write is ok here: multiple closes in the same block are idempotent
-        self.channels.set(&channel_id, &channel);
+        self.channels.at_mut(&channel_id).set(&channel);
     }
 
     fn dispute(
@@ -269,7 +269,7 @@ impl PaymentChannel for PaymentChannelContract {
         assert!(balance_a >= 0, "Balance A must be non-negative");
         assert!(balance_b >= 0, "Balance B must be non-negative");
 
-        let mut channel = self.channels.get(&channel_id);
+        let mut channel = self.channels.at(&channel_id).get();
 
         assert!(channel.is_closing(), "Channel is not closing");
         assert!(
@@ -316,11 +316,11 @@ impl PaymentChannel for PaymentChannelContract {
         channel.dispute_deadline = get_block_height() + channel.dispute_period as i64;
 
         // shared write is ok here: multiple disputes (of the same nonce) in the same block are idempotent
-        self.channels.set(&channel_id, &channel);
+        self.channels.at_mut(&channel_id).set(&channel);
     }
 
     fn finalize(&mut self, channel_id: u64) {
-        let channel = self.channels.get(&channel_id);
+        let channel = self.channels.at(&channel_id).get();
 
         assert!(channel.is_closing(), "Channel is not closing");
         assert!(
@@ -342,11 +342,11 @@ impl PaymentChannel for PaymentChannelContract {
         }
 
         // Delete the channel
-        self.channels.delete_exclusive(&channel_id);
+        self.channels.at_mut_exclusive(&channel_id).delete();
     }
 
     fn get_dispute_period(&self, channel_id: u64) -> u64 {
-        let channel = self.channels.get(&channel_id);
+        let channel = self.channels.at(&channel_id).get();
         channel.dispute_period
     }
 }

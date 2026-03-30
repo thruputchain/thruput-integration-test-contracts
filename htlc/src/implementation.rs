@@ -1,7 +1,7 @@
 use crate::HTLC;
 use sdk::*;
 
-use sdk::storage::Map;
+use sdk::storage::{Map, Value};
 
 use groundhog_erc20_if::ERC20Client;
 
@@ -30,7 +30,7 @@ impl HTLCEntry {
 
 #[storage]
 struct HTLCContract {
-    htlcs: Map<SHA256Hash, HTLCEntry>,
+    htlcs: Map<SHA256Hash, Value<HTLCEntry>>,
 }
 
 fn get_block_height() -> BlockHeight {
@@ -54,7 +54,7 @@ impl HTLC for HTLCContract {
 
         assert!(amount > 0);
 
-        if self.htlcs.try_get(hash).is_some() {
+        if self.htlcs.at(hash).try_get().is_some() {
             panic!("HTLC already exists");
         }
 
@@ -70,14 +70,14 @@ impl HTLC for HTLCContract {
         let self_address = sdk::get_current_address();
         token_client.transfer_from(&htlc.sender, &self_address, htlc.amount as u128);
 
-        self.htlcs.set_exclusive(hash, &htlc);
+        self.htlcs.at_mut_exclusive(hash).set(&htlc);
     }
 
     fn claim_htlc(&mut self, 
         hash: &SHA256Hash, 
         preimage: &SHA256Hash) {
 
-        let htlc = self.htlcs.get(hash);
+        let htlc = self.htlcs.at(hash).get();
 
         if htlc.expiration_height < get_block_height() {
             panic!("HTLC expired");
@@ -90,12 +90,12 @@ impl HTLC for HTLCContract {
         let token_client = htlc.token_client();
         token_client.transfer(&htlc.receiver, htlc.amount as u128);
 
-        self.htlcs.delete_exclusive(hash);
+        self.htlcs.at_mut_exclusive(hash).delete();
     }
 
     fn refund_htlc(&mut self, 
         hash: &SHA256Hash) -> () {
-        let htlc = self.htlcs.get(hash);
+        let htlc = self.htlcs.at(hash).get();
 
         if htlc.expiration_height >= get_block_height() {
             panic!("HTLC not expired");
@@ -104,7 +104,7 @@ impl HTLC for HTLCContract {
         let token_client = htlc.token_client();
         token_client.transfer(&htlc.sender, htlc.amount as u128);
 
-        self.htlcs.delete_exclusive(hash);
+        self.htlcs.at_mut_exclusive(hash).delete();
     }
 }
 
