@@ -2,7 +2,6 @@
 
 use super::interface::*;
 use sdk::*;
-use sdk::sys_exn::nnint::*;
 
 use groundhog_erc20_if::ERC20Client;
 
