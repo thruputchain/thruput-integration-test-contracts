@@ -47,7 +47,6 @@ impl ManualRevertCallerContract {
 #[contract]
 impl ManualRevertCaller for ManualRevertCallerContract {
     /// Initialize the contract with the target ManualRevertTest contract address
-    #[init]
     fn initialize(&mut self, address: &ContractAddress) {
         self.target_address.set(address);
     }

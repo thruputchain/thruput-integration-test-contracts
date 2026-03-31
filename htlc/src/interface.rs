@@ -4,7 +4,6 @@ use sdk::*;
 pub trait HTLC {
 
     // initialize storage layer for contract
-    #[init]
     fn initialize(&mut self) -> ();
 
     fn create_htlc(&mut self, 

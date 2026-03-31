@@ -10,7 +10,6 @@ pub struct FibonacciContractCaller {
 
 #[contract]
 impl FibonacciCaller for FibonacciContractCaller {
-    #[init]
     fn initialize(&mut self, address: &ContractAddress) {
         self.address.set(address);
     }

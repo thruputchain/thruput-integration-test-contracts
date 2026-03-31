@@ -42,7 +42,6 @@ fn get_block_height() -> BlockHeight {
 #[contract]
 impl HTLC for HTLCContract {
 
-    #[init]
     fn initialize(&mut self) {}
 
     fn create_htlc(&mut self, 
