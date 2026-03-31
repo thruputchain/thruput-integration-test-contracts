@@ -16,7 +16,7 @@ impl BottleTest for BT {
         let nonce: SHA256Hash = [7; 32].into();
         let target_addr = deploy_contract(&nonce, target_contract_hash);
 
-        self.target_addr.set(Some(target_addr));
+        self.target_addr.set(&Some(target_addr));
     }
 
     fn run(&mut self) {
