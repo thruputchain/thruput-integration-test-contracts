@@ -8,7 +8,7 @@ use groundhog_erc1271_if::ERC1271;
 
 #[storage]
 pub struct SimpleWalletContract {
-    owner: Ed25519PublicKey,
+    owner: sdk::storage::Value<Ed25519PublicKey>,
 }
 
 #[contract(version = "0.1.0")]
@@ -24,7 +24,7 @@ impl ERC1271 for SimpleWalletContract {
 
         let signature = Ed25519Signature::new(signature.try_into().unwrap());
 
-        verify_signature_ed25519(&self.owner, &signature, &msg)
+        verify_signature_ed25519(&self.owner.get(), &signature, &msg)
     }
 }
 
@@ -35,7 +35,7 @@ impl ERC1271 for SimpleWalletContract {
 impl SimpleWallet for SimpleWalletContract {
     #[init]
     fn initialize(&mut self, owner: &Ed25519PublicKey) {
-        self.owner = owner.clone();
+        self.owner.set(owner);
     }
 
     fn do_action(
