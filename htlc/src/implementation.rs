@@ -12,7 +12,7 @@ use groundhog_erc20_if::ERC20Client;
 // The value only exists on the ledger when the HTLC is in the Created state.
 // It is the user's responsibility to not reuse htlc hashes (otherwise funds can be immediately stolen).
 // Uses delete exclusive to ensure claims and refunds happen once and only once.
-#[derive(Storage, WriteXDR)]
+#[derive(ReadXDR, WriteXDR)]
 #[xdrs(crate = "::sdk::__xdrs")]
 struct HTLCEntry {
     sender: ContractAddress,

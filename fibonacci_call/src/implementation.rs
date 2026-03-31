@@ -5,29 +5,23 @@ use sdk::*;
 
 #[storage]
 pub struct FibonacciContractCaller {
-    address: ContractAddress,
-}
-
-impl FibonacciContractCaller {
-    pub fn new(address: ContractAddress) -> Self {
-        Self { address }
-    }
+    address: sdk::storage::Value<ContractAddress>,
 }
 
 #[contract]
 impl FibonacciCaller for FibonacciContractCaller {
     #[init]
     fn initialize(&mut self, address: &ContractAddress) {
-        self.address = *address;
+        self.address.set(address);
     }
 
     fn call_fibonacci(&mut self, n: u32, gas_limit: u64) {
-        let client = fibonacci::Client::new(&self.address);
+        let client = fibonacci::Client::new(&self.address.get());
         let _ = client.with_gas_limit(gas_limit).slow_fibonacci(n);
     }
 
     fn call_fibonacci_expect_out_of_gas(&mut self, n: u32, gas_limit: u64) {
-        let client = fibonacci::Client::new(&self.address);
+        let client = fibonacci::Client::new(&self.address.get());
         let result = client
             .with_gas_limit(gas_limit)
             .try_slow_fibonacci(n);
@@ -38,12 +32,12 @@ impl FibonacciCaller for FibonacciContractCaller {
     }
 
     fn call_burn_gas(&mut self, gas_limit: u64) {
-        let client = fibonacci::Client::new(&self.address);
+        let client = fibonacci::Client::new(&self.address.get());
         client.with_gas_limit(gas_limit).burn_gas();
     }
 
     fn call_burn_gas_expect_out_of_gas(&mut self, gas_limit: u64) {
-        let client = fibonacci::Client::new(&self.address);
+        let client = fibonacci::Client::new(&self.address.get());
         let result = client
             .with_gas_limit(gas_limit)
             .try_burn_gas();

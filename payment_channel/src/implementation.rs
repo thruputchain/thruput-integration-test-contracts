@@ -20,7 +20,7 @@ use sdk::WriteXDR;
 //
 // The nonce in submitted state must be > 0 (nonce 0 means no state submitted yet)
 
-#[derive(Storage, WriteXDR)]
+#[derive(WriteXDR, ReadXDR)]
 #[xdrs(crate = "::sdk::__xdrs")]
 struct Channel {
     // Party A (channel opener)
@@ -66,7 +66,7 @@ impl Channel {
 #[storage]
 pub struct PaymentChannelContract {
     channels: Map<u64, Value<Channel>>,
-    default_dispute_period: u64,
+    default_dispute_period: Value<u64>,
 }
 
 fn get_block_height() -> BlockHeight {
@@ -85,7 +85,7 @@ impl PaymentChannel for PaymentChannelContract {
     #[init]
     fn initialize(&mut self, dispute_period: u64) {
         assert!(dispute_period > 0, "Dispute period must be positive");
-        self.default_dispute_period = dispute_period;
+        self.default_dispute_period.set(&dispute_period);
     }
 
     fn open_channel(
@@ -98,7 +98,7 @@ impl PaymentChannel for PaymentChannelContract {
         salt: u64,
     ) -> u64 {
         assert!(amount > 0, "Deposit must be positive");
-        let dispute_period = self.default_dispute_period;
+        let dispute_period = self.default_dispute_period.get();
         assert!(dispute_period > 0, "Dispute period must be set");
 
         // Get caller as party_a_dest
