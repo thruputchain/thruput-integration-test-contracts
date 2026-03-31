@@ -4,6 +4,7 @@ use manual_revert_test::ManualRevertTestError;
 use manual_revert_test::Client as ManualRevertTestClient;
 use manual_revert_test::ClientError as ManualRevertTestClientError;
 use sdk::*;
+use sdk::storage::Value;
 
 //
 // Implementation of ManualRevertCaller contract that tests cross-contract revert propagation.
@@ -11,7 +12,7 @@ use sdk::*;
 
 #[storage]
 pub struct ManualRevertCallerContract {
-    target_address: ContractAddress,
+    target_address: Value<ContractAddress>,
 }
 
 impl ManualRevertCallerContract {
@@ -48,7 +49,7 @@ impl ManualRevertCaller for ManualRevertCallerContract {
     /// Initialize the contract with the target ManualRevertTest contract address
     #[init]
     fn initialize(&mut self, address: &ContractAddress) {
-        self.target_address = *address;
+        self.target_address.set(address);
     }
 
     /// Call the target contract's test_basic_manual_revert method
@@ -56,7 +57,7 @@ impl ManualRevertCaller for ManualRevertCallerContract {
         let own_key: StorageKeyContractData = static_key!("caller_state");
         bytestring_set(&own_key, b"caller_data_before_call");
 
-        let client = ManualRevertTestClient::new(&self.target_address);
+        let client = ManualRevertTestClient::new(&self.target_address.get());
         let result = client.try_test_basic_manual_revert(should_revert);
 
         log(format!("result as {:?}", result).as_bytes());
@@ -70,7 +71,7 @@ impl ManualRevertCaller for ManualRevertCallerContract {
             static_key!("caller_nested_state");
         bytestring_set(&own_key, b"caller_nested_data");
 
-        let client = ManualRevertTestClient::new(&self.target_address);
+        let client = ManualRevertTestClient::new(&self.target_address.get());
         let result = client.try_test_nested_manual_revert(child_should_revert);
 
         Self::check_result(&result, child_should_revert);
@@ -82,7 +83,7 @@ impl ManualRevertCaller for ManualRevertCallerContract {
             static_key!("caller_error_state");
         bytestring_set(&own_key, b"caller_error_data");
 
-        let client = ManualRevertTestClient::new(&self.target_address);
+        let client = ManualRevertTestClient::new(&self.target_address.get());
         let result = client.try_test_error_type_revert(error_type);
 
         Self::check_result(&result, true);
@@ -94,7 +95,7 @@ impl ManualRevertCaller for ManualRevertCallerContract {
             static_key!("caller_storage_state");
         bytestring_set(&own_key, b"caller_storage_data");
 
-        let client = ManualRevertTestClient::new(&self.target_address);
+        let client = ManualRevertTestClient::new(&self.target_address.get());
         let result = client.try_test_storage_manual_revert(should_revert);
 
         Self::check_result(&result, should_revert);
@@ -102,7 +103,7 @@ impl ManualRevertCaller for ManualRevertCallerContract {
 
     /// Check if the target contract's storage exists
     fn check_target_storage_exists(&mut self) -> bool {
-        let client = ManualRevertTestClient::new(&self.target_address);
+        let client = ManualRevertTestClient::new(&self.target_address.get());
         client.check_storage_exists()
     }
 
