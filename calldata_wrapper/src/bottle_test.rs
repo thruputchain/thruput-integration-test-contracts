@@ -6,7 +6,7 @@ use sdk::storage::Value;
 #[derive(Debug)]
 #[storage]
 pub struct BT {
-    target_addr: Value<Option<ContractAddress>>,
+    target_addr: Value<ContractAddress>,
 }
 
 #[contract(version = "0.1.0")]
@@ -16,7 +16,7 @@ impl BottleTest for BT {
         let nonce: SHA256Hash = [7; 32].into();
         let target_addr = deploy_contract(&nonce, target_contract_hash);
 
-        self.target_addr.set(&Some(target_addr));
+        self.target_addr.set(&target_addr);
     }
 
     fn run(&mut self) {
