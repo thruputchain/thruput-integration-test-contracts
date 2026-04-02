@@ -5,11 +5,11 @@ fn setup_env() -> (sdk::TestEnvironmentHandle, sdk::SHA256Hash, sdk::SHA256Hash)
     let env = sdk::TestEnvironment::no_cost();
 
     let fibonacci_contract = env.register_mock(<fibonacci::FibonacciContract as fibonacci::Fibonacci>::__mock);
-    let fibonacci_hash = env.setup_create_contract(&fibonacci_contract);
+    let fibonacci_hash = fibonacci_contract.as_hash().clone();
 
     let caller_contract =
         env.register_mock(<fibonacci_call::FibonacciContractCaller as fibonacci_call::FibonacciCaller>::__mock);
-    let caller_hash = env.setup_create_contract(&caller_contract);
+    let caller_hash = caller_contract.as_hash().clone();
 
     (env, fibonacci_hash, caller_hash)
 }

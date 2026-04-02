@@ -9,7 +9,7 @@ fn test_calldata_wrapper() {
     let env = sdk::TestEnvironment::new(None);
 
     let test_contract = env.register_mock(<CalldataWrapperContract as CalldataWrapper>::__mock);
-    let contract_hash = env.setup_create_contract(&test_contract);
+    let contract_hash = test_contract.as_hash().clone();
 
     // sdk::TestEnvironment::enable_syscall_logging();
 

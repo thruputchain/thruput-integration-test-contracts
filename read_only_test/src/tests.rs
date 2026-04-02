@@ -6,7 +6,7 @@ fn test_read_only_bytestring_set() {
     let env = sdk::TestEnvironment::no_cost();
 
     let test_contract = env.register_mock(<ReadOnlyTestContract as ReadOnlyTest>::__mock);
-    let contract_hash = env.setup_create_contract(&test_contract);
+    let contract_hash = test_contract.as_hash().clone();
 
     contract_exec(env, move ||
         test_read_only_bytestring_set_inner(&contract_hash)
