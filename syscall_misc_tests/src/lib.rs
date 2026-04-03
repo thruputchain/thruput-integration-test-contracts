@@ -10,9 +10,7 @@ mod implementation;
 
 // A trait describing the contract interface
 pub use interface::SyscallMiscTests;
+pub use interface::SyscallMiscTestsEntrypoints;
 
 // A client stub that provides the interface via cross-contract calls
 pub use interface::Client;
-
-// Contract methods exposed with C ABI for running as guest
-pub use implementation::SyscallMiscTestsEntrypoints;

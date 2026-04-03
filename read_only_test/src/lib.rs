@@ -10,9 +10,9 @@ pub use interface::Client;
 
 mod implementation;
 pub use implementation::ReadOnlyTestContract;
-pub use implementation::ReadOnlyTestEntrypoints;
 
 pub use interface::ReadOnlyTest;
+pub use interface::ReadOnlyTestEntrypoints;
 
 #[cfg(test)]
 mod tests;
