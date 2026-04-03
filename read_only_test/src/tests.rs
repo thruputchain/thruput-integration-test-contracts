@@ -16,8 +16,6 @@ fn test_read_only_bytestring_set() {
 fn test_read_only_bytestring_set_inner(
     contract_hash: &sdk::types::SHA256Hash,
 ) {
-    use crate::implementation::read_only_test_exports::READ_ONLY_BYTESTRING_SET_EXPORT_NUM;
-
     let nonce = SHA256Hash::from([7; 32]);
     let deployed_addr = deploy_contract(&nonce, contract_hash);
 
@@ -25,15 +23,20 @@ fn test_read_only_bytestring_set_inner(
 
     let flag: i32 =
         groundhog_xdr::transaction::InvokeFlag::ReadOnly.0;
+    let calldata = cxs::encode(&true).unwrap();
 
-    let entrypoint_id =
-        u64::from_be_bytes(READ_ONLY_BYTESTRING_SET_EXPORT_NUM.into_inner());
+    let entrypoint_id = u64::from_be_bytes(
+        ::sdk::contract::ContractEntrypointID::from(
+            crate::ReadOnlyTestEntrypoints::read_only_bytestring_set,
+        )
+        .into_inner(),
+    );
 
     sdk::sys::uninit_Invoke(
         &deployed_addr,
         entrypoint_id,
         u64::MAX,
-        &[0, 0, 0, 1],
+        &calldata,
         flag,
         &mut return_len,
     )

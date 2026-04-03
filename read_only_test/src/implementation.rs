@@ -99,8 +99,12 @@ impl ReadOnlyTest for ReadOnlyTestContract {
 
     fn read_only_deploy_output_preserved(&self) {
         let addr = sdk::get_current_address();
-        let entrypoint =
-            u64::from_be_bytes(crate::READ_ONLY_DEPLOY_INNER_EXPORT_NUM.into_inner());
+        let entrypoint = u64::from_be_bytes(
+            ::sdk::contract::ContractEntrypointID::from(
+                crate::ReadOnlyTestEntrypoints::read_only_deploy_inner,
+            )
+            .into_inner(),
+        );
         let flag = groundhog_xdr::transaction::InvokeFlag::ReadOnly.0;
         let mut return_len = 0u32;
         let res = sdk::sys::raw_Invoke(
@@ -141,8 +145,12 @@ impl ReadOnlyTest for ReadOnlyTestContract {
     fn read_only_aliasing_before_read_only_check(&self)
     {
         let addr = sdk::get_current_address();
-        let entrypoint =
-            u64::from_be_bytes(crate::READ_ONLY_ALIASING_BEFORE_READ_ONLY_CHECK_INNER_EXPORT_NUM.into_inner());
+        let entrypoint = u64::from_be_bytes(
+            ::sdk::contract::ContractEntrypointID::from(
+                crate::ReadOnlyTestEntrypoints::read_only_aliasing_before_read_only_check_inner,
+            )
+            .into_inner(),
+        );
         let flag = groundhog_xdr::transaction::InvokeFlag::ReadOnly.0;
         let mut return_len = 0u32;
         let res = sdk::sys::raw_Invoke(

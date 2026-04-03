@@ -9,9 +9,8 @@ pub mod interface;
 pub use interface::Client;
 
 mod implementation;
-use implementation::ReadOnlyTest_exports::*;
-
 pub use implementation::ReadOnlyTestContract;
+pub use implementation::ReadOnlyTestEntrypoints;
 
 pub use interface::ReadOnlyTest;
 

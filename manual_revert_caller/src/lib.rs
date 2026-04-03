@@ -12,4 +12,4 @@ mod implementation;
 pub use interface::Client;
 
 // Contract methods exposed with C ABI for running as guest
-pub use implementation::exports::*;
+pub use implementation::ManualRevertCallerEntrypoints;
