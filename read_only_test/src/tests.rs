@@ -21,16 +21,11 @@ fn test_read_only_bytestring_set_inner(
 
     let mut return_len: core::mem::MaybeUninit<u32> = core::mem::MaybeUninit::uninit();
 
-    let flag: i32 =
-        groundhog_xdr::transaction::InvokeFlag::ReadOnly.0;
+    let flag: i32 = groundhog_xdr::invoke_flag::InvokeFlag::ReadOnly.0;
     let calldata = cxs::encode(&true).unwrap();
 
-    let entrypoint_id = u64::from_be_bytes(
-        ::sdk::contract::ContractEntrypointID::from(
-            crate::ReadOnlyTestEntrypoints::read_only_bytestring_set,
-        )
-        .into_inner(),
-    );
+    let entrypoint_id =
+        crate::ReadOnlyTestEntrypoints::read_only_bytestring_set.into_u64();
 
     sdk::sys::uninit_Invoke(
         &deployed_addr,

@@ -2,17 +2,6 @@ use crate::interface::*;
 use sdk::*;
 use sdk::sys::SyscallErrorCode;
 
-// TODO(geoff): Add option in the SDK to get these method numbers exported as part of the client interface,
-// not just the implementation handler
-/// Derive a u64 entrypoint ID from the first 8 bytes of a SHA-256 hash.
-/// The preimage for an SDK-derived entrypoint is: IFACE_NAME || MAJOR_VERSION || METHOD_NAME
-/// (see groundhog-contract-util for the canonical implementation).
-const fn entrypoint_id(hash: [u8; 32]) -> u64 {
-    u64::from_be_bytes([
-        hash[0], hash[1], hash[2], hash[3], hash[4], hash[5], hash[6], hash[7],
-    ])
-}
-
 #[link(wasm_import_module = "marmot")]
 unsafe extern "C" {
     #[link_name = "syscall"]
@@ -29,10 +18,6 @@ unsafe extern "C" {
 }
 
 const K_SYSCALL_BYTESTRING_SET: u64 = groundhog_xdr::SyscallNo::kBytestringSet.0 as u64;
-
-// ERC20 v0.2.x entrypoints, derived from SHA256("ERC20" || "0.2" || method_name)
-const ERC20_GET_BALANCE_OF: u64 = entrypoint_id(sdk::hash_to_array!("ERC200.2get_balance_of"));
-const ERC20_TRANSFER: u64 = entrypoint_id(sdk::hash_to_array!("ERC200.2transfer"));
 
 #[derive(Default)]
 pub struct ReadOnlyTestContract;
@@ -66,12 +51,14 @@ impl ReadOnlyTest for ReadOnlyTestContract {
     }
 
     fn read_only_native_get_balance(&self, target_addr: &ContractAddress) {
-        let flag = groundhog_xdr::transaction::InvokeFlag::ReadOnly.0;
+        let flag = groundhog_xdr::invoke_flag::InvokeFlag::ReadOnly.0;
+        let entrypoint =
+            groundhog_erc20_if::ERC20Entrypoints::get_balance_of.into_u64();
         let calldata = cxs::encode(target_addr).unwrap();
         let mut return_len = 0u32;
         let res = sdk::sys::raw_Invoke(
             &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
-            ERC20_GET_BALANCE_OF,
+            entrypoint,
             u64::MAX,
             &calldata,
             flag,
@@ -81,13 +68,15 @@ impl ReadOnlyTest for ReadOnlyTestContract {
     }
 
     fn read_only_native_transfer(&self, receiver_addr: &ContractAddress) {
-        let flag = groundhog_xdr::transaction::InvokeFlag::ReadOnly.0;
+        let flag = groundhog_xdr::invoke_flag::InvokeFlag::ReadOnly.0;
+        let entrypoint =
+            groundhog_erc20_if::ERC20Entrypoints::transfer.into_u64();
         // CXS-encode the arguments: (ContractAddress, (u64, u64))
         let calldata = cxs::encode(&(*receiver_addr, (0u64, 100u64))).unwrap();
         let mut return_len = 0u32;
         let res = sdk::sys::raw_Invoke(
             &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
-            ERC20_TRANSFER,
+            entrypoint,
             u64::MAX,
             &calldata,
             flag,
@@ -99,13 +88,9 @@ impl ReadOnlyTest for ReadOnlyTestContract {
 
     fn read_only_deploy_output_preserved(&self) {
         let addr = sdk::get_current_address();
-        let entrypoint = u64::from_be_bytes(
-            ::sdk::contract::ContractEntrypointID::from(
-                crate::ReadOnlyTestEntrypoints::read_only_deploy_inner,
-            )
-            .into_inner(),
-        );
-        let flag = groundhog_xdr::transaction::InvokeFlag::ReadOnly.0;
+        let entrypoint =
+            crate::ReadOnlyTestEntrypoints::read_only_deploy_inner.into_u64();
+        let flag = groundhog_xdr::invoke_flag::InvokeFlag::ReadOnly.0;
         let mut return_len = 0u32;
         let res = sdk::sys::raw_Invoke(
             &addr,
@@ -145,13 +130,10 @@ impl ReadOnlyTest for ReadOnlyTestContract {
     fn read_only_aliasing_before_read_only_check(&self)
     {
         let addr = sdk::get_current_address();
-        let entrypoint = u64::from_be_bytes(
-            ::sdk::contract::ContractEntrypointID::from(
-                crate::ReadOnlyTestEntrypoints::read_only_aliasing_before_read_only_check_inner,
-            )
-            .into_inner(),
-        );
-        let flag = groundhog_xdr::transaction::InvokeFlag::ReadOnly.0;
+        let entrypoint = crate::ReadOnlyTestEntrypoints::
+            read_only_aliasing_before_read_only_check_inner
+            .into_u64();
+        let flag = groundhog_xdr::invoke_flag::InvokeFlag::ReadOnly.0;
         let mut return_len = 0u32;
         let res = sdk::sys::raw_Invoke(
             &addr,

@@ -34,7 +34,7 @@ struct HTLCContract {
 }
 
 fn get_block_height() -> BlockHeight {
-    let mut height : BlockHeight = 0;
+    let mut height : BlockHeight = 0.into();
     sdk::sys::raw_GetBlockHeight(&mut height).unwrap();
     height
 }
@@ -106,4 +106,3 @@ impl HTLC for HTLCContract {
         self.htlcs.at_mut_exclusive(hash).delete();
     }
 }
-

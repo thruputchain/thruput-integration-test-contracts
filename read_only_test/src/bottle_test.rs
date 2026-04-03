@@ -25,17 +25,12 @@ impl BottleTest for BT {
 
         let mut return_len : core::mem::MaybeUninit<u32> = core::mem::MaybeUninit::uninit();
 
-        let flag: i32 = transaction::InvokeFlag::ReadOnly.0;
+        let flag: i32 = invoke_flag::InvokeFlag::ReadOnly.0;
         let calldata = cxs::encode(&true).unwrap();
 
         sys::uninit_Invoke(
             &target_addr,
-            u64::from_be_bytes(
-                ::sdk::contract::ContractEntrypointID::from(
-                    crate::ReadOnlyTestEntrypoints::read_only_bytestring_set,
-                )
-                .into_inner(),
-            ),
+            crate::ReadOnlyTestEntrypoints::read_only_bytestring_set.into_u64(),
             u64::MAX,
             &calldata,
             flag,

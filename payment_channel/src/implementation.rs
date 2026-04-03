@@ -70,7 +70,7 @@ pub struct PaymentChannelContract {
 }
 
 fn get_block_height() -> BlockHeight {
-    let mut height: BlockHeight = 0;
+    let mut height: BlockHeight = 0.into();
     sdk::sys::raw_GetBlockHeight(&mut height).unwrap();
     height
 }

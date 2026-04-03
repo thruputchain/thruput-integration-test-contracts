@@ -29,12 +29,9 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     fn test_get_return_after_fault(&self) {
         let addr = sdk::get_current_address();
         let mut return_buffer_len: RuntimeMemoryLength = 0;
-        let entrypoint = u64::from_be_bytes(
-            ::sdk::contract::ContractEntrypointID::from(
-                crate::SyscallMiscTestsEntrypoints::internal_always_fault,
-            )
-            .into_inner(),
-        );
+        let entrypoint =
+            crate::SyscallMiscTestsEntrypoints::internal_always_fault
+                .into_u64();
 
         let res = sys::raw_Invoke(
             &addr, entrypoint, u64::MAX, &[], 0, &mut return_buffer_len,
@@ -95,12 +92,9 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     fn test_invoke_frame_reverted(&self) {
         let addr = sdk::get_current_address();
         let mut return_buffer_len: RuntimeMemoryLength = 0;
-        let entrypoint = u64::from_be_bytes(
-            ::sdk::contract::ContractEntrypointID::from(
-                crate::SyscallMiscTestsEntrypoints::internal_always_revert,
-            )
-            .into_inner(),
-        );
+        let entrypoint =
+            crate::SyscallMiscTestsEntrypoints::internal_always_revert
+                .into_u64();
         let res = sys::raw_Invoke(
             &addr, entrypoint, u64::MAX, &[], 0, &mut return_buffer_len,
         );
@@ -474,12 +468,9 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     fn test_return_buffer_too_long(&self) {
         let addr = sdk::get_current_address();
         let mut return_buffer_len: RuntimeMemoryLength = 0;
-        let entrypoint = u64::from_be_bytes(
-            ::sdk::contract::ContractEntrypointID::from(
-                crate::SyscallMiscTestsEntrypoints::internal_return_too_long,
-            )
-            .into_inner(),
-        );
+        let entrypoint =
+            crate::SyscallMiscTestsEntrypoints::internal_return_too_long
+                .into_u64();
 
         let res = sys::raw_Invoke(
             &addr, entrypoint, u64::MAX, &[], 0, &mut return_buffer_len,
@@ -537,12 +528,9 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     fn test_write_syscall_in_read_only(&self) {
         let addr = sdk::get_current_address();
         let mut return_buffer_len: RuntimeMemoryLength = 0;
-        let entrypoint = u64::from_be_bytes(
-            ::sdk::contract::ContractEntrypointID::from(
-                crate::SyscallMiscTestsEntrypoints::internal_try_bytestring_set,
-            )
-            .into_inner(),
-        );
+        let entrypoint =
+            crate::SyscallMiscTestsEntrypoints::internal_try_bytestring_set
+                .into_u64();
 
         // Invoke with read-only flag (0x2 = ReadOnly)
         // internal_try_bytestring_set will verify that BytestringSet
