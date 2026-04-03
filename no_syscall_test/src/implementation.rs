@@ -20,7 +20,7 @@ unsafe extern "C" {
     ) -> i32;
 }
 
-#[contract(exports = "guest_exports", storage = false)]
+#[contract(storage = false)]
 impl NoSyscallTest for NoSyscallTestContract {
 
     fn run_test(&self, syscall: u64) {
