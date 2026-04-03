@@ -46,7 +46,8 @@ struct Channel {
     submitted_balance_a: i128,
     submitted_balance_b: i128,
     submitted_nonce: u64,
-    dispute_deadline: BlockHeight,
+    dispute_deadline: i64, // BlockHeight
+    // TODO(geoff): convert to BlockHeight, once we add arithmetic ops on BlockHeight
 }
 
 impl Channel {
@@ -69,10 +70,10 @@ pub struct PaymentChannelContract {
     default_dispute_period: Value<u64>,
 }
 
-fn get_block_height() -> BlockHeight {
+fn get_block_height() -> i64 {
     let mut height: BlockHeight = 0.into();
     sdk::sys::raw_GetBlockHeight(&mut height).unwrap();
-    height
+    height.into_inner()
 }
 
 // Serialize ChannelState to bytes for signing
