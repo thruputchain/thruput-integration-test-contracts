@@ -33,7 +33,7 @@ crate-type = ["cdylib", "rlib"]
 doctest = false
 
 [features]
-client = []
+entrypoints = []
 dev = ["std", "sdk/dev", "groundhog-erc20-if/dev", "dep:erc20-native-test"]
 spec = ["sdk/spec", "std", "groundhog-erc20-if/spec", "sdk/alloc"]
 std = ["sdk/std"]

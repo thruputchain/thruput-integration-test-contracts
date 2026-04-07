@@ -19,7 +19,7 @@ test = false
 
 [features]
 default = ["guest"]
-client = []
+entrypoints = []
 guest = []
 dev = ["guest", "sdk/dev", "sdk/std"]
 spec = ["sdk/spec", "std", "client"]

@@ -20,7 +20,7 @@ path = "src/bin/generate_spec.rs"
 required-features = ["spec"]
 
 [features]
-client = []
+entrypoints = []
 dev = ["sdk/dev", "std"]
 std = ["sdk/std"]
 spec = ["std", "sdk/spec"]

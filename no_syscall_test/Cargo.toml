@@ -18,7 +18,7 @@ doctest = false
 
 [features]
 default = ["guest"]
-client = []
+entrypoints = []
 guest = ["client"] # needs client of self
 dev = ["guest", "sdk/dev", "std"]
 spec = ["sdk/spec", "std", "client"]

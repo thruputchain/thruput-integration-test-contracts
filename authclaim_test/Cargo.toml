@@ -17,7 +17,7 @@ test = false
 doctest = false
 
 [features]
-client = []
+entrypoints = []
 std = []
 dev = ["sdk/dev", "std"]
 spec = ["std", "sdk/spec"]

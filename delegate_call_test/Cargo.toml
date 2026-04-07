@@ -15,7 +15,7 @@ test = false
 
 [features]
 default = ["guest"]
-client = []
+entrypoints = []
 guest = []
 dev = ["guest", "sdk/dev"]
 logging = ["sdk/logging"]

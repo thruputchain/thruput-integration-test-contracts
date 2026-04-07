@@ -18,7 +18,7 @@ required-features = ["spec"]
 
 [features]
 default = ["guest"]
-client = []
+entrypoints = []
 guest = ["sdk/alloc"]
 dev = ["guest", "sdk/dev"]
 spec = ["sdk/spec", "std", "client", "sdk/alloc"]

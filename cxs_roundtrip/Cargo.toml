@@ -24,7 +24,7 @@ required-features = ["spec"]
 
 [features]
 default = ["guest", "alloc", "xdrs"]
-client = []
+entrypoints = []
 guest = []
 mock = ["guest", "sdk/dev"]
 alloc = []

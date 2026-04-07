@@ -13,7 +13,7 @@ test = false
 
 [features]
 default = ["guest"]
-client = []
+entrypoints = []
 guest = []
 mock = ["guest", "sdk/mock"]
 logging = ["sdk/logging"]

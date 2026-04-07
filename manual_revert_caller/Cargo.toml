@@ -21,7 +21,7 @@ manual_revert_test = { path = "../manual_revert_test" }
 manual_revert_caller = { path = ".", features = ["dev"] }
 
 [features]
-client = []
+entrypoints = []
 guest = []
 dev = ["sdk/dev", "manual_revert_test/dev"]
 std = ["sdk/std", "manual_revert_test/std"]

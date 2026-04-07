@@ -13,7 +13,7 @@ crate-type = ["cdylib", "rlib"]
 doctest = false
 
 [features]
-client = []
+entrypoints = []
 default = []
 guest = []
 logging = []

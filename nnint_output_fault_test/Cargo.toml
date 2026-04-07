@@ -18,7 +18,7 @@ doctest = false
 
 [features]
 default = ["guest"]
-client = []
+entrypoints = []
 guest = ["client"]
 mock = ["guest", "sdk/mock", "std"]
 spec = ["sdk/spec", "std", "client"]
