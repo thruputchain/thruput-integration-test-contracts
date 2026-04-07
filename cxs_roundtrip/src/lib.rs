@@ -13,7 +13,6 @@ mod roundtrip;
 pub mod interface;
 
 // A client stub that provides the interface via cross-contract calls
-#[cfg(feature = "client")]
 pub use interface::Client;
 
 // An implementation of the contract interface

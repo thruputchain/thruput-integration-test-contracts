@@ -5,7 +5,6 @@ extern crate std;
 
 pub mod interface;
 
-#[cfg(feature = "client")]
 pub use interface::Client;
 
 #[cfg(feature = "guest")]

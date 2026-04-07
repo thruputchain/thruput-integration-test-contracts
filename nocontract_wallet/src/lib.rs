@@ -7,7 +7,6 @@ extern crate std;
 pub mod interface;
 
 // A client stub that provides the interface via cross-contract calls
-#[cfg(feature = "client")]
 pub use interface::Client;
 
 #[cfg(feature = "guest")]
