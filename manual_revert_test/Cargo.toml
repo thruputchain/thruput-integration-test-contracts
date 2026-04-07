@@ -31,9 +31,9 @@ mock = ["guest", "sdk/mock"]
 alloc = []
 xdrs = []
 dev = ["sdk/dev", "std"]
-spec = ["sdk/spec", "std", "client"]
+spec = ["sdk/spec", "std", "entrypoints"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]
-manual_revert_test = { path = ".", features = ["mock", "client"] }
+manual_revert_test = { path = ".", features = ["mock", "entrypoints"] }

@@ -19,11 +19,11 @@ doctest = false
 [features]
 default = ["guest"]
 entrypoints = []
-guest = ["client"]
+guest = ["entrypoints"]
 dev = ["guest", "sdk/dev", "std"]
-spec = ["sdk/spec", "std", "client"]
+spec = ["sdk/spec", "std", "entrypoints"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]
-output_alias_test = { path = ".", features = ["dev", "client"] }
+output_alias_test = { path = ".", features = ["dev", "entrypoints"] }

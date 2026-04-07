@@ -29,9 +29,9 @@ guest = []
 mock = ["guest", "sdk/dev"]
 alloc = []
 xdrs = []
-spec = ["sdk/spec", "std", "client"]
+spec = ["sdk/spec", "std", "entrypoints"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]
-cxs_roundtrip = { path = ".", features = ["mock", "client"] }
+cxs_roundtrip = { path = ".", features = ["mock", "entrypoints"] }

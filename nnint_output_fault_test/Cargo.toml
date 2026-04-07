@@ -19,11 +19,11 @@ doctest = false
 [features]
 default = ["guest"]
 entrypoints = []
-guest = ["client"]
+guest = ["entrypoints"]
 mock = ["guest", "sdk/mock", "std"]
-spec = ["sdk/spec", "std", "client"]
+spec = ["sdk/spec", "std", "entrypoints"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]
-nnint_output_fault_test = { path = ".", features = ["mock", "client"] }
+nnint_output_fault_test = { path = ".", features = ["mock", "entrypoints"] }

@@ -21,4 +21,4 @@ mock = ["guest", "sdk/mock"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]
-fibonacci_raw = { path = ".", features = ["mock", "client"] }
+fibonacci_raw = { path = ".", features = ["mock", "entrypoints"] }

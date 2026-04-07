@@ -19,12 +19,12 @@ doctest = false
 [features]
 default = ["guest"]
 entrypoints = []
-guest = ["client"] # needs client of self
+guest = ["entrypoints"] # needs entrypoints of self
 dev = ["guest", "sdk/dev", "std"]
-spec = ["sdk/spec", "std", "client"]
+spec = ["sdk/spec", "std", "entrypoints"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]
-no_syscall_test = { path = ".", features = ["dev", "client"] }
+no_syscall_test = { path = ".", features = ["dev", "entrypoints"] }
 
