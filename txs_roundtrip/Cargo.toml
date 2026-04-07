@@ -22,6 +22,7 @@ path = "src/bin/generate_types.rs"
 required-features = ["spec"]
 
 [features]
+client = []
 default = ["xdrs"]
 xdrs = []
 dev = ["sdk/dev"]

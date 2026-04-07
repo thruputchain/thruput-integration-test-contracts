@@ -16,6 +16,7 @@ crate-type = ["cdylib", "rlib"]
 doctest = false
 
 [features]
+client = []
 dev = ["sdk/dev"]
 bottle-test = ["dep:bottle-test-if"]
 

@@ -20,6 +20,7 @@ doctest = false
 test = false
 
 [features]
+client = []
 dev = ["sdk/dev", "fibonacci/dev"]
 spec = ["sdk/spec", "std"]
 std = ["sdk/std", "fibonacci/std"]

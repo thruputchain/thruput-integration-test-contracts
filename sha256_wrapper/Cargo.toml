@@ -22,6 +22,7 @@ path = "src/bin/generate_spec.rs"
 required-features = ["spec"]
 
 [features]
+client = []
 dev = ["sdk/dev"]
 bottle-test = ["dep:bottle-test-if", "dep:sha2"]
 spec = ["sdk/spec"]
