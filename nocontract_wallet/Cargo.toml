@@ -17,9 +17,9 @@ path = "src/bin/generate_spec.rs"
 required-features = ["spec"]
 
 [features]
-default = ["entrypoints"]
+default = []
 entrypoints = []
 guest = []
-spec = ["sdk/spec", "std", "entrypoints"]
+spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
 logging = ["sdk/logging", "std"]

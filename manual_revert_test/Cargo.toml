@@ -31,7 +31,7 @@ mock = ["guest", "sdk/mock"]
 alloc = []
 xdrs = []
 dev = ["sdk/dev", "std"]
-spec = ["sdk/spec", "std", "entrypoints"]
+spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
 

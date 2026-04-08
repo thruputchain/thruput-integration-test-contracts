@@ -21,7 +21,7 @@ default = ["guest"]
 entrypoints = []
 guest = ["entrypoints"]
 dev = ["guest", "sdk/dev", "std"]
-spec = ["sdk/spec", "std", "entrypoints"]
+spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
 
