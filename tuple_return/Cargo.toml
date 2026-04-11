@@ -5,7 +5,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sdk = { workspace = true, features = ["storage"] }
+sdk = { workspace = true, features = ["storage", "alloc"] }
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -19,7 +19,6 @@ required-features = ["spec"]
 [features]
 default = ["guest"]
 entrypoints = []
-guest = ["sdk/alloc"]
 dev = ["guest", "sdk/dev"]
 spec = ["sdk/spec", "std", "sdk/alloc"]
 std = ["sdk/std"]
