@@ -12,7 +12,6 @@ pub mod interface;
 pub use interface::Client;
 
 // An implementation of the contract interface
-#[cfg(feature = "guest")]
 pub mod implementation;
 
 pub use implementation::TupleReturnContract;

@@ -17,7 +17,7 @@ path = "src/bin/generate_spec.rs"
 required-features = ["spec"]
 
 [features]
-default = ["guest"]
+default = []
 entrypoints = []
 dev = ["guest", "sdk/dev"]
 spec = ["sdk/spec", "std", "sdk/alloc"]
