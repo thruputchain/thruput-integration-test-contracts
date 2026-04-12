@@ -5,6 +5,7 @@ extern crate std;
 
 // A trait describing the contract interface
 pub mod interface;
+pub use interface::SimpleWalletAuthClaimClient as Client;
 
 #[cfg(feature="alloc")]
 extern crate alloc;
