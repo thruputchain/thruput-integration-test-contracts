@@ -4,7 +4,7 @@ use sdk::*;
 #[derive(Default)]
 struct ManualRevertTestContract;
 
-#[contract(exports = "guest_exports", storage = false)]
+#[contract(storage = false)]
 impl ManualRevertTest for ManualRevertTestContract {
     fn test_basic_manual_revert(
         &self,
@@ -14,7 +14,7 @@ impl ManualRevertTest for ManualRevertTestContract {
         bytestring_set(&test_key, b"state_before_revert");
 
         if should_revert {
-            abort(&ManualRevertTestError::BasicRevert);
+            throw(ManualRevertTestError::BasicRevert);
         }
     }
 
@@ -23,7 +23,7 @@ impl ManualRevertTest for ManualRevertTestContract {
         error_type: u32,
     ) {
         if error_type != 0 {
-            abort(&ManualRevertTestError::ErrorTypeRevert);
+            throw(ManualRevertTestError::ErrorTypeRevert);
         }
     }
 
@@ -50,7 +50,7 @@ impl ManualRevertTest for ManualRevertTestContract {
         bytestring_set(&key3, b"counter_value");
 
         if should_revert {
-            abort(&ManualRevertTestError::StorageRevert);
+            throw(ManualRevertTestError::StorageRevert);
         }
     }
 
@@ -63,7 +63,7 @@ impl ManualRevertTest for ManualRevertTestContract {
         bytestring_set(&internal_key, b"internal_data");
 
         if should_revert {
-            abort(&ManualRevertTestError::NestedRevert);
+            throw(ManualRevertTestError::NestedRevert);
         }
     }
 

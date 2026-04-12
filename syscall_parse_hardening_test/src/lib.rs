@@ -10,5 +10,3 @@ pub use interface::Client;
 #[cfg(feature = "guest")]
 pub mod implementation;
 
-#[cfg(feature = "guest")]
-pub use implementation::guest_exports::*;

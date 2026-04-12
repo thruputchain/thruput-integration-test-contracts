@@ -1,8 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[cfg(feature = "mock")]
-extern crate std;
-
 extern crate alloc;
 
 // generated code for testing
@@ -19,13 +16,9 @@ pub use interface::Client;
 #[cfg(feature = "guest")]
 pub mod implementation;
 
-// Contract methods exposed with C ABI for running as guest
-#[cfg(feature = "guest")]
-pub use implementation::guest_exports::*;
-
-#[cfg(feature = "mock")]
+#[cfg(feature = "dev")]
 pub use implementation::CxsRoundtripContract;
-#[cfg(feature = "mock")]
+#[cfg(feature = "dev")]
 pub use interface::CxsRoundtrip;
 
 #[cfg(test)]

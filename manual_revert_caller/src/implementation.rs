@@ -1,6 +1,5 @@
 use crate::interface::*;
 use alloc::format;
-use manual_revert_test::ManualRevertTestError;
 use manual_revert_test::Client as ManualRevertTestClient;
 use manual_revert_test::ClientError as ManualRevertTestClientError;
 use sdk::*;

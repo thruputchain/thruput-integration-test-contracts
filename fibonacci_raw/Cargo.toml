@@ -17,6 +17,7 @@ test = false
 default = ["guest"]
 entrypoints = []
 guest = []
+dev = ["sdk/dev"]
 mock = ["guest", "sdk/mock"]
 logging = ["sdk/logging"]
 

@@ -20,6 +20,7 @@ doctest = false
 default = ["guest"]
 entrypoints = []
 guest = ["entrypoints"]
+dev = ["sdk/dev"]
 mock = ["guest", "sdk/mock", "std"]
 spec = ["sdk/spec", "std"]
 std = ["sdk/std"]

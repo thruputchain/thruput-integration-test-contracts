@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 sdk = { workspace = true, features = ["storage"] }
+xdrs = { workspace = true, features = ["derive", "alloc", "int128"] }
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -26,12 +27,12 @@ required-features = ["spec"]
 default = ["guest", "alloc", "xdrs"]
 entrypoints = []
 guest = []
-mock = ["guest", "sdk/dev"]
 alloc = []
 xdrs = []
 spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
+dev = ["sdk/dev"]
 
 [dev-dependencies]
-cxs_roundtrip = { path = ".", features = ["mock", "entrypoints"] }
+cxs_roundtrip = { path = ".", features = ["dev", "entrypoints"] }

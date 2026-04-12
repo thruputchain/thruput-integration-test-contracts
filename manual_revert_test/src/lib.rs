@@ -1,6 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[cfg(feature = "dev")]
+#[cfg(feature = "std")]
 extern crate std;
 
 extern crate alloc;
@@ -14,5 +14,3 @@ pub use interface::ManualRevertTestError;
 pub use interface::Client;
 pub use interface::ClientError;
 
-// Contract methods exposed with C ABI for running as guest
-pub use implementation::guest_exports::*;

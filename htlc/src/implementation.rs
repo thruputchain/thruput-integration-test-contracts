@@ -48,7 +48,7 @@ impl HTLC for HTLCContract {
         receiver: &ContractAddress, 
         token: &ContractAddress, 
         amount: i128, 
-        expiration_height: BlockHeight, 
+        expiration_height: BlockHeight,
         hash: &SHA256Hash) {
 
         assert!(amount > 0);
