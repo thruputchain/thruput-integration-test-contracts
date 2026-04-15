@@ -24,11 +24,7 @@ path = "src/bin/generate_types.rs"
 required-features = ["spec"]
 
 [features]
-default = ["guest", "alloc", "xdrs"]
 entrypoints = []
-guest = []
-alloc = []
-xdrs = []
 spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]

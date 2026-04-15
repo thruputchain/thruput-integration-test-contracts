@@ -17,10 +17,8 @@ crate-type = ["cdylib", "rlib"]
 doctest = false
 
 [features]
-default = ["guest"]
 entrypoints = []
-guest = ["entrypoints"]
-dev = ["guest", "sdk/dev", "std"]
+dev = ["sdk/dev", "std"]
 spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]

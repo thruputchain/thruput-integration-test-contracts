@@ -7,6 +7,5 @@ pub mod interface;
 
 pub use interface::Client;
 
-#[cfg(feature = "guest")]
 pub mod implementation;
 

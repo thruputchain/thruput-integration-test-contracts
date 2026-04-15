@@ -8,7 +8,6 @@ pub mod interface;
 pub use interface::NoSyscallTestClient;
 
 // An implementation of the contract interface
-#[cfg(feature = "guest")]
 pub mod implementation;
 
 

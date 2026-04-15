@@ -18,14 +18,11 @@ doctest = false
 test = false
 
 [features]
-default = ["guest"]
 entrypoints = []
-guest = []
-dev = ["guest", "sdk/dev", "sdk/std"]
+dev = [ "sdk/dev", "sdk/std"]
 spec = ["sdk/spec", "std"]
-std = ["sdk/std", "alloc"]
+std = ["sdk/std"]
 logging = ["sdk/logging"]
-alloc = []
 
 [dev-dependencies]
 simple_wallet_authclaim = { path = ".", features = ["dev", "entrypoints"] }

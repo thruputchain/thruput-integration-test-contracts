@@ -7,10 +7,7 @@ extern crate std;
 pub mod interface;
 pub use interface::SimpleWalletAuthClaimClient as Client;
 
-#[cfg(feature="alloc")]
-extern crate alloc;
 
 // An implementation of the contract interface
-#[cfg(feature = "guest")]
 pub mod implementation;
 
