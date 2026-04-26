@@ -17,6 +17,9 @@ unsafe extern "C" {
         arg5: u64,
         arg6: u64,
         arg7: u64,
+        arg8: u64,
+        arg9: u64,
+        arg10: u64,
     ) -> i32;
 }
 
@@ -24,7 +27,7 @@ unsafe extern "C" {
 impl NoSyscallTest for NoSyscallTestContract {
 
     fn run_test(&self, syscall: u64) {
-        let res = unsafe { syscall_wrapper_impl(syscall, 0, 0, 0, 0, 0, 0, 0) };
+        let res = unsafe { syscall_wrapper_impl(syscall, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) };
         if res != SyscallErrorCode::kSyscallErrorCodeNoSyscall.0 {
             panic!("syscall {} failed", syscall);
         }

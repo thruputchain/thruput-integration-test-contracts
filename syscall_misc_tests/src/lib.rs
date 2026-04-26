@@ -5,8 +5,8 @@ extern crate std;
 
 extern crate alloc;
 
-pub mod interface;
 mod implementation;
+pub mod interface;
 
 // A trait describing the contract interface
 pub use interface::SyscallMiscTests;

@@ -27,7 +27,10 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             &mut auth_token_id_list_buf.as_mut_slice(),
             &mut auth_token_id_list_return_len,
         );
-        expect_err(res, SyscallErrorCode::kSyscallErrorCodeNoReturnBufferAvailable);
+        expect_err(
+            res,
+            SyscallErrorCode::kSyscallErrorCodeNoReturnBufferAvailable,
+        );
     }
 
     fn test_get_return_after_fault(&self) {
@@ -60,7 +63,10 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             &mut auth_token_id_list_buf.as_mut_slice(),
             &mut auth_token_id_list_return_len,
         );
-        expect_err(res, SyscallErrorCode::kSyscallErrorCodeNoReturnBufferAvailable);
+        expect_err(
+            res,
+            SyscallErrorCode::kSyscallErrorCodeNoReturnBufferAvailable,
+        );
     }
 
     // ── Internal helpers (invoked by other tests via raw_Invoke) ────
@@ -176,10 +182,8 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         // Write as NNInt
         let set_val: i128 = 0;
         let add_val: i128 = 0;
-        sys::raw_NonnegativeIntSetAdd(
-            &key, Some(&set_val), &add_val, 0,
-        )
-        .unwrap();
+        sys::raw_NonnegativeIntSetAdd(&key, Some(&set_val), &add_val, 0)
+            .unwrap();
         // Try to get bytestring length
         let mut length: RuntimeMemoryLength = 0;
         let res = sys::raw_BytestringGetLen(&key, &mut length);
@@ -192,9 +196,8 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let key = static_key!("nonexistent_bs_get");
         let mut buf = [0u8; 1024];
         let mut written_len: RuntimeMemoryLength = 0;
-        let res = sys::raw_BytestringGet(
-            &key, buf.as_mut_slice(), &mut written_len,
-        );
+        let res =
+            sys::raw_BytestringGet(&key, buf.as_mut_slice(), &mut written_len);
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeStorageKeyNotExist);
     }
 
@@ -205,16 +208,13 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         // Write as NNInt
         let set_val: i128 = 0;
         let add_val: i128 = 0;
-        sys::raw_NonnegativeIntSetAdd(
-            &key, Some(&set_val), &add_val, 0,
-        )
-        .unwrap();
+        sys::raw_NonnegativeIntSetAdd(&key, Some(&set_val), &add_val, 0)
+            .unwrap();
         // Try to get bytestring
         let mut buf = [0u8; 1024];
         let mut written_len: RuntimeMemoryLength = 0;
-        let res = sys::raw_BytestringGet(
-            &key, buf.as_mut_slice(), &mut written_len,
-        );
+        let res =
+            sys::raw_BytestringGet(&key, buf.as_mut_slice(), &mut written_len);
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
 
@@ -243,7 +243,11 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let mut current_set_opt: bool = false;
         let mut current_add: i128 = 0;
         let res = sys::raw_NonnegativeIntGet(
-            &key, true, &mut current_set, &mut current_set_opt, &mut current_add,
+            &key,
+            true,
+            &mut current_set,
+            &mut current_set_opt,
+            &mut current_add,
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeStorageKeyNotExist);
     }
@@ -259,7 +263,11 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let mut current_set_opt: bool = false;
         let mut current_add: i128 = 0;
         let res = sys::raw_NonnegativeIntGet(
-            &key, true, &mut current_set, &mut current_set_opt, &mut current_add,
+            &key,
+            true,
+            &mut current_set,
+            &mut current_set_opt,
+            &mut current_add,
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
@@ -270,9 +278,8 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let key = static_key!("nnint_set_add_negative");
         let set_val: i128 = 1;
         let add_val: i128 = -2; // 1 + (-2) = -1, always negative
-        let res = sys::raw_NonnegativeIntSetAdd(
-            &key, Some(&set_val), &add_val, 0,
-        );
+        let res =
+            sys::raw_NonnegativeIntSetAdd(&key, Some(&set_val), &add_val, 0);
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
 
@@ -322,9 +329,15 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let mut buf = [0u8; 256];
         let mut written_len: RuntimeMemoryLength = 0;
         let res = sys::raw_RetrocausalQueueConsume(
-            &key, false, buf.as_mut_slice(), &mut written_len,
+            &key,
+            false,
+            buf.as_mut_slice(),
+            &mut written_len,
         );
-        expect_err(res, SyscallErrorCode::kSyscallErrorCodeNoRetrocausalQueueEntry);
+        expect_err(
+            res,
+            SyscallErrorCode::kSyscallErrorCodeNoRetrocausalQueueEntry,
+        );
     }
 
     // ── #21: RetrocausalQueueConsume → kInvalidSyscallInput (wrong type)
@@ -337,7 +350,10 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let mut buf = [0u8; 256];
         let mut written_len: RuntimeMemoryLength = 0;
         let res = sys::raw_RetrocausalQueueConsume(
-            &key, false, buf.as_mut_slice(), &mut written_len,
+            &key,
+            false,
+            buf.as_mut_slice(),
+            &mut written_len,
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
@@ -356,9 +372,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let topic0 = [0u8; 32];
         let topic2 = [1u8; 32];
         // topic0=Some, topic1=None, topic2=Some → gap
-        let res = sys::raw_LogEvent(
-            Some(&topic0), None, Some(&topic2), &[],
-        );
+        let res = sys::raw_LogEvent(Some(&topic0), None, Some(&topic2), &[]);
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
 
@@ -436,15 +450,31 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             extern "C" {
                 #[link_name = "syscall"]
                 fn direct_syscall(
-                    no: u64, a1: u64, a2: u64, a3: u64,
-                    a4: u64, a5: u64, a6: u64, a7: u64,
+                    no: u64,
+                    a1: u64,
+                    a2: u64,
+                    a3: u64,
+                    a4: u64,
+                    a5: u64,
+                    a6: u64,
+                    a7: u64,
+                    a8: u64,
+                    a9: u64,
+                    a10: u64,
                 ) -> i32;
             }
             direct_syscall(
-                22,                                     // syscall number
-                9999,                                   // invalid statistic
-                &mut result as *mut u64 as u64,         // result pointer
-                0, 0, 0, 0, 0,
+                22,                             // syscall number
+                9999,                           // invalid statistic
+                &mut result as *mut u64 as u64, // result pointer
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
             )
         };
         let err = sys::SysErr(err_code);
@@ -478,7 +508,11 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         };
         // permission_1 supplied without permission_0
         let res = sys::raw_WriteAddressGasPermissionConfigs(
-            None, Some(&config), None, None, None,
+            None,
+            Some(&config),
+            None,
+            None,
+            None,
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
@@ -490,7 +524,9 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let contract_hash = SHA256Hash::from([0xFFu8; 32]);
         let mut deployed_address = ContractAddress::from([0u8; 32]);
         let res = sys::raw_DeployContract(
-            &nonce, &contract_hash, &mut deployed_address,
+            &nonce,
+            &contract_hash,
+            &mut deployed_address,
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
@@ -528,27 +564,36 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             &mut auth_token_id_list_buf.as_mut_slice(),
             &mut auth_token_id_list_return_len,
         );
-        expect_err(res, SyscallErrorCode::kSyscallErrorCodeNoReturnBufferAvailable);
+        expect_err(
+            res,
+            SyscallErrorCode::kSyscallErrorCodeNoReturnBufferAvailable,
+        );
     }
 
     // ── #35: DeployContract → kContractAlreadyDeployed ──────────────
 
-    fn test_deploy_contract_already_deployed(&self, contract_hash: &SHA256Hash) {
+    fn test_deploy_contract_already_deployed(
+        &self,
+        contract_hash: &SHA256Hash,
+    ) {
         let nonce = SHA256Hash::default();
         let mut deployed_address = ContractAddress::from([0u8; 32]);
 
         // First deploy should succeed
-        sys::raw_DeployContract(
-            &nonce, contract_hash, &mut deployed_address,
-        )
-        .unwrap();
+        sys::raw_DeployContract(&nonce, contract_hash, &mut deployed_address)
+            .unwrap();
 
         // Second deploy with same nonce+hash → same address → already deployed
         let mut deployed_address2 = ContractAddress::from([0u8; 32]);
         let res = sys::raw_DeployContract(
-            &nonce, contract_hash, &mut deployed_address2,
+            &nonce,
+            contract_hash,
+            &mut deployed_address2,
         );
-        expect_err(res, SyscallErrorCode::kSyscallErrorCodeContractAlreadyDeployed);
+        expect_err(
+            res,
+            SyscallErrorCode::kSyscallErrorCodeContractAlreadyDeployed,
+        );
     }
 
     // ── #36: Invoke with garbage flags → kInvalidSyscallInput ───────
@@ -595,7 +640,9 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         );
         match res {
             Ok(_) => {} // sub-frame verified the error and returned
-            Err(e) => panic!("invoke should have succeeded, got error: {:?}", e),
+            Err(e) => {
+                panic!("invoke should have succeeded, got error: {:?}", e)
+            }
         }
     }
 }

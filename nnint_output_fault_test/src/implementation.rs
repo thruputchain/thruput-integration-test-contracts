@@ -14,6 +14,9 @@ unsafe extern "C" {
         arg5: u64,
         arg6: u64,
         arg7: u64,
+        arg8: u64,
+        arg9: u64,
+        arg10: u64,
     ) -> i32;
 }
 
@@ -45,6 +48,9 @@ impl NnintOutputFaultTest for NnintOutputFaultTestContract {
                 K_OOB_PTR, // invalid current_add pointer
                 0,
                 0,
+                0,
+                0,
+                0
             )
         };
 
@@ -75,6 +81,9 @@ impl NnintOutputFaultTest for NnintOutputFaultTestContract {
                 &mut current_add as *mut i128 as u64,
                 0,
                 0,
+                0,
+                0,
+                0
             )
         };
 
@@ -106,6 +115,9 @@ impl NnintOutputFaultTest for NnintOutputFaultTestContract {
                 &mut current_add as *mut i128 as u64,
                 0,
                 0,
+                0,
+                0,
+                0
             )
         };
         assert_fault(err_code);

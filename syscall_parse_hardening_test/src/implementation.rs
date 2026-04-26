@@ -14,6 +14,9 @@ unsafe extern "C" {
         arg5: u64,
         arg6: u64,
         arg7: u64,
+        arg8: u64,
+        arg9: u64,
+        arg10: u64,
     ) -> i32;
 }
 
@@ -48,6 +51,7 @@ impl SyscallParseHardeningTest for SyscallParseHardeningTestContract {
                 public_key.len() as u64,
                 message.as_ptr() as u64,
                 message.len() as u64,
+                0, 0, 0,
             )
         };
         assert_code(
@@ -66,6 +70,7 @@ impl SyscallParseHardeningTest for SyscallParseHardeningTestContract {
                 public_key.len() as u64,
                 message.as_ptr() as u64,
                 message.len() as u64,
+                0, 0, 0,
             )
         };
         assert_code(noncanonical_neg_one, SyscallErrorCode::kSyscallErrorCodeFault);
@@ -80,6 +85,7 @@ impl SyscallParseHardeningTest for SyscallParseHardeningTestContract {
                 public_key.len() as u64,
                 message.as_ptr() as u64,
                 message.len() as u64,
+                0, 0, 0,
             )
         };
         assert_code(noncanonical_overflow, SyscallErrorCode::kSyscallErrorCodeFault);
@@ -101,6 +107,7 @@ impl SyscallParseHardeningTest for SyscallParseHardeningTestContract {
                 &key_weight as *const u32 as u64,
                 0,
                 0,
+                0, 0, 0,
             )
         };
         assert_code(oob_optional_scheme, SyscallErrorCode::kSyscallErrorCodeFault);
@@ -116,6 +123,7 @@ impl SyscallParseHardeningTest for SyscallParseHardeningTestContract {
                 K_OOB_PTR,
                 0,
                 0,
+                0, 0, 0,
             )
         };
         assert_code(oob_optional_weight, SyscallErrorCode::kSyscallErrorCodeFault);
@@ -136,6 +144,7 @@ impl SyscallParseHardeningTest for SyscallParseHardeningTestContract {
                 0,
                 0,
                 0,
+                0, 0, 0,
             )
         };
         assert_code(
@@ -153,6 +162,7 @@ impl SyscallParseHardeningTest for SyscallParseHardeningTestContract {
                 0,
                 0,
                 0,
+                0, 0, 0,
             )
         };
         assert_code(oob_optional_caller, SyscallErrorCode::kSyscallErrorCodeFault);

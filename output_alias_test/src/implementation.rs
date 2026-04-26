@@ -13,6 +13,9 @@ unsafe extern "C" {
         arg5: u64,
         arg6: u64,
         arg7: u64,
+        arg8: u64,
+        arg9: u64,
+        arg10: u64,
     ) -> i32;
 }
 
@@ -53,6 +56,9 @@ impl OutputAliasTest for OutputAliasTestContract {
                 &mut shared as *mut i128 as u64,  // current_add (same as current_set!)
                 0,
                 0,
+                0,
+                0,
+                0
             )
         };
 
@@ -81,6 +87,9 @@ impl OutputAliasTest for OutputAliasTestContract {
                 current_add_ptr,                   // current_add at buf[8..24] (overlaps!)
                 0,
                 0,
+                0,
+                0,
+                0
             )
         };
 
@@ -106,6 +115,9 @@ impl OutputAliasTest for OutputAliasTestContract {
                 &mut current_add as *mut i128 as u64,
                 0,
                 0,
+                0,
+                0,
+                0
             )
         };
 
@@ -133,6 +145,9 @@ impl OutputAliasTest for OutputAliasTestContract {
                 0,
                 0,
                 0,
+                0,
+                0,
+                0
             )
         };
 
@@ -155,6 +170,9 @@ impl OutputAliasTest for OutputAliasTestContract {
                 0,
                 0,
                 0,
+                0,
+                0,
+                0
             )
         };
 
@@ -178,6 +196,9 @@ impl OutputAliasTest for OutputAliasTestContract {
                 0,                 // data len
                 0,
                 0,
+                0,
+                0,
+                0
             )
         };
 
@@ -203,6 +224,9 @@ impl OutputAliasTest for OutputAliasTestContract {
                 current_add_ptr,                   // current_add at buf[32..48] (no overlap)
                 0,
                 0,
+                0,
+                0,
+                0
             )
         };
 
