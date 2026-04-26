@@ -177,6 +177,9 @@ impl ReadOnlyTest for ReadOnlyTestContract {
                 0,
                 0,
                 0,
+                0,
+                0,
+                0,
                 0
             )
         };
