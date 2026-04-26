@@ -512,9 +512,13 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         // Buffer should NOT be retrievable after a fault
         let mut buffer = [0u8; 1024];
         let mut written_len: RuntimeMemoryLength = 0;
+        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
+        let mut auth_token_id_list_buf = [0u8; 1024];
         let res = sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
+            &mut auth_token_id_list_buf.as_mut_slice(),
+            &mut auth_token_id_list_return_len,
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeNoReturnBufferAvailable);
     }
