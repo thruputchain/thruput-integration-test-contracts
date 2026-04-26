@@ -29,12 +29,20 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     fn test_get_return_after_fault(&self) {
         let addr = sdk::get_current_address();
         let mut return_buffer_len: RuntimeMemoryLength = 0;
+        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_always_fault
                 .into_u64();
 
         let res = sys::raw_Invoke(
-            &addr, entrypoint, u64::MAX, &[], 0, &mut return_buffer_len,
+            &addr,
+            entrypoint,
+            u64::MAX,
+            &[],
+            0,
+            &[],
+            &mut return_buffer_len,
+            &mut auth_token_id_list_return_len,
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeDeterministicWasm);
 
@@ -81,8 +89,16 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     fn test_invoke_contract_not_found(&self) {
         let nonexistent = ContractAddress::from([0xFFu8; 32]);
         let mut return_buffer_len: RuntimeMemoryLength = 0;
+        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
         let res = sys::raw_Invoke(
-            &nonexistent, 0, u64::MAX, &[], 0, &mut return_buffer_len,
+            &nonexistent,
+            0,
+            u64::MAX,
+            &[],
+            0,
+            &[],
+            &mut return_buffer_len,
+            &mut auth_token_id_list_return_len,
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
@@ -92,11 +108,19 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     fn test_invoke_frame_reverted(&self) {
         let addr = sdk::get_current_address();
         let mut return_buffer_len: RuntimeMemoryLength = 0;
+        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_always_revert
                 .into_u64();
         let res = sys::raw_Invoke(
-            &addr, entrypoint, u64::MAX, &[], 0, &mut return_buffer_len,
+            &addr,
+            entrypoint,
+            u64::MAX,
+            &[],
+            0,
+            &[],
+            &mut return_buffer_len,
+            &mut auth_token_id_list_return_len,
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeFrameReverted);
     }
@@ -468,12 +492,20 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     fn test_return_buffer_too_long(&self) {
         let addr = sdk::get_current_address();
         let mut return_buffer_len: RuntimeMemoryLength = 0;
+        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_too_long
                 .into_u64();
 
         let res = sys::raw_Invoke(
-            &addr, entrypoint, u64::MAX, &[], 0, &mut return_buffer_len,
+            &addr,
+            entrypoint,
+            u64::MAX,
+            &[],
+            0,
+            &[],
+            &mut return_buffer_len,
+            &mut auth_token_id_list_return_len,
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeDeterministicWasm);
 
@@ -512,13 +544,16 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     fn test_invoke_invalid_flags(&self) {
         let addr = sdk::get_current_address();
         let mut return_buffer_len: RuntimeMemoryLength = 0;
+        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
         let res = sys::raw_Invoke(
             &addr,
             0,
             u64::MAX,
             &[],
             0xFFFF, // garbage flags
+            &[],
             &mut return_buffer_len,
+            &mut auth_token_id_list_return_len,
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
@@ -528,6 +563,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     fn test_write_syscall_in_read_only(&self) {
         let addr = sdk::get_current_address();
         let mut return_buffer_len: RuntimeMemoryLength = 0;
+        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_try_bytestring_set
                 .into_u64();
@@ -536,7 +572,14 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         // internal_try_bytestring_set will verify that BytestringSet
         // returns kInvalidSyscallInput, then return normally
         let res = sys::raw_Invoke(
-            &addr, entrypoint, u64::MAX, &[], 0x2, &mut return_buffer_len,
+            &addr,
+            entrypoint,
+            u64::MAX,
+            &[],
+            0x2,
+            &[],
+            &mut return_buffer_len,
+            &mut auth_token_id_list_return_len,
         );
         match res {
             Ok(_) => {} // sub-frame verified the error and returned

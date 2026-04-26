@@ -52,6 +52,7 @@ impl SimpleWalletAuthClaim for SimpleWalletAuthClaimContract {
         ) = res.unwrap();
 
         let mut return_len = 0;
+        let mut auth_token_id_list_return_len = 0;
         let method_id = u64::from_be_bytes(entrypoint.into_inner());
 
         sdk::sys::raw_Invoke(
@@ -60,7 +61,9 @@ impl SimpleWalletAuthClaim for SimpleWalletAuthClaimContract {
             gas_limit,
             &calldata,
             0, // TODO(geoff): invoke flags go here
+            &[],
             &mut return_len,
+            &mut auth_token_id_list_return_len,
         )
         .unwrap();
     }
