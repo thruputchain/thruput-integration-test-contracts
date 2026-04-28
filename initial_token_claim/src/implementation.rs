@@ -54,11 +54,14 @@ impl InitialTokenClaim for InitialTokenClaimContract {
         let deployed_addr = sdk::deploy_contract(nonce, hash);
         sdk::log(format!("Deployed contract address: {:?}", deployed_addr).as_bytes());
 
+        let auth_handles = AuthHandleBuf::new();
+
         // Call the initialize entrypoint with provided calldata
         let _ = sdk::call::contract_call(&deployed_addr,
             *entrypoint,
             u64::MAX,
             calldata,
+            &auth_handles,
         ).unwrap();
 
         sdk::log(format!("End ITC").as_bytes());
