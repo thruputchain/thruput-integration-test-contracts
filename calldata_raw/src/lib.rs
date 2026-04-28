@@ -4,7 +4,7 @@ extern crate alloc;
 
 use alloc::vec;
 use alloc::vec::Vec;
-use sdk::{get_calldata, get_calldata_len};
+use sdk::{get_calldata_with_auth_tokens, get_calldata_len};
 
 pub fn calldata_len(count: u32) {
     for _ in 0..count {
@@ -31,7 +31,7 @@ pub fn calldata(count: u32) {
     let mut len: usize = 0;
 
     for _ in 0..count {
-        let x = get_calldata();
+        let (x, _) = get_calldata_with_auth_tokens();
         if len > 0 {
             assert_eq!(x.len(), len);
         }
@@ -58,9 +58,9 @@ pub fn calldata_raw(count: u32) {
     let len = get_calldata_len();
     let mut buf: Vec<u8> = vec![0; len as usize];
     let mut written_len = 0;
-
+    let mut auth_token_count = 0;
     for _ in 0..count {
-        sdk::sys::raw_GetCalldata(buf.as_mut_slice(), &mut written_len)
+        sdk::sys::raw_GetCalldata(buf.as_mut_slice(), &mut written_len, &mut [], &mut auth_token_count)
             .unwrap();
     }
 }
