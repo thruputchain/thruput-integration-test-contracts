@@ -56,10 +56,13 @@ impl SimpleWallet for SimpleWalletContract {
             &[u8],
         ) = sdk::__xdrs::txs::decode(&invocation_bytes).unwrap();
 
+        let mut auth_handles = AuthHandleBuf::new();
+
         let _ = sdk::call::contract_call(&addr,
             entrypoint,
             gas_limit,
             calldata,
+            &auth_handles,
         ).unwrap();
     }
 }
