@@ -2,6 +2,26 @@ use crate::SyscallMiscTests;
 use sdk::sys::{self, SyscallErrorCode};
 use sdk::*;
 
+#[link(wasm_import_module = "marmot")]
+unsafe extern "C" {
+    #[link_name = "syscall"]
+    fn direct_syscall(
+        no: u64,
+        a1: u64,
+        a2: u64,
+        a3: u64,
+        a4: u64,
+        a5: u64,
+        a6: u64,
+        a7: u64,
+        a8: u64,
+        a9: u64,
+        a10: u64,
+    ) -> i32;
+}
+
+const K_SYSCALL_RETURN: u64 = 6;
+
 #[derive(Default)]
 struct SyscallMiscTestsContract;
 
@@ -644,5 +664,239 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
                 panic!("invoke should have succeeded, got error: {:?}", e)
             }
         }
+    }
+
+    // ── No-Return-syscall test ────────────────────────────────────────
+
+    fn test_invoke_no_return_syscall(&self, target: &ContractAddress) {
+        let mut return_buffer_len: RuntimeMemoryLength = 0;
+        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
+        // Invoke the raw export at entrypoint 0xFF on a separate contract.
+        // That export just returns without calling the Return syscall.
+        let res = sys::raw_Invoke(
+            target,
+            0xFF,
+            u64::MAX,
+            &[],
+            0,
+            &[],
+            &mut return_buffer_len,
+            &mut auth_token_id_list_return_len,
+        );
+        assert!(res.is_ok(), "invoke of noop should succeed");
+        assert_eq!(return_buffer_len, 0, "return buffer should be empty");
+
+        let mut buffer = [0u8; 1024];
+        let mut written_len: RuntimeMemoryLength = 0;
+        let mut auth_token_id_list_buf = [0u8; 1024];
+        let mut auth_token_id_list_result_len: RuntimeMemoryLength = 0;
+        let res = sys::raw_GetReturnedBuffer(
+            buffer.as_mut_slice(),
+            &mut written_len,
+            &mut auth_token_id_list_buf.as_mut_slice(),
+            &mut auth_token_id_list_result_len,
+        );
+        assert!(res.is_ok(), "GetReturnedBuffer should succeed");
+        assert_eq!(written_len, 0, "returned buffer should be empty");
+    }
+
+    // ── Return auth token edge-case internal helpers ────────────────
+
+    fn internal_return_misaligned_auth_tokens(&self) {
+        let auth_tokens: [u8; 3] = [0, 0, 0]; // not a multiple of sizeof(u32)
+        unsafe {
+            direct_syscall(
+                K_SYSCALL_RETURN,
+                0,
+                0, // empty buffer
+                0, // revert_frame = false
+                auth_tokens.as_ptr() as u64,
+                auth_tokens.len() as u64,
+                0,
+                0,
+                0,
+                0,
+                0,
+            );
+        }
+        unreachable!()
+    }
+
+    fn internal_return_revert_with_auth_tokens(&self) {
+        let auth_tokens: [u32; 1] = [0];
+        let ptr = auth_tokens.as_ptr() as *const u8;
+        let len = core::mem::size_of_val(&auth_tokens);
+        unsafe {
+            direct_syscall(
+                K_SYSCALL_RETURN,
+                0,
+                0, // empty buffer
+                1, // revert_frame = true
+                ptr as u64,
+                len as u64,
+                0,
+                0,
+                0,
+                0,
+                0,
+            );
+        }
+        unreachable!()
+    }
+
+    fn internal_return_with_empty_auth_tokens(&self) {
+        let buf = [42u8; 4];
+        unsafe {
+            direct_syscall(
+                K_SYSCALL_RETURN,
+                buf.as_ptr() as u64,
+                buf.len() as u64,
+                0, // revert_frame = false
+                0, // null ptr
+                0, // len = 0
+                0,
+                0,
+                0,
+                0,
+                0,
+            );
+        }
+        unreachable!()
+    }
+
+    fn internal_return_with_auth_token_ids(&self) {
+        let buf = [99u8; 4];
+        let auth_tokens: [u32; 2] = [0, 1];
+        let ptr = auth_tokens.as_ptr() as *const u8;
+        let len = core::mem::size_of_val(&auth_tokens);
+        unsafe {
+            direct_syscall(
+                K_SYSCALL_RETURN,
+                buf.as_ptr() as u64,
+                buf.len() as u64,
+                0, // revert_frame = false
+                ptr as u64,
+                len as u64,
+                0,
+                0,
+                0,
+                0,
+                0,
+            );
+        }
+        unreachable!()
+    }
+
+    // ── Return auth token edge-case tests ───────────────────────────
+
+    fn test_return_misaligned_auth_tokens(&self) {
+        let addr = sdk::get_current_address();
+        let mut return_buffer_len: RuntimeMemoryLength = 0;
+        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
+        let entrypoint =
+            crate::SyscallMiscTestsEntrypoints::internal_return_misaligned_auth_tokens
+                .into_u64();
+        let res = sys::raw_Invoke(
+            &addr,
+            entrypoint,
+            u64::MAX,
+            &[],
+            0,
+            &[],
+            &mut return_buffer_len,
+            &mut auth_token_id_list_return_len,
+        );
+        expect_err(res, SyscallErrorCode::kSyscallErrorCodeDeterministicWasm);
+    }
+
+    fn test_return_revert_with_auth_tokens(&self) {
+        let addr = sdk::get_current_address();
+        let mut return_buffer_len: RuntimeMemoryLength = 0;
+        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
+        let entrypoint =
+            crate::SyscallMiscTestsEntrypoints::internal_return_revert_with_auth_tokens
+                .into_u64();
+        let res = sys::raw_Invoke(
+            &addr,
+            entrypoint,
+            u64::MAX,
+            &[],
+            0,
+            &[],
+            &mut return_buffer_len,
+            &mut auth_token_id_list_return_len,
+        );
+        expect_err(res, SyscallErrorCode::kSyscallErrorCodeDeterministicWasm);
+    }
+
+    fn test_return_with_empty_auth_tokens(&self) {
+        let addr = sdk::get_current_address();
+        let mut return_buffer_len: RuntimeMemoryLength = 0;
+        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
+        let entrypoint =
+            crate::SyscallMiscTestsEntrypoints::internal_return_with_empty_auth_tokens
+                .into_u64();
+        let res = sys::raw_Invoke(
+            &addr,
+            entrypoint,
+            u64::MAX,
+            &[],
+            0,
+            &[],
+            &mut return_buffer_len,
+            &mut auth_token_id_list_return_len,
+        );
+        assert!(res.is_ok());
+
+        let mut buffer = [0u8; 1024];
+        let mut written_len: RuntimeMemoryLength = 0;
+        let mut auth_token_id_list_buf = [0u8; 1024];
+        let mut auth_token_id_list_result_len: RuntimeMemoryLength = 0;
+        let res = sys::raw_GetReturnedBuffer(
+            buffer.as_mut_slice(),
+            &mut written_len,
+            &mut auth_token_id_list_buf.as_mut_slice(),
+            &mut auth_token_id_list_result_len,
+        );
+        assert!(res.is_ok());
+        assert_eq!(written_len, 4);
+        assert_eq!(&buffer[..4], &[42, 42, 42, 42]);
+    }
+
+    fn test_return_with_auth_token_ids(&self) {
+        let addr = sdk::get_current_address();
+        let mut return_buffer_len: RuntimeMemoryLength = 0;
+        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
+        let entrypoint =
+            crate::SyscallMiscTestsEntrypoints::internal_return_with_auth_token_ids
+                .into_u64();
+        let res = sys::raw_Invoke(
+            &addr,
+            entrypoint,
+            u64::MAX,
+            &[],
+            0,
+            &[],
+            &mut return_buffer_len,
+            &mut auth_token_id_list_return_len,
+        );
+        // The child doesn't own any auth tokens, but the Return syscall
+        // currently doesn't validate ownership — it just stores the IDs.
+        // This should succeed (or fail if ownership validation is added).
+        assert!(res.is_ok());
+
+        let mut buffer = [0u8; 1024];
+        let mut written_len: RuntimeMemoryLength = 0;
+        let mut auth_token_id_list_buf = [0u8; 1024];
+        let mut auth_token_id_list_result_len: RuntimeMemoryLength = 0;
+        let res = sys::raw_GetReturnedBuffer(
+            buffer.as_mut_slice(),
+            &mut written_len,
+            &mut auth_token_id_list_buf.as_mut_slice(),
+            &mut auth_token_id_list_result_len,
+        );
+        assert!(res.is_ok());
+        assert_eq!(written_len, 4);
+        assert_eq!(&buffer[..4], &[99, 99, 99, 99]);
     }
 }

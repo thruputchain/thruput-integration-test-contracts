@@ -56,4 +56,19 @@ pub trait SyscallMiscTests {
     // Undocumented edge cases
     fn test_invoke_invalid_flags(&self);
     fn test_write_syscall_in_read_only(&self);
+
+    // Verify wasm function that returns without calling Return syscall
+    fn test_invoke_no_return_syscall(&self, target: &ContractAddress);
+
+    // Return auth token edge-case internal helpers
+    fn internal_return_misaligned_auth_tokens(&self);
+    fn internal_return_revert_with_auth_tokens(&self);
+    fn internal_return_with_empty_auth_tokens(&self);
+    fn internal_return_with_auth_token_ids(&self);
+
+    // Return auth token edge-case tests
+    fn test_return_misaligned_auth_tokens(&self);
+    fn test_return_revert_with_auth_tokens(&self);
+    fn test_return_with_empty_auth_tokens(&self);
+    fn test_return_with_auth_token_ids(&self);
 }
