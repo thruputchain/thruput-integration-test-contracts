@@ -44,6 +44,6 @@ impl ReturnFaultTest for ReturnFaultTestContract {
         }
 
         // this should fail, because slice is out of bounds
-        sdk::sys::raw_Return(slice, false);
+        sdk::sys::raw_Return(slice, false, &[]);
     }
 }
