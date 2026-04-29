@@ -880,23 +880,8 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             &mut return_buffer_len,
             &mut auth_token_id_list_return_len,
         );
-        // The child doesn't own any auth tokens, but the Return syscall
-        // currently doesn't validate ownership — it just stores the IDs.
-        // This should succeed (or fail if ownership validation is added).
-        assert!(res.is_ok());
-
-        let mut buffer = [0u8; 1024];
-        let mut written_len: RuntimeMemoryLength = 0;
-        let mut auth_token_id_list_buf = [0u8; 1024];
-        let mut auth_token_id_list_result_len: RuntimeMemoryLength = 0;
-        let res = sys::raw_GetReturnedBuffer(
-            buffer.as_mut_slice(),
-            &mut written_len,
-            &mut auth_token_id_list_buf.as_mut_slice(),
-            &mut auth_token_id_list_result_len,
-        );
-        assert!(res.is_ok());
-        assert_eq!(written_len, 4);
-        assert_eq!(&buffer[..4], &[99, 99, 99, 99]);
+        // The child claims to return token IDs it doesn't own.
+        // Ownership validation causes a deterministic exit (fault).
+        expect_err(res, SyscallErrorCode::kSyscallErrorCodeDeterministicWasm);
     }
 }
