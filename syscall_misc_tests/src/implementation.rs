@@ -96,12 +96,12 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     }
 
     fn internal_always_revert(&self) {
-        sys::Return(&[], true);
+        sys::Return(&[], true, &[]);
     }
 
     fn internal_return_too_long(&self) {
-        let buffer = [0u8; 1025]; // > kMaxReturnBufferLen (1024)
-        sys::Return(&buffer, false);
+        let buffer = [0u8; sdk::types::kMaxReturnBufferLen + 1]; // > kMaxReturnBufferLen (1024)
+        sys::Return(&buffer, false, &[]);
     }
 
     fn internal_try_bytestring_set(&self) {
