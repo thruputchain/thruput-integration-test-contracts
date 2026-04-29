@@ -100,7 +100,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     }
 
     fn internal_return_too_long(&self) {
-        let buffer = [0u8; sdk::transaction::kMaxReturnBufferLen + 1]; // > kMaxReturnBufferLen (1024)
+        let buffer = [0u8; (sdk::transaction::kMaxReturnBufferLen + 1) as usize]; // > kMaxReturnBufferLen (1024)
         sys::Return(&buffer, false, &[]);
     }
 
