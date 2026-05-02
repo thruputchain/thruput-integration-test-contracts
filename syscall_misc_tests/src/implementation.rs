@@ -396,17 +396,6 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
 
-    // ── #24: GetAuthClaim → kInvalidSyscallInput (oob) ──────────────
-
-    fn test_get_auth_claim_oob(&self) {
-        // index=0 when count=0 → out of bounds
-        let mut auth_claim = unsafe {
-            core::mem::zeroed::<groundhog_xdr::auth_claim::AuthClaim>()
-        };
-        let res = sys::raw_GetAuthClaim(0, &mut auth_claim);
-        expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
-    }
-
     // ── #25: SHA256Update → kInvalidSyscallInput (no buffer) ────────
 
     fn test_sha256_update_no_buffer(&self) {
@@ -514,25 +503,6 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             Some(&scheme),
             &[0u8; 32],
             Some(&weight),
-        );
-        expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
-    }
-
-    // ── #32: WriteAddressGasPermissionConfigs → kInvalidSyscallInput
-
-    fn test_gas_perms_non_initial_segment(&self) {
-        let config = groundhog_xdr::address_auth::GasPermissionConfig {
-            limit: 0,
-            accepted_keys: 0,
-            required_weight: 0,
-        };
-        // permission_1 supplied without permission_0
-        let res = sys::raw_WriteAddressGasPermissionConfigs(
-            None,
-            Some(&config),
-            None,
-            None,
-            None,
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }

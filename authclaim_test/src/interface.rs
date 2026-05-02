@@ -2,16 +2,12 @@ use sdk::*;
 
 #[contract(client = Client)]
 pub trait AuthClaimTest {
-    /// Test kInvokedAddressSignature authclaim from index 0
-    fn test_invoked_address_signature(&self);
+    fn test_get_auth_claim(&self);
 
-    /// Test kInvokedAddressSignedWeight authclaim from index 1
-    fn test_invoked_address_signed_weight(&self);
+    fn test_set_address_required_weight(&mut self);
 
-    /// Test kOtherAddressSignature authclaim from index 2
-    fn test_other_address_signature(&self);
+    fn test_add_address_public_key(&mut self);
 
-    /// Test kOtherAddressSignedWeight authclaim from index 3
-    fn test_other_address_signed_weight(&self);
+    fn test_remove_address_public_key(&mut self);
 }
 

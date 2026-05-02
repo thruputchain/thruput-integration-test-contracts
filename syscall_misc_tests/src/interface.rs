@@ -36,7 +36,6 @@ pub trait SyscallMiscTests {
     fn test_rcq_consume_wrong_type(&self);
     fn test_log_event_data_too_long(&self);
     fn test_log_event_noncontinuous_topics(&self);
-    fn test_get_auth_claim_oob(&self);
     fn test_sha256_update_no_buffer(&self);
     fn test_sha256_update_too_many_buffers(&self);
     fn test_sha256_update_buffer_too_large(&self);
@@ -44,7 +43,6 @@ pub trait SyscallMiscTests {
     fn test_sha256_finalize_double(&self);
     fn test_get_tx_stats_invalid(&self);
     fn test_change_pubkey_index_oob(&self);
-    fn test_gas_perms_non_initial_segment(&self);
     fn test_deploy_contract_not_available(&self);
 
     // Additional behavioral tests

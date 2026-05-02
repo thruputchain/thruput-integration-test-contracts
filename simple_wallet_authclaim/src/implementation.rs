@@ -1,10 +1,5 @@
-//! An implementation of Fibonacci
-
 use super::interface::*;
-use sdk::sys::raw_ChangePublicKeyRegistration;
 use sdk::*;
-use sdk::NonceConfig;
-use sdk::GasPermissionConfig;
 
 #[derive(Default)]
 pub struct SimpleWalletAuthClaimContract;
@@ -12,37 +7,30 @@ pub struct SimpleWalletAuthClaimContract;
 #[contract(storage = false)]
 impl SimpleWalletAuthClaim for SimpleWalletAuthClaimContract {
     fn initialize(&mut self, owner: &Ed25519PublicKey) {
-        let scheme = CryptographicScheme::Ed25519.0;
-        let weight = 1u32;
-        raw_ChangePublicKeyRegistration(0, Some(&scheme), owner.as_ref(), Some(&weight)).unwrap();
-
-        sdk::set_nonce_config(NonceConfig{
-            accepted_keys: 0x01,
-            required_weight: 1,
-        }).unwrap();
-
-        sdk::set_gas_permission_config(GasPermissionConfig{
-                    limit: 1000000000,
-                    accepted_keys: 0x01,
-                    required_weight: 1,
-        }).unwrap();
+        let pk = PublicKey::Ed25519 {
+            ed25519: *owner,
+        };
+        sdk::add_address_public_key(0, pk, 1).unwrap();
+        sdk::set_address_required_weight(1).unwrap();
     }
 
     fn do_action(
         &self,
         invocation_bytes: &[u8],
     ) {
-        let auth_claim = sdk::get_auth_claim(0).unwrap();
+        let auth_claim = sdk::get_auth_claim().unwrap();
 
         match auth_claim {
-            AuthClaim::kInvokedAddressSignature{ invoked_address_signature_id } => {
-                assert_eq!(invoked_address_signature_id, 0);
+            AuthClaim::kSourceAddressAuthData { source_address_claim } => {
+                if source_address_claim.required_weight == 0 {
+                    trap();
+                }
             },
             _ => {
                 trap();
             }
         }
-    
+
         let res = sdk::__xdrs::txs::decode(&invocation_bytes);
         let (addr, entrypoint, gas_limit, calldata): (
             ContractAddress,
