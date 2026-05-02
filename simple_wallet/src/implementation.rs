@@ -14,7 +14,7 @@ pub struct SimpleWalletContract {
     owner: sdk::storage::Value<Ed25519PublicKey>,
 }
 
-#[contract(storage = false, version = "0.1.0")]
+#[contract(version = "0.1.0")]
 impl ERC1271 for SimpleWalletContract {
     fn is_valid_signature(
         &self,
