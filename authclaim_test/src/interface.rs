@@ -9,5 +9,7 @@ pub trait AuthClaimTest {
     fn test_add_address_public_key(&mut self);
 
     fn test_remove_address_public_key(&mut self);
+
+    fn test_add_pubkey_index_oob(&self);
 }
 
