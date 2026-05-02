@@ -35,7 +35,7 @@ doctest = false
 [features]
 entrypoints = []
 dev = ["std", "sdk/dev", "groundhog-erc20-if/dev", "dep:erc20-native-test"]
-spec = ["sdk/spec", "std", "groundhog-erc20-if/spec", "sdk/alloc"]
+spec = ["sdk/spec", "std", "sdk/alloc"]
 std = ["sdk/std"]
 logging = ["sdk/logging", "sdk/alloc", "alloc"]
 alloc = []
