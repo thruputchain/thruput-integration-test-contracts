@@ -1,5 +1,6 @@
 use super::interface::*;
 use groundhog_erc20_if::ERC20Client;
+use sdk::sys::{self, SyscallErrorCode};
 use sdk::*;
 
 #[derive(Default)]
@@ -28,6 +29,21 @@ fn require_source_address_auth() {
     }
 }
 
+fn require_root_invocation() {
+    let mut sender = ContractAddress::from([0u8; 32]);
+    match sys::raw_GetMsgSender(&mut sender) {
+        Err(e)
+            if e == SyscallErrorCode::kSyscallErrorCodeIsRootTransaction
+                .into() => {}
+        _ => trap(),
+    }
+}
+
+fn require_root_source_address_auth() {
+    require_root_invocation();
+    require_source_address_auth();
+}
+
 #[contract(storage = false)]
 impl DevWallet for DevWalletContract {
     fn initialize(&mut self, owner: &Ed25519PublicKey) {
@@ -37,7 +53,7 @@ impl DevWallet for DevWalletContract {
     }
 
     fn do_action(&self, invocation_bytes: &[u8]) {
-        require_source_address_auth();
+        require_root_source_address_auth();
 
         let (addr, entrypoint, gas_limit, calldata): (
             ContractAddress,
@@ -71,7 +87,7 @@ impl DevWallet for DevWalletContract {
         nonce: &SHA256Hash,
         contract_hash: &SHA256Hash,
     ) -> ContractAddress {
-        require_source_address_auth();
+        require_root_source_address_auth();
         let deployed_address = sdk::get_deploy_address(nonce, contract_hash);
         let token_client =
             ERC20Client::new(&sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN);
