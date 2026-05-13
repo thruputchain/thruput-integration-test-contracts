@@ -11,11 +11,6 @@ sdk = { workspace = true, features = ["storage", "alloc"] }
 crate-type = ["cdylib", "rlib"]
 doctest = false
 
-[[bin]]
-name = "generate_spec_tuple_return"
-path = "src/bin/generate_spec.rs"
-required-features = ["spec"]
-
 [features]
 default = []
 entrypoints = []
