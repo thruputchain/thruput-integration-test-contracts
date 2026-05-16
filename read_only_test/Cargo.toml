@@ -22,7 +22,7 @@ doctest = false
 
 [features]
 entrypoints = []
-dev = ["sdk/dev"]
+dev = ["sdk/dev", "std"]
 spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
