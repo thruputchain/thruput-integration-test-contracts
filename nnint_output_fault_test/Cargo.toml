@@ -7,11 +7,6 @@ edition = "2021"
 [dependencies]
 sdk = { workspace = true, features = ["storage"] }
 
-[[bin]]
-name = "generate_spec_nnint_output_fault_test"
-path = "src/bin/generate_spec.rs"
-required-features = ["spec"]
-
 [lib]
 crate-type = ["cdylib", "rlib"]
 doctest = false
@@ -20,7 +15,6 @@ doctest = false
 entrypoints = []
 dev = ["sdk/dev"]
 mock = ["sdk/mock", "std"]
-spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
 

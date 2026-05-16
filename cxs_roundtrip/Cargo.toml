@@ -13,19 +13,8 @@ xdrs = { workspace = true, features = ["derive", "alloc", "int128"] }
 crate-type = ["cdylib", "rlib"]
 doctest = false
 
-[[bin]]
-name = "generate_spec_cxs_roundtrip"
-path = "src/bin/generate_spec.rs"
-required-features = ["spec"]
-
-[[bin]]
-name = "generate_types_cxs_roundtrip"
-path = "src/bin/generate_types.rs"
-required-features = ["spec"]
-
 [features]
 entrypoints = []
-spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
 dev = ["sdk/dev"]

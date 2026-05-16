@@ -2,7 +2,6 @@ use sdk::*;
 
 #[contract_exception]
 #[derive(Copy)]
-#[cfg_attr(feature = "spec", derive(sdk::XDR))]
 pub enum ManualRevertTestError {
     BasicRevert = 1,
     ErrorTypeRevert = 2,

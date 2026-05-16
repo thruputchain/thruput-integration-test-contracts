@@ -13,16 +13,6 @@ sdk = { workspace = true , features = ["storage", "logging"] }
 thiserror = { version = "2.0.10", default-features = false }
 groundhog-xdr = { workspace = true }
 
-[[bin]]
-name = "generate_spec_manual_revert_test"
-path = "src/bin/generate_spec.rs"
-required-features = ["spec"]
-
-[[bin]]
-name = "generate_types_manual_revert_test"
-path = "src/bin/generate_types.rs"
-required-features = ["spec"]
-
 [features]
 default = ["guest", "alloc", "xdrs"]
 entrypoints = []
@@ -31,7 +21,6 @@ mock = ["guest", "sdk/mock"]
 alloc = []
 xdrs = []
 dev = ["sdk/dev", "std"]
-spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
 
