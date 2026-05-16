@@ -9,7 +9,7 @@ pub struct BT {
 }
 
 
-#[contract]
+#[contract(version = "0.1.0")]
 impl BottleTest for BT {
 
     fn setup(&mut self, target_contract_hash: &SHA256Hash) {
@@ -23,9 +23,10 @@ impl BottleTest for BT {
         let target_addr = self.target_addr.get().unwrap_or_else(||
             panic!("bottle-test: target_addr unset; please run setup() before run()"));
 
-        let mut return_len : core::mem::MaybeUninit<u32> = core::mem::MaybeUninit::uninit();
+        let mut return_len = core::mem::MaybeUninit::uninit();
+        let mut auth_token_id_list_return_len = core::mem::MaybeUninit::uninit();
 
-        let flag: i32 = invoke_flag::InvokeFlag::ReadOnly.0;
+        let flag: i32 = InvokeFlag::ReadOnly.0;
         let calldata = cxs::encode(&true).unwrap();
 
         sys::uninit_Invoke(
@@ -34,7 +35,9 @@ impl BottleTest for BT {
             u64::MAX,
             &calldata,
             flag,
+            &[],
             &mut return_len,
+            &mut auth_token_id_list_return_len,
         )
         .unwrap();
     }
