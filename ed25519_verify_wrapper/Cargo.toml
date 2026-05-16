@@ -12,15 +12,9 @@ sdk = { workspace = true, features = ["alloc"] }
 crate-type = ["cdylib", "rlib"]
 doctest = false
 
-[[bin]]
-name = "generate_spec_ed25519_verify_wrapper"
-path = "src/bin/generate_spec.rs"
-required-features = ["spec"]
-
 [features]
 entrypoints = []
 dev = ["sdk/dev", "std"]
-spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
 
 [dev-dependencies]

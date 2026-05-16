@@ -18,7 +18,6 @@ doctest = false
 [features]
 entrypoints = []
 dev = ["sdk/dev"]
-spec = ["sdk/spec", "std", "sdk/alloc"]
 std = ["sdk/std"]
 logging = ["sdk/logging", "sdk/alloc", "alloc"]
 bottle-test = ["dep:bottle-test-if"]

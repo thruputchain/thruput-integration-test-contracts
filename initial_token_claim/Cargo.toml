@@ -14,16 +14,10 @@ crate-type = ["cdylib", "rlib"]
 doctest = false
 test = false
 
-[[bin]]
-name = "generate_spec_initial_token_claim"
-path = "src/bin/generate_spec.rs"
-required-features = ["spec"]
-
 [features]
 entrypoints = []
 dev = ["sdk/dev", "std"]
 std = ["sdk/std"]
-spec = ["std", "sdk/spec"]
 logging = ["sdk/logging"]
 alloc = []
 

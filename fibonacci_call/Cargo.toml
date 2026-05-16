@@ -9,11 +9,6 @@ edition = "2021"
 sdk = { workspace = true, features = ["storage"] }
 fibonacci = { path = "../fibonacci" }
 
-[[bin]]
-name = "generate_spec_fibonacci_call"
-path = "src/bin/generate_spec.rs"
-required-features = ["spec"]
-
 [lib]
 crate-type = ["cdylib", "rlib"]
 doctest = false
@@ -22,7 +17,6 @@ test = false
 [features]
 entrypoints = []
 dev = ["sdk/dev", "fibonacci/dev"]
-spec = ["sdk/spec", "std"]
 std = ["sdk/std", "fibonacci/std"]
 logging = ["sdk/logging"]
 

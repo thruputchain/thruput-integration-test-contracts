@@ -11,16 +11,10 @@ test = false
 [dependencies]
 sdk = { workspace = true }
 
-[[bin]]
-name = "generate_spec_nocontract_wallet"
-path = "src/bin/generate_spec.rs"
-required-features = ["spec"]
-
 [features]
 default = []
 entrypoints = []
 dev = ["sdk/dev"]
 guest = []
-spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
 logging = ["sdk/logging", "std"]

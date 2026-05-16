@@ -15,15 +15,9 @@ sha2 = { workspace = true, optional = true }
 crate-type = ["cdylib", "rlib"]
 doctest = false
 
-[[bin]]
-name = "generate_spec_syscall_misc_tests"
-path = "src/bin/generate_spec.rs"
-required-features = ["spec"]
-
 [features]
 entrypoints = []
 dev = ["sdk/dev"]
-spec = ["sdk/spec"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]

@@ -15,7 +15,6 @@ doctest = false
 default = []
 entrypoints = []
 dev = ["sdk/dev"]
-spec = ["sdk/spec", "std", "sdk/alloc"]
 std = ["sdk/std"]
 logging = ["sdk/logging", "sdk/alloc"]
 

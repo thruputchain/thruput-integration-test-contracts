@@ -1,8 +1,5 @@
 use sdk::*;
 
-#[cfg(feature = "spec")]
-use sdk::XDR;
-
 // Payment Channel Contract Interface
 //
 // This contract implements Lightning-style payment channels. Two parties can:
@@ -20,7 +17,6 @@ use sdk::XDR;
 // TODO: Add derive(xdrs::xdr_repr::XDR) once xdrs properly exports it
 #[contracttype(export)]
 #[derive(Clone, Debug, PartialEq)]
-#[cfg_attr(feature = "spec", derive(XDR))]
 pub struct ChannelState {
     pub channel_id: u64,
     pub balance_a: i128,

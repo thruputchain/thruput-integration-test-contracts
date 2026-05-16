@@ -6,11 +6,6 @@ edition = "2021"
 [dependencies]
 sdk = { workspace = true }
 
-[[bin]]
-name = "generate_spec_authclaim_test"
-path = "src/bin/generate_spec.rs"
-required-features = ["spec"]
-
 [lib]
 crate-type = ["cdylib", "rlib"]
 test = false
@@ -20,7 +15,6 @@ doctest = false
 entrypoints = []
 std = []
 dev = ["sdk/dev", "std"]
-spec = ["std", "sdk/spec"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]

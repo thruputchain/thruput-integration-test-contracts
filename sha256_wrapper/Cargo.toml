@@ -16,16 +16,10 @@ sha2 = { workspace = true, optional = true }
 crate-type = ["cdylib", "rlib"]
 doctest = false
 
-[[bin]]
-name = "generate_spec_sha256_wrapper"
-path = "src/bin/generate_spec.rs"
-required-features = ["spec"]
-
 [features]
 entrypoints = []
 dev = ["sdk/dev"]
 bottle-test = ["dep:bottle-test-if", "dep:sha2"]
-spec = ["sdk/spec"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]

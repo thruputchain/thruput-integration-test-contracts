@@ -12,15 +12,9 @@ crate-type = ["cdylib", "rlib"]
 doctest = false
 test = false
 
-[[bin]]
-name = "generate_spec_dev_wallet"
-path = "src/bin/generate_spec.rs"
-required-features = ["spec"]
-
 [features]
 entrypoints = []
 dev = ["sdk/dev", "sdk/std"]
-spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
 

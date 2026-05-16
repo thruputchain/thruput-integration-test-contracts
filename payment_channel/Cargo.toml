@@ -7,16 +7,6 @@ edition = "2021"
 sdk = { workspace = true , features = ["storage"] }
 groundhog-erc20-if = { workspace = true }
 
-[[bin]]
-name = "generate_spec_payment_channel"
-path = "src/bin/generate_spec.rs"
-required-features = ["spec"]
-
-[[bin]]
-name = "generate_types_payment_channel"
-path = "src/bin/generate_types.rs"
-required-features = ["spec"]
-
 [lib]
 crate-type = ["cdylib", "rlib"]
 doctest = false
@@ -24,7 +14,6 @@ doctest = false
 [features]
 entrypoints = []
 dev = ["sdk/dev", "std"]
-spec = ["sdk/spec", "std"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
 
