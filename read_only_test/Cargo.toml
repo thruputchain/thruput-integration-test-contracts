@@ -23,4 +23,4 @@ logging = ["sdk/logging"]
 bottle-test = ["dep:bottle-test-if"]
 
 [dev-dependencies]
-read_only_test = { path = ".", features = ["dev"] }
+read_only_test = { path = ".", features = ["dev", "std"] }
