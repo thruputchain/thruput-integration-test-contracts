@@ -1,0 +1,16 @@
+[package]
+name = "view_gateway_test"
+version = "0.2.0"
+edition = "2021"
+
+[dependencies]
+sdk = { workspace = true, features = ["storage"] }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+
+[features]
+entrypoints = []
+dev = ["sdk/dev"]
+std = ["sdk/std"]
