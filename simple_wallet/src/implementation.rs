@@ -63,6 +63,7 @@ impl SimpleWallet for SimpleWalletContract {
             gas_limit,
             calldata,
             &auth_handles,
+            0,
         )
         .unwrap();
     }

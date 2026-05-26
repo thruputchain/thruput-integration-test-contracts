@@ -68,6 +68,7 @@ impl DevWallet for DevWalletContract {
             gas_limit,
             calldata,
             &AuthHandleBuf::new(),
+            0,
         ) {
             Ok(Ok((return_buf, auth_handles))) => sdk::contract_return(
                 return_buf.as_ref(),

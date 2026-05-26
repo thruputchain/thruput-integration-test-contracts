@@ -62,6 +62,7 @@ impl InitialTokenClaim for InitialTokenClaimContract {
             u64::MAX,
             calldata,
             &auth_handles,
+            0,
         ).unwrap();
 
         sdk::log(format!("End ITC").as_bytes());
