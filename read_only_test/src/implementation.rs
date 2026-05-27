@@ -53,6 +53,23 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         }
     }
 
+    fn write_storage_and_log_event(&self) {
+        let key: StorageKeyContractData = static_key!("rv32_parity_key");
+        let storage_value = b"rv32 parity bytes";
+        let topic0 = [0x5au8; 32];
+        let event_data = b"rv32 parity event";
+
+        sdk::sys_result::bytestring::bytestring_set(&key, storage_value)
+            .unwrap();
+        groundhog_xdr::syscalls::raw_LogEvent(
+            Some(&topic0),
+            None,
+            None,
+            event_data,
+        )
+        .unwrap();
+    }
+
     fn read_only_native_get_balance(&self, target_addr: &ContractAddress) {
         let flag = groundhog_xdr::invoke_flag::InvokeFlag::ReadOnly.0;
         let entrypoint =
