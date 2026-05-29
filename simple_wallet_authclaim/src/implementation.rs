@@ -1,4 +1,5 @@
 use super::interface::*;
+use sdk::transaction::InvocationFrameStatusCode;
 use sdk::*;
 
 #[derive(Default)]
@@ -41,6 +42,14 @@ impl SimpleWalletAuthClaim for SimpleWalletAuthClaimContract {
 
         let method_id = u64::from_be_bytes(entrypoint.into_inner());
 
+        let mut outputs = sdk::sys::CopyableInvokeOutputs {
+            return_buffer_len: 0,
+            returned_auth_token_len: 0,
+            // Placeholder; overwritten by the syscall on Ok(). Using Fault
+            // (not Return) keeps the wallet fail-closed if the field is left
+            // unwritten — the non-Return check below then traps.
+            frame_status: InvocationFrameStatusCode::Fault,
+        };
         sdk::sys::raw_Invoke(
             &addr,
             &calldata,
@@ -50,11 +59,13 @@ impl SimpleWalletAuthClaim for SimpleWalletAuthClaimContract {
                 gas_limit,
                 flags: 0, // TODO(geoff): invoke flags go here
             },
-            &mut sdk::sys::CopyableInvokeOutputs {
-                return_buffer_len: 0,
-                returned_auth_token_len: 0,
-            },
+            &mut outputs,
         )
         .unwrap();
+        // A child abort/fault is no longer surfaced as a syscall error; keep
+        // the wallet fail-closed by propagating it as a trap.
+        if outputs.frame_status != InvocationFrameStatusCode::Return {
+            trap();
+        }
     }
 }

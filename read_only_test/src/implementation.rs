@@ -1,6 +1,7 @@
 use crate::interface::*;
 use sdk::*;
 use sdk::sys::SyscallErrorCode;
+use sdk::transaction::InvocationFrameStatusCode;
 
 #[link(wasm_import_module = "marmot")]
 unsafe extern "C" {
@@ -84,6 +85,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
             &mut sdk::sys::CopyableInvokeOutputs {
                 return_buffer_len: 0,
                 returned_auth_token_len: 0,
+                frame_status: InvocationFrameStatusCode::Return,
             },
         );
         assert!(res.is_ok(), "get_balance_of should succeed in read-only mode");
@@ -95,6 +97,11 @@ impl ReadOnlyTest for ReadOnlyTestContract {
             groundhog_erc20_if::ERC20Entrypoints::transfer.into_u64();
         // CXS-encode the arguments: (ContractAddress, (u64, u64))
         let calldata = cxs::encode(&(*receiver_addr, (0u64, 100u64))).unwrap();
+        let mut outputs = sdk::sys::CopyableInvokeOutputs {
+            return_buffer_len: 0,
+            returned_auth_token_len: 0,
+            frame_status: InvocationFrameStatusCode::Return,
+        };
         let res = sdk::sys::raw_Invoke(
             &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
             &calldata,
@@ -104,13 +111,19 @@ impl ReadOnlyTest for ReadOnlyTestContract {
                 gas_limit: u64::MAX,
                 flags: flag,
             },
-            &mut sdk::sys::CopyableInvokeOutputs {
-                return_buffer_len: 0,
-                returned_auth_token_len: 0,
-            },
+            &mut outputs,
         );
-        // Transfer should fail in read-only mode
-        assert!(res.is_err(), "transfer should fail in read-only mode");
+        // Transfer must not succeed in read-only mode: either the invoke is
+        // rejected outright (Err), or the child frame faults when it attempts
+        // a write (Ok with a non-Return frame_status).
+        match res {
+            Err(_) => {}
+            Ok(()) => assert_ne!(
+                outputs.frame_status,
+                InvocationFrameStatusCode::Return,
+                "transfer unexpectedly succeeded in read-only mode"
+            ),
+        }
     }
 
     fn read_only_deploy_output_preserved(&self) {
@@ -130,6 +143,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
             &mut sdk::sys::CopyableInvokeOutputs {
                 return_buffer_len: 0,
                 returned_auth_token_len: 0,
+                frame_status: InvocationFrameStatusCode::Return,
             },
         );
         // The inner method handles the deploy error and returns normally
@@ -178,6 +192,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
             &mut sdk::sys::CopyableInvokeOutputs {
                 return_buffer_len: 0,
                 returned_auth_token_len: 0,
+                frame_status: InvocationFrameStatusCode::Return,
             },
         );
         // The inner method handles the deploy error and returns normally
