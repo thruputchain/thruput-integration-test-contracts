@@ -45,7 +45,10 @@ impl SimpleWalletAuthClaim for SimpleWalletAuthClaimContract {
         let mut outputs = sdk::sys::CopyableInvokeOutputs {
             return_buffer_len: 0,
             returned_auth_token_len: 0,
-            frame_status: InvocationFrameStatusCode::Return,
+            // Placeholder; overwritten by the syscall on Ok(). Using Fault
+            // (not Return) keeps the wallet fail-closed if the field is left
+            // unwritten — the non-Return check below then traps.
+            frame_status: InvocationFrameStatusCode::Fault,
         };
         sdk::sys::raw_Invoke(
             &addr,
