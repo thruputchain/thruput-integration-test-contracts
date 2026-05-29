@@ -1,5 +1,6 @@
 use crate::SyscallMiscTests;
 use sdk::sys::{self, SyscallErrorCode};
+use sdk::transaction::InvocationFrameStatusCode;
 use sdk::*;
 
 #[link(wasm_import_module = "marmot")]
@@ -29,6 +30,31 @@ fn expect_err(res: Result<(), sys::SysErr>, expected: SyscallErrorCode) {
     }
 }
 
+/// Assert that an `Invoke` actually ran a child frame (the syscall returned
+/// `Ok`) and that the child frame's outcome matches `expected`. With the new
+/// invoke ABI, a child fault or manual revert is no longer surfaced as a
+/// syscall error code; the outcome is reported in `outputs.frame_status`.
+fn expect_frame_status(
+    res: Result<(), sys::SysErr>,
+    outputs: &sys::CopyableInvokeOutputs,
+    expected: InvocationFrameStatusCode,
+) {
+    match res {
+        Ok(()) => assert_eq!(outputs.frame_status, expected),
+        Err(e) => panic!(
+            "expected frame status {:?} but syscall returned error {:?}",
+            expected, e
+        ),
+    }
+}
+
+/// Sentinel `frame_status` we seed the outputs with before an `Invoke`. It is
+/// distinct from every real `InvocationFrameStatusCode` (Return/Fault/Abort),
+/// so a `frame_status` assertion only passes if the syscall genuinely wrote
+/// the outcome over this placeholder rather than leaving it untouched.
+const UNWRITTEN_FRAME_STATUS: InvocationFrameStatusCode =
+    InvocationFrameStatusCode(-1);
+
 #[contract(storage = false)]
 impl SyscallMiscTests for SyscallMiscTestsContract {
     // ── Existing tests ──────────────────────────────────────────────
@@ -56,14 +82,15 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             crate::SyscallMiscTestsEntrypoints::internal_always_fault
                 .into_u64();
 
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             &addr,
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
-            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 },
+            &mut outputs,
         );
-        expect_err(res, SyscallErrorCode::kSyscallErrorCodeDeterministicWasm);
+        expect_frame_status(res, &outputs, InvocationFrameStatusCode::Fault);
 
         let mut buffer = [0; 1024];
         let mut written_len = 0;
@@ -119,26 +146,27 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0 },
-            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 },
+            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS },
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
 
-    // ── #3: Invoke → kFrameReverted ─────────────────────────────────
+    // ── #3: Invoke → frame_status Abort (manual revert) ─────────────
 
     fn test_invoke_frame_reverted(&self) {
         let addr = sdk::get_current_address();
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_always_revert
                 .into_u64();
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             &addr,
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
-            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 },
+            &mut outputs,
         );
-        expect_err(res, SyscallErrorCode::kSyscallErrorCodeFrameReverted);
+        expect_frame_status(res, &outputs, InvocationFrameStatusCode::Abort);
     }
 
     // ── #4: VerifySignature → kInvalidSyscallInput (bad scheme) ─────
@@ -505,14 +533,15 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             crate::SyscallMiscTestsEntrypoints::internal_return_too_long
                 .into_u64();
 
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             &addr,
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
-            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 },
+            &mut outputs,
         );
-        expect_err(res, SyscallErrorCode::kSyscallErrorCodeDeterministicWasm);
+        expect_frame_status(res, &outputs, InvocationFrameStatusCode::Fault);
 
         // Buffer should NOT be retrievable after a fault
         let mut buffer = [0u8; 1024];
@@ -566,7 +595,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0xFFFF }, // garbage flags
-            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 },
+            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS },
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
@@ -587,7 +616,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0x2 },
-            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 },
+            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS },
         );
         match res {
             Ok(_) => {} // sub-frame verified the error and returned
@@ -600,7 +629,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     // ── No-Return-syscall test ────────────────────────────────────────
 
     fn test_invoke_no_return_syscall(&self, target: &ContractAddress) {
-        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 };
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         // Invoke the raw export at entrypoint 0xFF on a separate contract.
         // That export just returns without calling the Return syscall.
         let res = sys::raw_Invoke(
@@ -709,14 +738,15 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_misaligned_auth_tokens
                 .into_u64();
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             &addr,
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
-            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 },
+            &mut outputs,
         );
-        expect_err(res, SyscallErrorCode::kSyscallErrorCodeDeterministicWasm);
+        expect_frame_status(res, &outputs, InvocationFrameStatusCode::Fault);
     }
 
     fn test_return_revert_with_auth_tokens(&self) {
@@ -724,14 +754,15 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_revert_with_auth_tokens
                 .into_u64();
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             &addr,
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
-            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 },
+            &mut outputs,
         );
-        expect_err(res, SyscallErrorCode::kSyscallErrorCodeDeterministicWasm);
+        expect_frame_status(res, &outputs, InvocationFrameStatusCode::Fault);
     }
 
     fn test_return_with_empty_auth_tokens(&self) {
@@ -739,14 +770,15 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_with_empty_auth_tokens
                 .into_u64();
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             &addr,
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
-            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 },
+            &mut outputs,
         );
-        assert!(res.is_ok());
+        expect_frame_status(res, &outputs, InvocationFrameStatusCode::Return);
 
         let mut buffer = [0u8; 1024];
         let mut written_len: RuntimeMemoryLength = 0;
@@ -768,15 +800,16 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_with_auth_token_ids
                 .into_u64();
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             &addr,
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
-            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 },
+            &mut outputs,
         );
         // The child claims to return token IDs it doesn't own.
         // Ownership validation causes a deterministic exit (fault).
-        expect_err(res, SyscallErrorCode::kSyscallErrorCodeDeterministicWasm);
+        expect_frame_status(res, &outputs, InvocationFrameStatusCode::Fault);
     }
 }

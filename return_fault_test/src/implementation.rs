@@ -1,5 +1,4 @@
 use crate::{ReturnFaultTest, Client, ClientError};
-use sdk::sys::SyscallErrorCode;
 use sdk::*;
 
 #[derive(Default)]
@@ -28,19 +27,11 @@ impl ReturnFaultTest for ReturnFaultTestContract {
         let ptr: *const u8 = 65536 as *const u8;
         let slice = unsafe { core::slice::from_raw_parts(ptr, 1) as &[u8] };
 
-        // this function is expected to fail
-        // so returning success is a test failure
-        match sdk::sys::raw_ConsoleLog(slice) {
-            Ok(_) => {
-                // Unexpected
-                return;
-            }
-            Err(syserr) => {
-                if syserr.is_code(SyscallErrorCode::kSyscallErrorCodeDeterministicWasm) {
-                    // Unexpected
-                    return;
-                }
-            }
+        // This function is expected to fail, so returning success is a test
+        // failure: if ConsoleLog accepts the out-of-bounds slice, bail out
+        // (the inner frame returns normally and run_test will catch it).
+        if sdk::sys::raw_ConsoleLog(slice).is_ok() {
+            return;
         }
 
         // this should fail, because slice is out of bounds
