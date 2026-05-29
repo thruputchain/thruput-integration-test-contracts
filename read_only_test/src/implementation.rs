@@ -14,9 +14,6 @@ unsafe extern "C" {
         arg5: u64,
         arg6: u64,
         arg7: u64,
-        arg8: u64,
-        arg9: u64,
-        arg10: u64,
     ) -> i32;
 }
 
@@ -58,17 +55,19 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         let entrypoint =
             groundhog_erc20_if::ERC20Entrypoints::get_balance_of.into_u64();
         let calldata = cxs::encode(target_addr).unwrap();
-        let mut return_len = 0u32;
-        let mut auth_token_id_list_return_len = 0u32;
         let res = sdk::sys::raw_Invoke(
             &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
-            entrypoint,
-            u64::MAX,
             &calldata,
-            flag,
             &[],
-            &mut return_len,
-            &mut auth_token_id_list_return_len,
+            &sdk::sys::CopyableInvokeInputs {
+                entrypoint_id: entrypoint,
+                gas_limit: u64::MAX,
+                flags: flag,
+            },
+            &mut sdk::sys::CopyableInvokeOutputs {
+                return_buffer_len: 0,
+                returned_auth_token_len: 0,
+            },
         );
         assert!(res.is_ok(), "get_balance_of should succeed in read-only mode");
     }
@@ -79,17 +78,19 @@ impl ReadOnlyTest for ReadOnlyTestContract {
             groundhog_erc20_if::ERC20Entrypoints::transfer.into_u64();
         // CXS-encode the arguments: (ContractAddress, (u64, u64))
         let calldata = cxs::encode(&(*receiver_addr, (0u64, 100u64))).unwrap();
-        let mut return_len = 0u32;
-        let mut auth_token_id_list_return_len = 0u32;
         let res = sdk::sys::raw_Invoke(
             &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
-            entrypoint,
-            u64::MAX,
             &calldata,
-            flag,
             &[],
-            &mut return_len,
-            &mut auth_token_id_list_return_len,
+            &sdk::sys::CopyableInvokeInputs {
+                entrypoint_id: entrypoint,
+                gas_limit: u64::MAX,
+                flags: flag,
+            },
+            &mut sdk::sys::CopyableInvokeOutputs {
+                return_buffer_len: 0,
+                returned_auth_token_len: 0,
+            },
         );
         // Transfer should fail in read-only mode
         assert!(res.is_err(), "transfer should fail in read-only mode");
@@ -100,17 +101,19 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         let entrypoint =
             crate::ReadOnlyTestEntrypoints::read_only_deploy_inner.into_u64();
         let flag = groundhog_xdr::invoke_flag::InvokeFlag::ReadOnly.0;
-        let mut return_len = 0u32;
-        let mut auth_token_id_list_return_len = 0u32;
         let res = sdk::sys::raw_Invoke(
             &addr,
-            entrypoint,
-            u64::MAX,
             &[],
-            flag,
             &[],
-            &mut return_len,
-            &mut auth_token_id_list_return_len,
+            &sdk::sys::CopyableInvokeInputs {
+                entrypoint_id: entrypoint,
+                gas_limit: u64::MAX,
+                flags: flag,
+            },
+            &mut sdk::sys::CopyableInvokeOutputs {
+                return_buffer_len: 0,
+                returned_auth_token_len: 0,
+            },
         );
         // The inner method handles the deploy error and returns normally
         assert!(res.is_ok(), "read-only self-invoke should succeed");
@@ -146,17 +149,19 @@ impl ReadOnlyTest for ReadOnlyTestContract {
             read_only_aliasing_before_read_only_check_inner
             .into_u64();
         let flag = groundhog_xdr::invoke_flag::InvokeFlag::ReadOnly.0;
-        let mut return_len = 0u32;
-        let mut auth_token_id_list_return_len = 0u32;
         let res = sdk::sys::raw_Invoke(
             &addr,
-            entrypoint,
-            u64::MAX,
             &[],
-            flag,
             &[],
-            &mut return_len,
-            &mut auth_token_id_list_return_len,
+            &sdk::sys::CopyableInvokeInputs {
+                entrypoint_id: entrypoint,
+                gas_limit: u64::MAX,
+                flags: flag,
+            },
+            &mut sdk::sys::CopyableInvokeOutputs {
+                return_buffer_len: 0,
+                returned_auth_token_len: 0,
+            },
         );
         // The inner method handles the deploy error and returns normally
         assert!(res.is_ok(), "read-only self-invoke should succeed");
@@ -174,9 +179,6 @@ impl ReadOnlyTest for ReadOnlyTestContract {
                 key_ptr,
                 bytestring_ptr,
                 flags,
-                0,
-                0,
-                0,
                 0,
                 0,
                 0,

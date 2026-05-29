@@ -19,8 +19,7 @@ fn test_read_only_bytestring_set_inner(
     let nonce = SHA256Hash::from([7; 32]);
     let deployed_addr = deploy_contract(&nonce, contract_hash);
 
-    let mut return_len = core::mem::MaybeUninit::uninit();
-    let mut auth_token_id_list_return_len = core::mem::MaybeUninit::uninit();
+    let mut outputs = core::mem::MaybeUninit::uninit();
 
     let flag: i32 = groundhog_xdr::invoke_flag::InvokeFlag::ReadOnly.0;
     let calldata = cxs::encode(&true).unwrap();
@@ -30,13 +29,14 @@ fn test_read_only_bytestring_set_inner(
 
     sdk::sys::uninit_Invoke(
         &deployed_addr,
-        entrypoint_id,
-        u64::MAX, // gas limit
         &calldata,
-        flag,
         &[], // auth
-        &mut return_len,
-        &mut auth_token_id_list_return_len,
+        &sdk::sys::CopyableInvokeInputs {
+            entrypoint_id,
+            gas_limit: u64::MAX, // gas limit
+            flags: flag,
+        },
+        &mut outputs,
     )
     .unwrap();
 }

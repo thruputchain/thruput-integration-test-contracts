@@ -13,9 +13,6 @@ unsafe extern "C" {
         arg5: u64,
         arg6: u64,
         arg7: u64,
-        arg8: u64,
-        arg9: u64,
-        arg10: u64,
     ) -> i32;
 }
 
@@ -55,9 +52,6 @@ impl OutputAliasTest for OutputAliasTestContract {
                 &mut opt as *mut bool as u64,      // current_set_opt
                 &mut shared as *mut i128 as u64,  // current_add (same as current_set!)
                 0,
-                0,
-                0,
-                0,
                 0
             )
         };
@@ -86,9 +80,6 @@ impl OutputAliasTest for OutputAliasTestContract {
                 &mut opt as *mut bool as u64,      // current_set_opt
                 current_add_ptr,                   // current_add at buf[8..24] (overlaps!)
                 0,
-                0,
-                0,
-                0,
                 0
             )
         };
@@ -113,9 +104,6 @@ impl OutputAliasTest for OutputAliasTestContract {
                 &mut current_set as *mut i128 as u64,
                 &mut current_set_opt as *mut bool as u64,
                 &mut current_add as *mut i128 as u64,
-                0,
-                0,
-                0,
                 0,
                 0
             )
@@ -144,9 +132,6 @@ impl OutputAliasTest for OutputAliasTestContract {
                 0,
                 0,
                 0,
-                0,
-                0,
-                0,
                 0
             )
         };
@@ -166,9 +151,6 @@ impl OutputAliasTest for OutputAliasTestContract {
                 buf.as_mut_ptr() as u64,
                 buf.len() as u64,
                 &mut written_len as *mut u32 as u64,
-                0,
-                0,
-                0,
                 0,
                 0,
                 0,
@@ -195,9 +177,6 @@ impl OutputAliasTest for OutputAliasTestContract {
                 0,                 // data ptr (empty)
                 0,                 // data len
                 0,
-                0,
-                0,
-                0,
                 0
             )
         };
@@ -222,9 +201,6 @@ impl OutputAliasTest for OutputAliasTestContract {
                 current_set_ptr,                   // current_set at buf[0..16] (overlaps input key)
                 &mut opt as *mut bool as u64,      // current_set_opt
                 current_add_ptr,                   // current_add at buf[32..48] (no overlap)
-                0,
-                0,
-                0,
                 0,
                 0
             )
