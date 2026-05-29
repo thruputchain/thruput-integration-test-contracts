@@ -14,9 +14,6 @@ unsafe extern "C" {
         a5: u64,
         a6: u64,
         a7: u64,
-        a8: u64,
-        a9: u64,
-        a10: u64,
     ) -> i32;
 }
 
@@ -55,21 +52,16 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     fn test_get_return_after_fault(&self) {
         let addr = sdk::get_current_address();
-        let mut return_buffer_len: RuntimeMemoryLength = 0;
-        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_always_fault
                 .into_u64();
 
         let res = sys::raw_Invoke(
             &addr,
-            entrypoint,
-            u64::MAX,
             &[],
-            0,
             &[],
-            &mut return_buffer_len,
-            &mut auth_token_id_list_return_len,
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
+            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 },
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeDeterministicWasm);
 
@@ -122,17 +114,12 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     fn test_invoke_contract_not_found(&self) {
         let nonexistent = ContractAddress::from([0xFFu8; 32]);
-        let mut return_buffer_len: RuntimeMemoryLength = 0;
-        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
         let res = sys::raw_Invoke(
             &nonexistent,
-            0,
-            u64::MAX,
             &[],
-            0,
             &[],
-            &mut return_buffer_len,
-            &mut auth_token_id_list_return_len,
+            &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0 },
+            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 },
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
@@ -141,20 +128,15 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     fn test_invoke_frame_reverted(&self) {
         let addr = sdk::get_current_address();
-        let mut return_buffer_len: RuntimeMemoryLength = 0;
-        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_always_revert
                 .into_u64();
         let res = sys::raw_Invoke(
             &addr,
-            entrypoint,
-            u64::MAX,
             &[],
-            0,
             &[],
-            &mut return_buffer_len,
-            &mut auth_token_id_list_return_len,
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
+            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 },
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeFrameReverted);
     }
@@ -467,18 +449,12 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
                     a5: u64,
                     a6: u64,
                     a7: u64,
-                    a8: u64,
-                    a9: u64,
-                    a10: u64,
                 ) -> i32;
             }
             direct_syscall(
                 22,                             // syscall number
                 9999,                           // invalid statistic
                 &mut result as *mut u64 as u64, // result pointer
-                0,
-                0,
-                0,
                 0,
                 0,
                 0,
@@ -525,21 +501,16 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     fn test_return_buffer_too_long(&self) {
         let addr = sdk::get_current_address();
-        let mut return_buffer_len: RuntimeMemoryLength = 0;
-        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_too_long
                 .into_u64();
 
         let res = sys::raw_Invoke(
             &addr,
-            entrypoint,
-            u64::MAX,
             &[],
-            0,
             &[],
-            &mut return_buffer_len,
-            &mut auth_token_id_list_return_len,
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
+            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 },
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeDeterministicWasm);
 
@@ -590,17 +561,12 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     fn test_invoke_invalid_flags(&self) {
         let addr = sdk::get_current_address();
-        let mut return_buffer_len: RuntimeMemoryLength = 0;
-        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
         let res = sys::raw_Invoke(
             &addr,
-            0,
-            u64::MAX,
             &[],
-            0xFFFF, // garbage flags
             &[],
-            &mut return_buffer_len,
-            &mut auth_token_id_list_return_len,
+            &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0xFFFF }, // garbage flags
+            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 },
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
@@ -609,8 +575,6 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     fn test_write_syscall_in_read_only(&self) {
         let addr = sdk::get_current_address();
-        let mut return_buffer_len: RuntimeMemoryLength = 0;
-        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_try_bytestring_set
                 .into_u64();
@@ -620,13 +584,10 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         // returns kInvalidSyscallInput, then return normally
         let res = sys::raw_Invoke(
             &addr,
-            entrypoint,
-            u64::MAX,
             &[],
-            0x2,
             &[],
-            &mut return_buffer_len,
-            &mut auth_token_id_list_return_len,
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0x2 },
+            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 },
         );
         match res {
             Ok(_) => {} // sub-frame verified the error and returned
@@ -639,22 +600,18 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     // ── No-Return-syscall test ────────────────────────────────────────
 
     fn test_invoke_no_return_syscall(&self, target: &ContractAddress) {
-        let mut return_buffer_len: RuntimeMemoryLength = 0;
-        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 };
         // Invoke the raw export at entrypoint 0xFF on a separate contract.
         // That export just returns without calling the Return syscall.
         let res = sys::raw_Invoke(
             target,
-            0xFF,
-            u64::MAX,
             &[],
-            0,
             &[],
-            &mut return_buffer_len,
-            &mut auth_token_id_list_return_len,
+            &sys::CopyableInvokeInputs { entrypoint_id: 0xFF, gas_limit: u64::MAX, flags: 0 },
+            &mut outputs,
         );
         assert!(res.is_ok(), "invoke of noop should succeed");
-        assert_eq!(return_buffer_len, 0, "return buffer should be empty");
+        assert_eq!(outputs.return_buffer_len, 0, "return buffer should be empty");
 
         let mut buffer = [0u8; 1024];
         let mut written_len: RuntimeMemoryLength = 0;
@@ -684,9 +641,6 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
                 auth_tokens.len() as u64,
                 0,
                 0,
-                0,
-                0,
-                0,
             );
         }
         unreachable!()
@@ -706,9 +660,6 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
                 len as u64,
                 0,
                 0,
-                0,
-                0,
-                0,
             );
         }
         unreachable!()
@@ -724,9 +675,6 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
                 0, // revert_frame = false
                 0, // null ptr
                 0, // len = 0
-                0,
-                0,
-                0,
                 0,
                 0,
             );
@@ -749,9 +697,6 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
                 len as u64,
                 0,
                 0,
-                0,
-                0,
-                0,
             );
         }
         unreachable!()
@@ -761,60 +706,45 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     fn test_return_misaligned_auth_tokens(&self) {
         let addr = sdk::get_current_address();
-        let mut return_buffer_len: RuntimeMemoryLength = 0;
-        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_misaligned_auth_tokens
                 .into_u64();
         let res = sys::raw_Invoke(
             &addr,
-            entrypoint,
-            u64::MAX,
             &[],
-            0,
             &[],
-            &mut return_buffer_len,
-            &mut auth_token_id_list_return_len,
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
+            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 },
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeDeterministicWasm);
     }
 
     fn test_return_revert_with_auth_tokens(&self) {
         let addr = sdk::get_current_address();
-        let mut return_buffer_len: RuntimeMemoryLength = 0;
-        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_revert_with_auth_tokens
                 .into_u64();
         let res = sys::raw_Invoke(
             &addr,
-            entrypoint,
-            u64::MAX,
             &[],
-            0,
             &[],
-            &mut return_buffer_len,
-            &mut auth_token_id_list_return_len,
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
+            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 },
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeDeterministicWasm);
     }
 
     fn test_return_with_empty_auth_tokens(&self) {
         let addr = sdk::get_current_address();
-        let mut return_buffer_len: RuntimeMemoryLength = 0;
-        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_with_empty_auth_tokens
                 .into_u64();
         let res = sys::raw_Invoke(
             &addr,
-            entrypoint,
-            u64::MAX,
             &[],
-            0,
             &[],
-            &mut return_buffer_len,
-            &mut auth_token_id_list_return_len,
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
+            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 },
         );
         assert!(res.is_ok());
 
@@ -835,20 +765,15 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     fn test_return_with_auth_token_ids(&self) {
         let addr = sdk::get_current_address();
-        let mut return_buffer_len: RuntimeMemoryLength = 0;
-        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_with_auth_token_ids
                 .into_u64();
         let res = sys::raw_Invoke(
             &addr,
-            entrypoint,
-            u64::MAX,
             &[],
-            0,
             &[],
-            &mut return_buffer_len,
-            &mut auth_token_id_list_return_len,
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
+            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0 },
         );
         // The child claims to return token IDs it doesn't own.
         // Ownership validation causes a deterministic exit (fault).
