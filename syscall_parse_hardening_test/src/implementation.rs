@@ -1,26 +1,32 @@
 use super::interface::*;
 use sdk::*;
 use sdk::sys::SyscallErrorCode;
+use groundhog_xdr::syscalls::SyscallWord;
 
 #[link(wasm_import_module = "marmot")]
 unsafe extern "C" {
     #[link_name = "syscall"]
     fn direct_syscall(
-        syscall_no: u64,
-        arg1: u64,
-        arg2: u64,
-        arg3: u64,
-        arg4: u64,
-        arg5: u64,
-        arg6: u64,
-        arg7: u64,
+        syscall_no: SyscallWord,
+        arg1: SyscallWord,
+        arg2: SyscallWord,
+        arg3: SyscallWord,
+        arg4: SyscallWord,
+        arg5: SyscallWord,
+        arg6: SyscallWord,
+        arg7: SyscallWord,
     ) -> i32;
 }
 
-const K_SYSCALL_GET_DEPLOY_ADDRESS: u64 = 9;
-const K_SYSCALL_VERIFY_SIGNATURE: u64 = 12;
-const K_SYSCALL_CHANGE_PUBLIC_KEY_REGISTRATION: u64 = 23;
-const K_OOB_PTR: u64 = u64::MAX - 1;
+const K_SYSCALL_GET_DEPLOY_ADDRESS: SyscallWord =
+    groundhog_xdr::SyscallNo::kGetDeployAddress.0 as SyscallWord;
+const K_SYSCALL_VERIFY_SIGNATURE: SyscallWord =
+    groundhog_xdr::SyscallNo::kVerifySignature.0 as SyscallWord;
+const K_SYSCALL_CHANGE_PUBLIC_KEY_REGISTRATION: SyscallWord =
+    groundhog_xdr::SyscallNo::kChangePublicKeyRegistration.0 as SyscallWord;
+// An offset that is out of bounds for the contract's linear memory, but is not
+// the all-ones optional-pointer null sentinel.
+const K_OOB_PTR: SyscallWord = SyscallWord::MAX - 1;
 
 fn assert_code(actual: i32, expected: SyscallErrorCode) {
     assert_eq!(actual, expected.0);
@@ -36,53 +42,29 @@ impl SyscallParseHardeningTest for SyscallParseHardeningTestContract {
         let public_key = [0u8; 32];
         let message = [0u8; 1];
 
-        // Sign-extended -1 is a canonical i32 encoding, so parse succeeds and
-        // the inner syscall rejects the unknown scheme.
-        let canonical_neg_one = unsafe {
+        // Under the wasm32 ABI each value slot is delivered as a bare 32-bit
+        // word, so every bit pattern is a valid i32 scheme: there is no
+        // "non-canonical" (improperly sign-extended) or out-of-range encoding to
+        // reject at argument-parsing time, and a value wider than 32 bits cannot
+        // even be expressed in an i32 wasm argument. The scheme is therefore
+        // always parsed successfully; an unknown scheme (here -1) is rejected by
+        // the inner syscall with kSyscallErrorCodeInvalidSyscallInput.
+        let unknown_scheme = unsafe {
             direct_syscall(
                 K_SYSCALL_VERIFY_SIGNATURE,
-                u64::MAX,
-                signature.as_ptr() as u64,
-                signature.len() as u64,
-                public_key.as_ptr() as u64,
-                public_key.len() as u64,
-                message.as_ptr() as u64,
-                message.len() as u64,
+                SyscallWord::MAX, // -1: a valid i32 bit pattern, but unknown scheme
+                signature.as_ptr() as SyscallWord,
+                signature.len() as SyscallWord,
+                public_key.as_ptr() as SyscallWord,
+                public_key.len() as SyscallWord,
+                message.as_ptr() as SyscallWord,
+                message.len() as SyscallWord,
             )
         };
         assert_code(
-            canonical_neg_one,
+            unknown_scheme,
             SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput,
         );
-
-        // Non-sign-extended encodings should fail in syscall argument parsing.
-        let noncanonical_neg_one = unsafe {
-            direct_syscall(
-                K_SYSCALL_VERIFY_SIGNATURE,
-                0x00000000FFFFFFFF,
-                signature.as_ptr() as u64,
-                signature.len() as u64,
-                public_key.as_ptr() as u64,
-                public_key.len() as u64,
-                message.as_ptr() as u64,
-                message.len() as u64,
-            )
-        };
-        assert_code(noncanonical_neg_one, SyscallErrorCode::kSyscallErrorCodeFault);
-
-        let noncanonical_overflow = unsafe {
-            direct_syscall(
-                K_SYSCALL_VERIFY_SIGNATURE,
-                0x0000000080000000,
-                signature.as_ptr() as u64,
-                signature.len() as u64,
-                public_key.as_ptr() as u64,
-                public_key.len() as u64,
-                message.as_ptr() as u64,
-                message.len() as u64,
-            )
-        };
-        assert_code(noncanonical_overflow, SyscallErrorCode::kSyscallErrorCodeFault);
     }
 
     fn test_change_pubkey_optional_pointer_fault(&self) {
@@ -96,9 +78,9 @@ impl SyscallParseHardeningTest for SyscallParseHardeningTestContract {
                 K_SYSCALL_CHANGE_PUBLIC_KEY_REGISTRATION,
                 0,
                 K_OOB_PTR,
-                key_bytes.as_ptr() as u64,
-                key_bytes.len() as u64,
-                &key_weight as *const u32 as u64,
+                key_bytes.as_ptr() as SyscallWord,
+                key_bytes.len() as SyscallWord,
+                &key_weight as *const u32 as SyscallWord,
                 0,
                 0,
             )
@@ -110,9 +92,9 @@ impl SyscallParseHardeningTest for SyscallParseHardeningTestContract {
             direct_syscall(
                 K_SYSCALL_CHANGE_PUBLIC_KEY_REGISTRATION,
                 0,
-                &key_scheme as *const i32 as u64,
-                key_bytes.as_ptr() as u64,
-                key_bytes.len() as u64,
+                &key_scheme as *const i32 as SyscallWord,
+                key_bytes.as_ptr() as SyscallWord,
+                key_bytes.len() as SyscallWord,
                 K_OOB_PTR,
                 0,
                 0,
@@ -126,13 +108,16 @@ impl SyscallParseHardeningTest for SyscallParseHardeningTestContract {
         let contract_hash = SHA256Hash::from([7u8; 32]);
         let mut to_be_deployed = ContractAddress::from([0u8; 32]);
 
+        // The all-ones value is the explicit null sentinel for an omitted
+        // optional pointer (SyscallWord::MAX == u32::MAX on wasm32), so the
+        // optional caller_address is treated as None and the call succeeds.
         let null_sentinel_ok = unsafe {
             direct_syscall(
                 K_SYSCALL_GET_DEPLOY_ADDRESS,
-                u64::MAX,
-                &nonce as *const SHA256Hash as u64,
-                &contract_hash as *const SHA256Hash as u64,
-                &mut to_be_deployed as *mut ContractAddress as u64,
+                SyscallWord::MAX,
+                &nonce as *const SHA256Hash as SyscallWord,
+                &contract_hash as *const SHA256Hash as SyscallWord,
+                &mut to_be_deployed as *mut ContractAddress as SyscallWord,
                 0,
                 0,
                 0,
@@ -147,9 +132,9 @@ impl SyscallParseHardeningTest for SyscallParseHardeningTestContract {
             direct_syscall(
                 K_SYSCALL_GET_DEPLOY_ADDRESS,
                 K_OOB_PTR,
-                &nonce as *const SHA256Hash as u64,
-                &contract_hash as *const SHA256Hash as u64,
-                &mut to_be_deployed as *mut ContractAddress as u64,
+                &nonce as *const SHA256Hash as SyscallWord,
+                &contract_hash as *const SHA256Hash as SyscallWord,
+                &mut to_be_deployed as *mut ContractAddress as SyscallWord,
                 0,
                 0,
                 0,

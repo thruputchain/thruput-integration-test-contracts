@@ -7,18 +7,18 @@ use sdk::transaction::InvocationFrameStatusCode;
 unsafe extern "C" {
     #[link_name = "syscall"]
     fn direct_syscall(
-        syscall_no: u64,
-        arg1: u64,
-        arg2: u64,
-        arg3: u64,
-        arg4: u64,
-        arg5: u64,
-        arg6: u64,
-        arg7: u64,
+        syscall_no: u32,
+        arg1: u32,
+        arg2: u32,
+        arg3: u32,
+        arg4: u32,
+        arg5: u32,
+        arg6: u32,
+        arg7: u32,
     ) -> i32;
 }
 
-const K_SYSCALL_BYTESTRING_SET: u64 = groundhog_xdr::SyscallNo::kBytestringSet.0 as u64;
+const K_SYSCALL_BYTESTRING_SET: u32 = groundhog_xdr::SyscallNo::kBytestringSet.0 as u32;
 
 #[derive(Default)]
 pub struct ReadOnlyTestContract;
@@ -185,8 +185,8 @@ impl ReadOnlyTest for ReadOnlyTestContract {
     fn read_only_aliasing_before_read_only_check_inner(&self)
     {
         let mut buf : [u8;64] = [0xAB;64];
-        let key_ptr = buf.as_mut_ptr() as u64;
-        let bytestring_ptr = (buf.as_mut_ptr() as u64) + 16;
+        let key_ptr = buf.as_mut_ptr() as groundhog_xdr::syscalls::SyscallWord;
+        let bytestring_ptr = (buf.as_mut_ptr() as groundhog_xdr::syscalls::SyscallWord) + 16;
         let flags = 0;
         let err_code = unsafe {
             direct_syscall(
