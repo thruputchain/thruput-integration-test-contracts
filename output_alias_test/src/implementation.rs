@@ -1,25 +1,26 @@
 use super::interface::*;
 use sdk::*;
+use groundhog_xdr::syscalls::SyscallWord;
 
 #[link(wasm_import_module = "marmot")]
 unsafe extern "C" {
     #[link_name = "syscall"]
     fn direct_syscall(
-        syscall_no: u64,
-        arg1: u64,
-        arg2: u64,
-        arg3: u64,
-        arg4: u64,
-        arg5: u64,
-        arg6: u64,
-        arg7: u64,
+        syscall_no: SyscallWord,
+        arg1: SyscallWord,
+        arg2: SyscallWord,
+        arg3: SyscallWord,
+        arg4: SyscallWord,
+        arg5: SyscallWord,
+        arg6: SyscallWord,
+        arg7: SyscallWord,
     ) -> i32;
 }
 
-const K_SYSCALL_NONNEGATIVE_INT_GET: u64 =
-    sdk::sys::SyscallNo::kNonnegativeIntGet.0 as u64;
-const K_SYSCALL_GET_CALLDATA: u64 = sdk::sys::SyscallNo::kGetCalldata.0 as u64;
-const K_SYSCALL_LOG_EVENT: u64 = sdk::sys::SyscallNo::kLogEvent.0 as u64;
+const K_SYSCALL_NONNEGATIVE_INT_GET: SyscallWord =
+    sdk::sys::SyscallNo::kNonnegativeIntGet.0 as SyscallWord;
+const K_SYSCALL_GET_CALLDATA: SyscallWord = sdk::sys::SyscallNo::kGetCalldata.0 as SyscallWord;
+const K_SYSCALL_LOG_EVENT: SyscallWord = sdk::sys::SyscallNo::kLogEvent.0 as SyscallWord;
 
 const K_FAULT: i32 = 1; // SyscallErrorCode::kSyscallErrorCodeFault
 
@@ -46,11 +47,11 @@ impl OutputAliasTest for OutputAliasTestContract {
         let err_code = unsafe {
             direct_syscall(
                 K_SYSCALL_NONNEGATIVE_INT_GET,
-                &key as *const _ as u64,
+                &key as *const _ as SyscallWord,
                 1, // force_load = true
-                &mut shared as *mut i128 as u64,  // current_set
-                &mut opt as *mut bool as u64,      // current_set_opt
-                &mut shared as *mut i128 as u64,  // current_add (same as current_set!)
+                &mut shared as *mut i128 as SyscallWord,  // current_set
+                &mut opt as *mut bool as SyscallWord,      // current_set_opt
+                &mut shared as *mut i128 as SyscallWord,  // current_add (same as current_set!)
                 0,
                 0
             )
@@ -68,16 +69,16 @@ impl OutputAliasTest for OutputAliasTestContract {
         let mut buf = [0xAAu8; 32];
         let mut opt: bool = false;
 
-        let current_set_ptr = buf.as_mut_ptr() as u64;
-        let current_add_ptr = (buf.as_mut_ptr() as u64) + 8;
+        let current_set_ptr = buf.as_mut_ptr() as u32;
+        let current_add_ptr = (buf.as_mut_ptr() as u32) + 8;
 
         let err_code = unsafe {
             direct_syscall(
                 K_SYSCALL_NONNEGATIVE_INT_GET,
-                &key as *const _ as u64,
+                &key as *const _ as SyscallWord,
                 1, // force_load = true
                 current_set_ptr,                   // current_set at buf[0..16]
-                &mut opt as *mut bool as u64,      // current_set_opt
+                &mut opt as *mut bool as SyscallWord,      // current_set_opt
                 current_add_ptr,                   // current_add at buf[8..24] (overlaps!)
                 0,
                 0
@@ -99,11 +100,11 @@ impl OutputAliasTest for OutputAliasTestContract {
         let err_code = unsafe {
             direct_syscall(
                 K_SYSCALL_NONNEGATIVE_INT_GET,
-                &key as *const _ as u64,
+                &key as *const _ as SyscallWord,
                 1, // force_load = true
-                &mut current_set as *mut i128 as u64,
-                &mut current_set_opt as *mut bool as u64,
-                &mut current_add as *mut i128 as u64,
+                &mut current_set as *mut i128 as SyscallWord,
+                &mut current_set_opt as *mut bool as SyscallWord,
+                &mut current_add as *mut i128 as SyscallWord,
                 0,
                 0
             )
@@ -119,8 +120,8 @@ impl OutputAliasTest for OutputAliasTestContract {
     fn test_calldata_span_writable_overlap(&self) {
         let mut buf = [0xBBu8; 64];
         // Place output_written_len inside the span
-        let span_ptr = buf.as_mut_ptr() as u64;
-        let span_len: u64 = 64;
+        let span_ptr = buf.as_mut_ptr() as u32;
+        let span_len: SyscallWord = 64;
         let written_len_ptr = span_ptr + 16; // inside [span_ptr, span_ptr+64)
 
         let err_code = unsafe {
@@ -148,9 +149,9 @@ impl OutputAliasTest for OutputAliasTestContract {
         let err_code = unsafe {
             direct_syscall(
                 K_SYSCALL_GET_CALLDATA,
-                buf.as_mut_ptr() as u64,
-                buf.len() as u64,
-                &mut written_len as *mut u32 as u64,
+                buf.as_mut_ptr() as SyscallWord,
+                buf.len() as SyscallWord,
+                &mut written_len as *mut u32 as SyscallWord,
                 0,
                 0,
                 0,
@@ -165,14 +166,14 @@ impl OutputAliasTest for OutputAliasTestContract {
     // LogEvent: (topic0_ptr, topic1_ptr, topic2_ptr, data_ptr, data_len, 0, 0)
     fn test_log_event_input_input_alias(&self) {
         let topic = [0u8; 32];
-        let topic_ptr = &topic as *const _ as u64;
+        let topic_ptr = &topic as *const _ as u32;
 
         // Pass the same topic pointer for topic0 and topic2 (topic1=None).
         let err_code = unsafe {
             direct_syscall(
                 K_SYSCALL_LOG_EVENT,
                 topic_ptr,         // topic0
-                u64::MAX,          // topic1 = None
+                SyscallWord::MAX,  // topic1 = None
                 topic_ptr,         // topic2 = same address as topic0!
                 0,                 // data ptr (empty)
                 0,                 // data len
@@ -189,9 +190,9 @@ impl OutputAliasTest for OutputAliasTestContract {
         let mut buf = [0xAAu8; 64];
         let mut opt: bool = false;
 
-        let current_set_ptr = buf.as_mut_ptr() as u64;
-        let current_add_ptr = (buf.as_mut_ptr() as u64) + 32;
-        let key_ptr = buf.as_mut_ptr() as u64;
+        let current_set_ptr = buf.as_mut_ptr() as u32;
+        let current_add_ptr = (buf.as_mut_ptr() as u32) + 32;
+        let key_ptr = buf.as_mut_ptr() as u32;
 
         let err_code = unsafe {
             direct_syscall(
@@ -199,7 +200,7 @@ impl OutputAliasTest for OutputAliasTestContract {
                 key_ptr,
                 1, // force_load = true
                 current_set_ptr,                   // current_set at buf[0..16] (overlaps input key)
-                &mut opt as *mut bool as u64,      // current_set_opt
+                &mut opt as *mut bool as SyscallWord,      // current_set_opt
                 current_add_ptr,                   // current_add at buf[32..48] (no overlap)
                 0,
                 0

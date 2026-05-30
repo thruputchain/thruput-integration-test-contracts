@@ -2,23 +2,24 @@ use crate::SyscallMiscTests;
 use sdk::sys::{self, SyscallErrorCode};
 use sdk::transaction::InvocationFrameStatusCode;
 use sdk::*;
+use groundhog_xdr::syscalls::SyscallWord;
 
 #[link(wasm_import_module = "marmot")]
 unsafe extern "C" {
     #[link_name = "syscall"]
     fn direct_syscall(
-        no: u64,
-        a1: u64,
-        a2: u64,
-        a3: u64,
-        a4: u64,
-        a5: u64,
-        a6: u64,
-        a7: u64,
+        no: SyscallWord,
+        a1: SyscallWord,
+        a2: SyscallWord,
+        a3: SyscallWord,
+        a4: SyscallWord,
+        a5: SyscallWord,
+        a6: SyscallWord,
+        a7: SyscallWord,
     ) -> i32;
 }
 
-const K_SYSCALL_RETURN: u64 = 6;
+const K_SYSCALL_RETURN: SyscallWord = sys::SyscallNo::kReturn.0 as SyscallWord;
 
 #[derive(Default)]
 struct SyscallMiscTestsContract;
@@ -469,20 +470,20 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             extern "C" {
                 #[link_name = "syscall"]
                 fn direct_syscall(
-                    no: u64,
-                    a1: u64,
-                    a2: u64,
-                    a3: u64,
-                    a4: u64,
-                    a5: u64,
-                    a6: u64,
-                    a7: u64,
+                    no: SyscallWord,
+                    a1: SyscallWord,
+                    a2: SyscallWord,
+                    a3: SyscallWord,
+                    a4: SyscallWord,
+                    a5: SyscallWord,
+                    a6: SyscallWord,
+                    a7: SyscallWord,
                 ) -> i32;
             }
             direct_syscall(
-                22,                             // syscall number
+                sys::SyscallNo::kGetTransactionStatistics.0 as SyscallWord, // syscall number
                 9999,                           // invalid statistic
-                &mut result as *mut u64 as u64, // result pointer
+                &mut result as *mut u64 as SyscallWord, // result pointer
                 0,
                 0,
                 0,
@@ -666,8 +667,8 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
                 0,
                 0, // empty buffer
                 0, // revert_frame = false
-                auth_tokens.as_ptr() as u64,
-                auth_tokens.len() as u64,
+                auth_tokens.as_ptr() as SyscallWord,
+                auth_tokens.len() as SyscallWord,
                 0,
                 0,
             );
@@ -685,8 +686,8 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
                 0,
                 0, // empty buffer
                 1, // revert_frame = true
-                ptr as u64,
-                len as u64,
+                ptr as SyscallWord,
+                len as SyscallWord,
                 0,
                 0,
             );
@@ -699,8 +700,8 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         unsafe {
             direct_syscall(
                 K_SYSCALL_RETURN,
-                buf.as_ptr() as u64,
-                buf.len() as u64,
+                buf.as_ptr() as SyscallWord,
+                buf.len() as SyscallWord,
                 0, // revert_frame = false
                 0, // null ptr
                 0, // len = 0
@@ -719,11 +720,11 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         unsafe {
             direct_syscall(
                 K_SYSCALL_RETURN,
-                buf.as_ptr() as u64,
-                buf.len() as u64,
+                buf.as_ptr() as SyscallWord,
+                buf.len() as SyscallWord,
                 0, // revert_frame = false
-                ptr as u64,
-                len as u64,
+                ptr as SyscallWord,
+                len as SyscallWord,
                 0,
                 0,
             );

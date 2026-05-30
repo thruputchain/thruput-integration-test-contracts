@@ -1,24 +1,26 @@
 use super::interface::*;
 use sdk::*;
 use sdk::sys::SyscallErrorCode;
+use groundhog_xdr::syscalls::SyscallWord;
 
 #[link(wasm_import_module = "marmot")]
 unsafe extern "C" {
     #[link_name = "syscall"]
     fn direct_syscall(
-        syscall_no: u64,
-        arg1: u64,
-        arg2: u64,
-        arg3: u64,
-        arg4: u64,
-        arg5: u64,
-        arg6: u64,
-        arg7: u64,
+        syscall_no: SyscallWord,
+        arg1: SyscallWord,
+        arg2: SyscallWord,
+        arg3: SyscallWord,
+        arg4: SyscallWord,
+        arg5: SyscallWord,
+        arg6: SyscallWord,
+        arg7: SyscallWord,
     ) -> i32;
 }
 
-const K_SYSCALL_NONNEGATIVE_INT_GET: u64 = 16;
-const K_OOB_PTR: u64 = u64::MAX - 1;
+const K_SYSCALL_NONNEGATIVE_INT_GET: SyscallWord =
+    groundhog_xdr::SyscallNo::kNonnegativeIntGet.0 as SyscallWord;
+const K_OOB_PTR: SyscallWord = SyscallWord::MAX - 1;
 
 fn assert_fault(actual: i32) {
     assert_eq!(actual, SyscallErrorCode::kSyscallErrorCodeFault.0);
@@ -38,10 +40,10 @@ impl NnintOutputFaultTest for NnintOutputFaultTestContract {
         let err_code = unsafe {
             direct_syscall(
                 K_SYSCALL_NONNEGATIVE_INT_GET,
-                &key as *const _ as u64,
+                &key as *const _ as SyscallWord,
                 1, // force_load = true
-                &mut current_set as *mut i128 as u64,
-                &mut current_set_opt as *mut bool as u64,
+                &mut current_set as *mut i128 as SyscallWord,
+                &mut current_set_opt as *mut bool as SyscallWord,
                 K_OOB_PTR, // invalid current_add pointer
                 0,
                 0
@@ -68,11 +70,11 @@ impl NnintOutputFaultTest for NnintOutputFaultTestContract {
         let err_code = unsafe {
             direct_syscall(
                 K_SYSCALL_NONNEGATIVE_INT_GET,
-                &key as *const _ as u64,
+                &key as *const _ as SyscallWord,
                 1, // force_load = true
                 K_OOB_PTR, // invalid current_set pointer
-                &mut current_set_opt as *mut bool as u64,
-                &mut current_add as *mut i128 as u64,
+                &mut current_set_opt as *mut bool as SyscallWord,
+                &mut current_add as *mut i128 as SyscallWord,
                 0,
                 0
             )
@@ -99,11 +101,11 @@ impl NnintOutputFaultTest for NnintOutputFaultTestContract {
         let err_code = unsafe {
             direct_syscall(
                 K_SYSCALL_NONNEGATIVE_INT_GET,
-                &key as *const _ as u64,
+                &key as *const _ as SyscallWord,
                 2, // invalid boolean
-                &mut current_set as *mut i128 as u64,
-                &mut current_set_opt as *mut bool as u64,
-                &mut current_add as *mut i128 as u64,
+                &mut current_set as *mut i128 as SyscallWord,
+                &mut current_set_opt as *mut bool as SyscallWord,
+                &mut current_add as *mut i128 as SyscallWord,
                 0,
                 0
             )
