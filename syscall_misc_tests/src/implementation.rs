@@ -3,19 +3,51 @@ use sdk::sys::{self, SyscallErrorCode};
 use sdk::transaction::InvocationFrameStatusCode;
 use sdk::*;
 
+// The raw `marmot.syscall` import must match the host ABI exactly: each slot is
+// a `SyscallWord` (u32 on wasm32, u64 on native). Declaring it with the SDK's
+// `SyscallWord` keeps this import byte-identical to the SDK's own `syscall`
+// import so the wasm linker merges them into a single import (the meter caps
+// function imports at 1). The `u64`-taking `direct_syscall` shim below lets the
+// existing call sites keep passing plain `u64`s.
 #[link(wasm_import_module = "marmot")]
 unsafe extern "C" {
     #[link_name = "syscall"]
-    fn direct_syscall(
-        no: u64,
-        a1: u64,
-        a2: u64,
-        a3: u64,
-        a4: u64,
-        a5: u64,
-        a6: u64,
-        a7: u64,
+    fn raw_marmot_syscall(
+        no: sdk::sys::SyscallWord,
+        a1: sdk::sys::SyscallWord,
+        a2: sdk::sys::SyscallWord,
+        a3: sdk::sys::SyscallWord,
+        a4: sdk::sys::SyscallWord,
+        a5: sdk::sys::SyscallWord,
+        a6: sdk::sys::SyscallWord,
+        a7: sdk::sys::SyscallWord,
     ) -> i32;
+}
+
+#[inline(always)]
+#[allow(clippy::too_many_arguments)]
+unsafe fn direct_syscall(
+    no: u64,
+    a1: u64,
+    a2: u64,
+    a3: u64,
+    a4: u64,
+    a5: u64,
+    a6: u64,
+    a7: u64,
+) -> i32 {
+    unsafe {
+        raw_marmot_syscall(
+            no as sdk::sys::SyscallWord,
+            a1 as sdk::sys::SyscallWord,
+            a2 as sdk::sys::SyscallWord,
+            a3 as sdk::sys::SyscallWord,
+            a4 as sdk::sys::SyscallWord,
+            a5 as sdk::sys::SyscallWord,
+            a6 as sdk::sys::SyscallWord,
+            a7 as sdk::sys::SyscallWord,
+        )
+    }
 }
 
 const K_SYSCALL_RETURN: u64 = 6;
@@ -465,20 +497,8 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         // GetTransactionStatistics is syscall #22.
         let mut result: u64 = 0;
         let err_code = unsafe {
-            #[link(wasm_import_module = "marmot")]
-            extern "C" {
-                #[link_name = "syscall"]
-                fn direct_syscall(
-                    no: u64,
-                    a1: u64,
-                    a2: u64,
-                    a3: u64,
-                    a4: u64,
-                    a5: u64,
-                    a6: u64,
-                    a7: u64,
-                ) -> i32;
-            }
+            // Uses the module-level `direct_syscall` shim (a single merged
+            // `marmot.syscall` import); see its definition near the top of file.
             direct_syscall(
                 22,                             // syscall number
                 9999,                           // invalid statistic
