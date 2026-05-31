@@ -1,0 +1,20 @@
+[package]
+name = "rv32_smoke_counter"
+version = "0.2.0"
+edition = "2024"
+
+[features]
+entrypoints = []
+dev = ["sdk/dev"]
+
+[lib]
+crate-type = ["rlib"]
+doctest = false
+
+[[bin]]
+name = "rv32_smoke_counter"
+path = "src/main.rs"
+
+[dependencies]
+groundhog-rv32-runtime = { workspace = true }
+sdk = { workspace = true, features = ["storage"] }
