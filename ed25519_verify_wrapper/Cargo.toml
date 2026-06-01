@@ -21,3 +21,7 @@ std = ["sdk/std"]
 ed25519_verify_wrapper = { path = ".", features = ["dev"] }
 ed25519-dalek = { version = "2.1", features = ["rand_core"] }
 rand = "0.8"
+
+[[bin]]
+name = "ed25519_verify_wrapper"
+path = "src/main.rs"

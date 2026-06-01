@@ -21,3 +21,7 @@ logging = ["sdk/logging"]
 [dev-dependencies]
 no_syscall_test = { path = ".", features = ["dev", "entrypoints"] }
 
+
+[[bin]]
+name = "no_syscall_test"
+path = "src/main.rs"

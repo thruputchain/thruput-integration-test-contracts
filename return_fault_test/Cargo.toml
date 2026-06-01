@@ -19,3 +19,7 @@ logging = ["sdk/logging"]
 
 [dev-dependencies]
 return_fault_test = { path = ".", features = ["dev"] }
+
+[[bin]]
+name = "return_fault_test"
+path = "src/main.rs"

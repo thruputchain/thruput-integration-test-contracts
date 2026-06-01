@@ -21,3 +21,7 @@ logging = ["sdk/logging"]
 
 [dev-dependencies]
 nnint_output_fault_test = { path = ".", features = ["mock", "entrypoints"] }
+
+[[bin]]
+name = "nnint_output_fault_test"
+path = "src/main.rs"

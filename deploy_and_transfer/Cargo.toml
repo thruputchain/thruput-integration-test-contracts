@@ -21,3 +21,7 @@ alloc = []
 
 [dev-dependencies]
 deploy_and_transfer = { path = ".", features = ["dev", "entrypoints"] }
+
+[[bin]]
+name = "deploy_and_transfer"
+path = "src/main.rs"

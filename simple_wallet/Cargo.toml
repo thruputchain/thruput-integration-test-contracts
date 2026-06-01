@@ -21,3 +21,7 @@ logging = ["sdk/logging"]
 
 [dev-dependencies]
 simple_wallet = { path = ".", features = ["dev"] }
+
+[[bin]]
+name = "simple_wallet"
+path = "src/main.rs"

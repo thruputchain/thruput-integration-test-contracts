@@ -19,3 +19,7 @@ logging = ["sdk/logging"]
 
 [dev-dependencies]
 payment_channel = { path = ".", features = ["dev"] }
+
+[[bin]]
+name = "payment_channel"
+path = "src/main.rs"

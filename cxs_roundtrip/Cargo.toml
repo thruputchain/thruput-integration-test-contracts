@@ -21,3 +21,7 @@ dev = ["sdk/dev"]
 
 [dev-dependencies]
 cxs_roundtrip = { path = ".", features = ["dev", "entrypoints"] }
+
+[[bin]]
+name = "cxs_roundtrip"
+path = "src/main.rs"

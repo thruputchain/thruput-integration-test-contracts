@@ -22,3 +22,7 @@ logging = ["sdk/logging"]
 [dev-dependencies]
 htlc = { path = ".", features = ["dev"] }
 
+
+[[bin]]
+name = "htlc"
+path = "src/main.rs"

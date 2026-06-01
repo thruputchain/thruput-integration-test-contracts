@@ -20,3 +20,7 @@ logging = ["sdk/logging", "sdk/alloc"]
 
 [dev-dependencies]
 tuple_return = { path = ".", features = ["dev", "entrypoints"] }
+
+[[bin]]
+name = "tuple_return"
+path = "src/main.rs"

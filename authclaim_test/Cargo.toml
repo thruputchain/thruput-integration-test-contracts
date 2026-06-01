@@ -19,3 +19,7 @@ logging = ["sdk/logging"]
 
 [dev-dependencies]
 authclaim_test = { path = ".", features = ["dev"] }
+
+[[bin]]
+name = "authclaim_test"
+path = "src/main.rs"

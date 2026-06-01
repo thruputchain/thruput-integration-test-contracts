@@ -23,3 +23,7 @@ logging = ["sdk/logging"]
 [dev-dependencies]
 syscall_misc_tests = { path = ".", features = ["dev"] }
 sha2 = { workspace = true }
+
+[[bin]]
+name = "syscall_misc_tests"
+path = "src/main.rs"

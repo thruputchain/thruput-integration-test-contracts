@@ -20,3 +20,7 @@ logging = ["sdk/logging"]
 
 [dev-dependencies]
 dev_wallet = { path = ".", features = ["dev", "entrypoints"] }
+
+[[bin]]
+name = "dev_wallet"
+path = "src/main.rs"
