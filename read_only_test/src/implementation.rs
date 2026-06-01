@@ -2,23 +2,32 @@ use crate::interface::*;
 use sdk::*;
 use sdk::sys::SyscallErrorCode;
 use sdk::transaction::InvocationFrameStatusCode;
+use groundhog_xdr::syscalls::SyscallWord;
 
-#[link(wasm_import_module = "marmot")]
-unsafe extern "C" {
-    #[link_name = "syscall"]
-    fn direct_syscall(
-        syscall_no: u32,
-        arg1: u32,
-        arg2: u32,
-        arg3: u32,
-        arg4: u32,
-        arg5: u32,
-        arg6: u32,
-        arg7: u32,
-    ) -> i32;
+// `groundhog_syscall::syscall_wrapper` is the single shared syscall-dispatch
+// chokepoint: the SDK routes its own syscalls through it too, so the wasm
+// linker sees exactly one `marmot.syscall` import (the meter caps function
+// imports at 1). The thin `direct_syscall` shim keeps the existing call sites
+// (which pass `SyscallWord`-typed args) unchanged.
+#[inline(always)]
+#[allow(clippy::too_many_arguments)]
+unsafe fn direct_syscall(
+    syscall_no: SyscallWord,
+    arg1: SyscallWord,
+    arg2: SyscallWord,
+    arg3: SyscallWord,
+    arg4: SyscallWord,
+    arg5: SyscallWord,
+    arg6: SyscallWord,
+    arg7: SyscallWord,
+) -> i32 {
+    groundhog_syscall::syscall_wrapper(
+        syscall_no, arg1, arg2, arg3, arg4, arg5, arg6, arg7,
+    )
 }
 
-const K_SYSCALL_BYTESTRING_SET: u32 = groundhog_xdr::SyscallNo::kBytestringSet.0 as u32;
+const K_SYSCALL_BYTESTRING_SET: SyscallWord =
+    groundhog_xdr::SyscallNo::kBytestringSet.0 as SyscallWord;
 
 #[derive(Default)]
 pub struct ReadOnlyTestContract;
