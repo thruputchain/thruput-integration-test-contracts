@@ -25,3 +25,7 @@ logging = ["sdk/logging"]
 [dev-dependencies]
 sha256_wrapper = { path = ".", features = ["dev"] }
 sha2 = { workspace = true }
+
+[[bin]]
+name = "sha256_wrapper"
+path = "src/main.rs"

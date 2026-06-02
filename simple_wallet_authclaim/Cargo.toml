@@ -20,3 +20,7 @@ logging = ["sdk/logging"]
 
 [dev-dependencies]
 simple_wallet_authclaim = { path = ".", features = ["dev", "entrypoints"] }
+
+[[bin]]
+name = "simple_wallet_authclaim"
+path = "src/main.rs"

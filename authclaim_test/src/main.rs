@@ -1,0 +1,6 @@
+//! RV32 binary wrapper for the `authclaim_test` contract.
+//! See ../../fibonacci/src/main.rs for the rationale.
+#![no_std]
+#![no_main]
+
+extern crate authclaim_test;

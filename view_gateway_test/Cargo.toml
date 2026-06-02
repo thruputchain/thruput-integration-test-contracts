@@ -14,3 +14,7 @@ doctest = false
 entrypoints = []
 dev = ["sdk/dev"]
 std = ["sdk/std"]
+
+[[bin]]
+name = "view_gateway_test"
+path = "src/main.rs"

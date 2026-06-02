@@ -21,3 +21,7 @@ logging = ["sdk/logging"]
 
 [dev-dependencies]
 output_alias_test = { path = ".", features = ["dev", "entrypoints"] }
+
+[[bin]]
+name = "output_alias_test"
+path = "src/main.rs"
