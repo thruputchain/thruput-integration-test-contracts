@@ -4,19 +4,24 @@ use sdk::transaction::InvocationFrameStatusCode;
 use sdk::*;
 use groundhog_xdr::syscalls::SyscallWord;
 
-#[link(wasm_import_module = "marmot")]
-unsafe extern "C" {
-    #[link_name = "syscall"]
-    fn direct_syscall(
-        no: SyscallWord,
-        a1: SyscallWord,
-        a2: SyscallWord,
-        a3: SyscallWord,
-        a4: SyscallWord,
-        a5: SyscallWord,
-        a6: SyscallWord,
-        a7: SyscallWord,
-    ) -> i32;
+// `groundhog_syscall::syscall_wrapper` is the single shared syscall-dispatch
+// chokepoint: the SDK routes its own syscalls through it too, so the wasm
+// linker sees exactly one `marmot.syscall` import (the meter caps function
+// imports at 1). The thin `direct_syscall` shim keeps the existing call sites
+// (which pass `SyscallWord`-typed args) unchanged.
+#[inline(always)]
+#[allow(clippy::too_many_arguments)]
+unsafe fn direct_syscall(
+    no: SyscallWord,
+    a1: SyscallWord,
+    a2: SyscallWord,
+    a3: SyscallWord,
+    a4: SyscallWord,
+    a5: SyscallWord,
+    a6: SyscallWord,
+    a7: SyscallWord,
+) -> i32 {
+    groundhog_syscall::syscall_wrapper(no, a1, a2, a3, a4, a5, a6, a7)
 }
 
 const K_SYSCALL_RETURN: SyscallWord = sys::SyscallNo::kReturn.0 as SyscallWord;
