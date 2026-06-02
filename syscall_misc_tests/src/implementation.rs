@@ -466,25 +466,13 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     // ── #30: GetTransactionStatistics → kInvalidSyscallInput ────────
 
     fn test_get_tx_stats_invalid(&self) {
-        // Call the raw syscall import directly to pass an invalid statistic
+        // Call the syscall dispatch shim directly to pass an invalid statistic
         // value (9999) without triggering UB from transmuting an invalid enum.
-        // GetTransactionStatistics is syscall #22.
+        // GetTransactionStatistics is syscall #22. Routes through the shared
+        // `direct_syscall` shim (groundhog_syscall::syscall_wrapper) so the rv32
+        // ELF resolves `syscall` the same way every other call site does.
         let mut result: u64 = 0;
         let err_code = unsafe {
-            #[link(wasm_import_module = "marmot")]
-            extern "C" {
-                #[link_name = "syscall"]
-                fn direct_syscall(
-                    no: SyscallWord,
-                    a1: SyscallWord,
-                    a2: SyscallWord,
-                    a3: SyscallWord,
-                    a4: SyscallWord,
-                    a5: SyscallWord,
-                    a6: SyscallWord,
-                    a7: SyscallWord,
-                ) -> i32;
-            }
             direct_syscall(
                 sys::SyscallNo::kGetTransactionStatistics.0 as SyscallWord, // syscall number
                 9999,                           // invalid statistic
