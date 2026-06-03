@@ -584,13 +584,19 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     fn test_invoke_invalid_flags(&self) {
         let addr = sdk::get_current_address();
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: u32::MAX, returned_auth_token_len: u32::MAX, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             &addr,
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0xFFFF }, // garbage flags
-            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS },
+            &mut outputs,
         );
+        // outputs should not be written on syscall error
+        assert!(outputs.return_buffer_len == u32::MAX);
+        assert!(outputs.returned_auth_token_len == u32::MAX);
+        assert!(outputs.frame_status == UNWRITTEN_FRAME_STATUS);
+
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
 
