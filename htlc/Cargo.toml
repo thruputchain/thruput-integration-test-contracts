@@ -26,3 +26,4 @@ htlc = { path = ".", features = ["dev"] }
 [[bin]]
 name = "htlc"
 path = "src/main.rs"
+required-features = ["entrypoints"]

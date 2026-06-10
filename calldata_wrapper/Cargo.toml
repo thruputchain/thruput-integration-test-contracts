@@ -26,3 +26,4 @@ calldata_wrapper = { path = ".", features = ["dev"] }
 [[bin]]
 name = "calldata_wrapper"
 path = "src/main.rs"
+required-features = ["entrypoints"]

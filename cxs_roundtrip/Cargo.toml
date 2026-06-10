@@ -20,8 +20,9 @@ logging = ["sdk/logging"]
 dev = ["sdk/dev"]
 
 [dev-dependencies]
-cxs_roundtrip = { path = ".", features = ["dev", "entrypoints"] }
+cxs_roundtrip = { path = ".", features = ["dev"] }
 
 [[bin]]
 name = "cxs_roundtrip"
 path = "src/main.rs"
+required-features = ["entrypoints"]

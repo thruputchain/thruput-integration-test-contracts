@@ -26,3 +26,4 @@ txs_roundtrip = { path = ".", features = ["dev"] }
 [[bin]]
 name = "txs_roundtrip"
 path = "src/main.rs"
+required-features = ["entrypoints"]

@@ -23,3 +23,4 @@ payment_channel = { path = ".", features = ["dev"] }
 [[bin]]
 name = "payment_channel"
 path = "src/main.rs"
+required-features = ["entrypoints"]

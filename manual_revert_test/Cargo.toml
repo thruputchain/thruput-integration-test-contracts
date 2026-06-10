@@ -25,8 +25,9 @@ std = ["sdk/std"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]
-manual_revert_test = { path = ".", features = ["mock", "entrypoints"] }
+manual_revert_test = { path = ".", features = ["mock"] }
 
 [[bin]]
 name = "manual_revert_test"
 path = "src/main.rs"
+required-features = ["entrypoints"]
