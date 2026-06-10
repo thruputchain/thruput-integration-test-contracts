@@ -26,3 +26,4 @@ fibonacci_call = { path = ".", features = ["dev"] }
 [[bin]]
 name = "fibonacci_call"
 path = "src/main.rs"
+required-features = ["entrypoints"]

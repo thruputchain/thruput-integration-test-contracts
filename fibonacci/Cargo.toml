@@ -18,6 +18,7 @@ doctest = false
 [[bin]]
 name = "fibonacci"
 path = "src/main.rs"
+required-features = ["entrypoints"]
 
 [features]
 entrypoints = []

@@ -20,8 +20,9 @@ std = ["sdk/std"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]
-syscall_parse_hardening_test = { path = ".", features = ["dev", "entrypoints"] }
+syscall_parse_hardening_test = { path = ".", features = ["dev"] }
 
 [[bin]]
 name = "syscall_parse_hardening_test"
 path = "src/main.rs"
+required-features = ["entrypoints"]

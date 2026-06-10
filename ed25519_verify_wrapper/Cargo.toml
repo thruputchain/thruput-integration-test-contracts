@@ -25,3 +25,4 @@ rand = "0.8"
 [[bin]]
 name = "ed25519_verify_wrapper"
 path = "src/main.rs"
+required-features = ["entrypoints"]

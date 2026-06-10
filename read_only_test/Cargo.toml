@@ -29,3 +29,4 @@ read_only_test = { path = ".", features = ["dev", "std"] }
 [[bin]]
 name = "read_only_test"
 path = "src/main.rs"
+required-features = ["entrypoints"]

@@ -19,8 +19,9 @@ std = ["sdk/std"]
 logging = ["sdk/logging", "sdk/alloc"]
 
 [dev-dependencies]
-tuple_return = { path = ".", features = ["dev", "entrypoints"] }
+tuple_return = { path = ".", features = ["dev"] }
 
 [[bin]]
 name = "tuple_return"
 path = "src/main.rs"
+required-features = ["entrypoints"]

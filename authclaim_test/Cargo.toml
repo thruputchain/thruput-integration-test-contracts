@@ -23,3 +23,4 @@ authclaim_test = { path = ".", features = ["dev"] }
 [[bin]]
 name = "authclaim_test"
 path = "src/main.rs"
+required-features = ["entrypoints"]

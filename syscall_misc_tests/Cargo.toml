@@ -28,3 +28,4 @@ sha2 = { workspace = true }
 [[bin]]
 name = "syscall_misc_tests"
 path = "src/main.rs"
+required-features = ["entrypoints"]

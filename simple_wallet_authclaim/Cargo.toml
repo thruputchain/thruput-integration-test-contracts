@@ -19,8 +19,9 @@ std = ["sdk/std"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]
-simple_wallet_authclaim = { path = ".", features = ["dev", "entrypoints"] }
+simple_wallet_authclaim = { path = ".", features = ["dev"] }
 
 [[bin]]
 name = "simple_wallet_authclaim"
 path = "src/main.rs"
+required-features = ["entrypoints"]

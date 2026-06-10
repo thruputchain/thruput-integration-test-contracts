@@ -27,3 +27,4 @@ initial_token_claim = { path = ".", features = ["dev"] }
 [[bin]]
 name = "initial_token_claim"
 path = "src/main.rs"
+required-features = ["entrypoints"]

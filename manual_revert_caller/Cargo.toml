@@ -25,3 +25,4 @@ logging = ["sdk/logging", "manual_revert_test/logging"]
 [[bin]]
 name = "manual_revert_caller"
 path = "src/main.rs"
+required-features = ["entrypoints"]

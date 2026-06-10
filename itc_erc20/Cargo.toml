@@ -39,3 +39,4 @@ itc_erc20 = { path = ".", features = ["dev"] }
 [[bin]]
 name = "itc_erc20"
 path = "src/main.rs"
+required-features = ["entrypoints"]

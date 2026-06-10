@@ -20,8 +20,9 @@ logging = ["sdk/logging"]
 alloc = []
 
 [dev-dependencies]
-deploy_and_transfer = { path = ".", features = ["dev", "entrypoints"] }
+deploy_and_transfer = { path = ".", features = ["dev"] }
 
 [[bin]]
 name = "deploy_and_transfer"
 path = "src/main.rs"
+required-features = ["entrypoints"]

@@ -14,6 +14,7 @@ doctest = false
 [[bin]]
 name = "rv32_smoke_counter"
 path = "src/main.rs"
+required-features = ["entrypoints"]
 
 [dependencies]
 groundhog-rv32-runtime = { workspace = true }

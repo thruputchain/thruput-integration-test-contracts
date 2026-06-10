@@ -20,8 +20,9 @@ std = ["sdk/std"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]
-output_alias_test = { path = ".", features = ["dev", "entrypoints"] }
+output_alias_test = { path = ".", features = ["dev"] }
 
 [[bin]]
 name = "output_alias_test"
 path = "src/main.rs"
+required-features = ["entrypoints"]

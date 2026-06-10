@@ -21,8 +21,9 @@ dev = ["guest", "sdk/dev"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]
-delegate_call_test = { path = ".", features = ["dev", "entrypoints"] } 
+delegate_call_test = { path = ".", features = ["dev"] } 
 
 [[bin]]
 name = "delegate_call_test"
 path = "src/main.rs"
+required-features = ["entrypoints"]
