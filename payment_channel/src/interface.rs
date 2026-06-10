@@ -15,7 +15,7 @@ use sdk::*;
 // The state that both parties sign for off-chain updates and on-chain close/dispute.
 // This struct is serialized to XDR format before signing.
 // TODO: Add derive(xdrs::xdr_repr::XDR) once xdrs properly exports it
-#[contracttype(export)]
+#[contract_type(export)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct ChannelState {
     pub channel_id: u64,
