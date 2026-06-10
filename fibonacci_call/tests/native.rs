@@ -1,3 +1,5 @@
+use sdk::Named;
+
 static FIBONACCI_NONCE: sdk::SHA256Hash = sdk::sha256_static!("FIBONACCI_TEST_NONCE");
 static CALLER_NONCE: sdk::SHA256Hash = sdk::sha256_static!("FIBONACCI_CALLER_TEST_NONCE");
 
@@ -20,30 +22,8 @@ fn setup_env() -> (sdk::TestEnvironmentHandle, sdk::SHA256Hash, sdk::SHA256Hash)
 fn try_call_inner_out_of_gas() {
     let (env, fibonacci_hash, caller_hash) = setup_env();
 
-    sdk::contract_exec(env, move || {
-        let fibonacci_addr =
-            sdk::deploy_contract(&FIBONACCI_NONCE, &fibonacci_hash);
-        let caller_addr =
-            sdk::deploy_contract(&CALLER_NONCE, &caller_hash);
-
-        let client = fibonacci_call::Client::new(&caller_addr);
-        client.initialize(&fibonacci_addr);
-
-        // burn_gas loops on sha256 and will exhaust the gas budget.
-        // try_call should return Err(Fault(..)).
-        client.call_burn_gas_expect_out_of_gas(1000);
-    })
-    .unwrap_or_else(|e| panic!("Test failed: {:?}", e));
-}
-
-/// The non-try call variant aborts the caller on inner out-of-gas.
-/// This must produce a clean abort (not SIGABRT/__stack_chk_fail).
-#[test]
-fn call_inner_out_of_gas_aborts_cleanly() {
-    let (env, fibonacci_hash, caller_hash) = setup_env();
-
-    let result: Result<(), sdk::call::RawCallError> =
-        sdk::contract_test(env, move || {
+    env.transact(|tx| {
+        tx.call(&sdk::ContractAddress::named("test")).run(move || {
             let fibonacci_addr =
                 sdk::deploy_contract(&FIBONACCI_NONCE, &fibonacci_hash);
             let caller_addr =
@@ -52,14 +32,35 @@ fn call_inner_out_of_gas_aborts_cleanly() {
             let client = fibonacci_call::Client::new(&caller_addr);
             client.initialize(&fibonacci_addr);
 
+            // burn_gas loops on sha256 and will exhaust the gas budget.
+            // try_call should return Err(Fault(..)).
+            client.call_burn_gas_expect_out_of_gas(1000);
+        })
+    })
+    .assert_success();
+}
+
+/// The non-try call variant aborts the caller on inner out-of-gas.
+/// This must produce a clean abort (not SIGABRT/__stack_chk_fail).
+#[test]
+fn call_inner_out_of_gas_aborts_cleanly() {
+    let (env, fibonacci_hash, caller_hash) = setup_env();
+
+    let result = env.transact(|tx| {
+        tx.call(&sdk::ContractAddress::named("test")).run(move || {
+            let fibonacci_addr =
+                sdk::deploy_contract(&FIBONACCI_NONCE, &fibonacci_hash);
+            let caller_addr = sdk::deploy_contract(&CALLER_NONCE, &caller_hash);
+
+            let client = fibonacci_call::Client::new(&caller_addr);
+            client.initialize(&fibonacci_addr);
+
             // call (not try_call) will abort the caller on inner OOG.
             client.call_burn_gas(1000);
-        });
+        })
+    });
 
-    // The caller should have aborted, not crashed.
-    assert!(
-        result.is_err(),
-        "Expected the caller to abort, got: {:?}",
-        result
-    );
+    // The caller's panic should surface as a clean frame fault, not a
+    // process crash (SIGABRT/__stack_chk_fail).
+    result.assert_fault();
 }
