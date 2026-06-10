@@ -8,9 +8,12 @@ fn test_read_only_bytestring_set() {
     let test_contract = env.register_mock(<ReadOnlyTestContract as ReadOnlyTest>::__mock);
     let contract_hash = test_contract.as_hash().clone();
 
-    contract_exec(env, move ||
-        test_read_only_bytestring_set_inner(&contract_hash)
-    ).unwrap();
+    env.transact(|tx| {
+        tx.call(&ContractAddress::named("read_only")).run(move || {
+            test_read_only_bytestring_set_inner(&contract_hash)
+        })
+    })
+    .assert_success();
 }
 
 fn test_read_only_bytestring_set_inner(

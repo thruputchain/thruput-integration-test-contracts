@@ -1,24 +1,24 @@
 use crate::{CalldataWrapperContract, CalldataWrapper};
 use crate::Client;
 use sdk::*;
-use sdk::transaction::InvocationFrameStatusCode;
 use std::vec;
 
 #[test]
 fn test_calldata_wrapper() {
     let env = sdk::TestEnvironment::new(None);
 
-    let test_contract = env.register_mock(<CalldataWrapperContract as CalldataWrapper>::__mock);
+    let test_contract = env
+        .register_mock(<CalldataWrapperContract as CalldataWrapper>::__mock);
     let contract_hash = test_contract.as_hash().clone();
 
     // sdk::TestEnvironment::enable_syscall_logging();
 
-    let mut handler = env.prepare_test(move || -> () {
-        test_calldata_wrapper_inner(&contract_hash)
-    });
-
-    let res = handler.root_invoke();
-    assert_eq!(res.output.status_code(), InvocationFrameStatusCode::Return);
+    env.transact(|tx| {
+        tx.call(&ContractAddress::named("calldata_wrapper")).run(move || {
+            test_calldata_wrapper_inner(&contract_hash)
+        })
+    })
+    .assert_success();
 }
 
 fn test_calldata_wrapper_inner(

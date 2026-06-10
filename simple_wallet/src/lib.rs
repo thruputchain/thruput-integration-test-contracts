@@ -16,12 +16,4 @@ pub use implementation::SimpleWalletContract;
 pub use interface::SimpleWallet;
 pub use groundhog_erc1271_if::ERC1271;
 
-#[cfg(feature = "dev")]
-pub fn register(
-    env: &sdk::TestEnvironmentHandle,
-) -> ::sdk::types::Contract {
-    let mut contract = env.add_contract();
-    contract.register(<SimpleWalletContract as ERC1271>::__mock);
-    contract.register(<SimpleWalletContract as SimpleWallet>::__mock);
-    contract.as_contract()
-}
+sdk::declare_mock_contract!();
