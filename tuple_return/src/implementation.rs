@@ -1,6 +1,8 @@
 //! An implementation of tuple return testing
 
 use super::interface::TupleReturn;
+
+use alloc::vec;
 use sdk::*;
 
 #[derive(Default)]

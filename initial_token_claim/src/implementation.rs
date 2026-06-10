@@ -1,6 +1,9 @@
 //! Implementation of Initial Token Claim contract
 
 use super::interface::*;
+
+use alloc::format;
+use alloc::vec::Vec;
 use sdk::*;
 
 use groundhog_erc20_if::ERC20Client;

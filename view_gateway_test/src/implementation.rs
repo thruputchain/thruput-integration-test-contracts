@@ -1,4 +1,6 @@
 use super::interface::ViewGatewayTest;
+
+use alloc::vec::Vec;
 use sdk::*;
 
 #[derive(Default)]

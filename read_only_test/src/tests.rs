@@ -1,4 +1,5 @@
 use crate::{ReadOnlyTestContract, ReadOnlyTest};
+use sdk::xdr::cxs;
 use sdk::*;
 
 #[test]
