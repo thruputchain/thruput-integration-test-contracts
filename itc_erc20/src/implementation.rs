@@ -55,20 +55,12 @@ fn add_to_total_supply(diff: Difference) {
     )
 }
 
-// The standard error contract: decrementing a balance or allowance below
-// zero throws ERC20Error::TooLarge (the storage-layer underflow check, at
-// commit time or otherwise, stays a backstop).
-fn ensure_can_deduct(key: &StorageKey, diff: Difference) {
-    if diff < 0 {
-        let current = non_negative_int_try_get(key).unwrap_or(0) as Amount;
-        ensure(current >= diff.unsigned_abs(), ERC20Error::TooLarge);
-    }
-}
-
 fn add_to_balance(addr: &ContractAddress, diff: Difference) {
-    let key = get_balance_key(addr);
-    ensure_can_deduct(&key, diff);
-    non_negative_int_inc(&key, diff)
+    // The standard error contract: a balance outside the non-negative
+    // range throws ERC20Error::TooLarge. try_strict_inc reports the
+    // failure instead of aborting, with no extra pre-check roundtrip.
+    non_negative_int_try_strict_inc(&get_balance_key(addr), diff)
+        .unwrap_or_else(|_| throw(ERC20Error::TooLarge))
 }
 
 fn add_to_allowance(
@@ -76,9 +68,8 @@ fn add_to_allowance(
     spender: &ContractAddress,
     diff: Difference,
 ) {
-    let key = get_allowance_key(owner, spender);
-    ensure_can_deduct(&key, diff);
-    non_negative_int_inc(&key, diff)
+    non_negative_int_try_strict_inc(&get_allowance_key(owner, spender), diff)
+        .unwrap_or_else(|_| throw(ERC20Error::TooLarge))
 }
 
 #[derive(Default)]
