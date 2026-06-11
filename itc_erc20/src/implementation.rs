@@ -30,7 +30,13 @@ fn get_allowance_key(
     owner: &ContractAddress,
     spender: &ContractAddress,
 ) -> StorageKey {
-    debug_assert!(owner != spender, "no allowance needed on spending self");
+    // Spending one's own tokens needs no allowance; reject (owner == spender)
+    // as a proper contract error rather than a debug-only assert, so the
+    // behavior is identical in release. (ERC20Error::Internal for now; a more
+    // descriptive variant can follow in an sdk update.)
+    if owner == spender {
+        throw(ERC20Error::Internal);
+    }
 
     (b"allowance", owner, spender).hash().into()
 }
@@ -108,7 +114,10 @@ impl ERC20 for Token {
     ) {
         let spender = get_caller();
         let diff = amount_to_diff(amount);
-        add_to_allowance(owner, &spender, -diff);
+        // Spending one's own tokens needs no allowance.
+        if owner != &spender {
+            add_to_allowance(owner, &spender, -diff);
+        }
         add_to_balance(owner, -diff);
         add_to_balance(receiver, diff);
 
