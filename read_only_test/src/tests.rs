@@ -1,5 +1,6 @@
 use crate::{ReadOnlyTestContract, ReadOnlyTest};
 use sdk::*;
+use sdk::xdr::cxs;
 
 #[test]
 fn test_read_only_bytestring_set() {

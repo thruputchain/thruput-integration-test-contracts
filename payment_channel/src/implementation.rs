@@ -1,4 +1,5 @@
 use super::interface::*;
+use alloc::vec::Vec;
 use sdk::crypto::verify_signature_ed25519;
 use sdk::storage::{Deletable, Map, Value};
 use sdk::*;
@@ -77,7 +78,7 @@ fn get_block_height() -> i64 {
 }
 
 // Serialize ChannelState to bytes for signing
-fn serialize_state(state: &ChannelState) -> sdk::Vec<u8> {
+fn serialize_state(state: &ChannelState) -> Vec<u8> {
     encode_xdr(state).unwrap()
 }
 
@@ -107,7 +108,7 @@ impl PaymentChannel for PaymentChannelContract {
         // Generate deterministic channel_id from inputs
         // This avoids contention when multiple channels are opened in the same block
         let channel_id = {
-            let mut hasher_input = sdk::Vec::new();
+            let mut hasher_input = Vec::new();
             hasher_input.extend_from_slice(party_a_dest.as_ref());
             hasher_input.extend_from_slice(party_a_pubkey.as_ref());
             hasher_input.extend_from_slice(party_b_pubkey.as_ref());
