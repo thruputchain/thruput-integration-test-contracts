@@ -2,13 +2,11 @@ use super::interface::*;
 use groundhog_erc20_if::ERC20Client;
 use sdk::*;
 
-#[sdk::storage]
 pub struct DeployAndTransferContract;
 
 #[contract]
 impl DeployAndTransfer for DeployAndTransferContract {
     fn deploy_and_transfer(
-        &self,
         nonce: &SHA256Hash,
         contract_hash: &SHA256Hash,
         amount: u128,

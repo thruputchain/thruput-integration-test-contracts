@@ -33,12 +33,11 @@ fn assert_fault(actual: i32) {
     assert_eq!(actual, SyscallErrorCode::kSyscallErrorCodeFault.0);
 }
 
-#[sdk::storage]
 pub struct NnintOutputFaultTestContract;
 
 #[contract(exports = "guest_exports")]
 impl NnintOutputFaultTest for NnintOutputFaultTestContract {
-    fn test_fault_valid_first(&self) {
+    fn test_fault_valid_first() {
         let key = static_key!("fault_test_key");
 
         let mut current_set: i128 = 0xDEAD_BEEF;
@@ -68,7 +67,7 @@ impl NnintOutputFaultTest for NnintOutputFaultTestContract {
         );
     }
 
-    fn test_fault_invalid_first(&self) {
+    fn test_fault_invalid_first() {
         let key = static_key!("fault_test_key");
 
         let mut current_add: i128 = 0xCAFE;
@@ -98,7 +97,7 @@ impl NnintOutputFaultTest for NnintOutputFaultTestContract {
         );
     }
 
-    fn test_validation_failure(&self) {
+    fn test_validation_failure() {
         let key = static_key!("fault_test_key");
 
         let mut current_set: i128 = 0xDEAD_BEEF;

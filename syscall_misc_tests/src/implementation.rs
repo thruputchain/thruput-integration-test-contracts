@@ -26,7 +26,6 @@ unsafe fn direct_syscall(
 
 const K_SYSCALL_RETURN: SyscallWord = sys::SyscallNo::kReturn.0 as SyscallWord;
 
-#[sdk::storage]
 struct SyscallMiscTestsContract;
 
 fn expect_err(res: Result<(), sys::SysErr>, expected: SyscallErrorCode) {
@@ -65,7 +64,7 @@ const UNWRITTEN_FRAME_STATUS: InvocationFrameStatusCode =
 impl SyscallMiscTests for SyscallMiscTestsContract {
     // ── Existing tests ──────────────────────────────────────────────
 
-    fn test_get_return_before_return_buffer_set(&self) {
+    fn test_get_return_before_return_buffer_set() {
         let mut buffer = [0; 1024];
         let mut written_len = 0;
         let mut auth_token_id_list_buf = [0u8; 1024];
@@ -82,7 +81,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         );
     }
 
-    fn test_get_return_after_fault(&self) {
+    fn test_get_return_after_fault() {
         let addr = sdk::get_current_address();
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_always_fault
@@ -116,20 +115,20 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── Internal helpers (invoked by other tests via raw_Invoke) ────
 
-    fn internal_always_fault(&self) {
+    fn internal_always_fault() {
         panic!("internal_always_fault");
     }
 
-    fn internal_always_revert(&self) {
+    fn internal_always_revert() {
         sys::Return(&[], true, &[]);
     }
 
-    fn internal_return_too_long(&self) {
+    fn internal_return_too_long() {
         let buffer = [0u8; (sdk::transaction::kMaxReturnBufferLen + 1) as usize]; // > kMaxReturnBufferLen (1024)
         sys::Return(&buffer, false, &[]);
     }
 
-    fn internal_try_bytestring_set(&self) {
+    fn internal_try_bytestring_set() {
         let key = static_key!("test_readonly_key");
         let res = sys::raw_BytestringSet(&key, b"data", 0);
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
@@ -137,7 +136,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #1: GetMsgSender → kIsRootTransaction ───────────────────────
 
-    fn test_get_msg_sender_root(&self) {
+    fn test_get_msg_sender_root() {
         let mut sender = ContractAddress::from([0u8; 32]);
         let res = sys::raw_GetMsgSender(&mut sender);
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeIsRootTransaction);
@@ -145,7 +144,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #2: Invoke → kInvalidSyscallInput (contract not found) ──────
 
-    fn test_invoke_contract_not_found(&self) {
+    fn test_invoke_contract_not_found() {
         let nonexistent = ContractAddress::from([0xFFu8; 32]);
         let res = sys::raw_Invoke(
             &nonexistent,
@@ -159,7 +158,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #3: Invoke → frame_status Abort (manual revert) ─────────────
 
-    fn test_invoke_frame_reverted(&self) {
+    fn test_invoke_frame_reverted() {
         let addr = sdk::get_current_address();
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_always_revert
@@ -177,7 +176,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #4: VerifySignature → kInvalidSyscallInput (bad scheme) ─────
 
-    fn test_verify_sig_bad_scheme(&self) {
+    fn test_verify_sig_bad_scheme() {
         let sig = [0u8; 64];
         let key = [0u8; 32];
         let res = sys::raw_VerifySignature(99, &sig, &key, b"test");
@@ -186,7 +185,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #5: VerifySignature → kInvalidSyscallInput (bad key size) ───
 
-    fn test_verify_sig_bad_key_size(&self) {
+    fn test_verify_sig_bad_key_size() {
         let sig = [0u8; 64];
         let key = [0u8; 10]; // Ed25519 expects 32
         let res = sys::raw_VerifySignature(0, &sig, &key, b"test");
@@ -195,7 +194,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #6: VerifySignature → kInvalidSyscallInput (wrong key) ──────
 
-    fn test_verify_sig_bad_signature(&self) {
+    fn test_verify_sig_bad_signature() {
         let sig = [0xABu8; 64]; // valid size, invalid signature
         let key = [0xCDu8; 32]; // valid size, invalid key
         let res = sys::raw_VerifySignature(0, &sig, &key, b"test");
@@ -204,7 +203,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #7: BytestringGetLen → kStorageKeyNotExist ──────────────────
 
-    fn test_bs_get_len_key_not_exist(&self) {
+    fn test_bs_get_len_key_not_exist() {
         let key = static_key!("nonexistent_bs_get_len");
         let mut length: RuntimeMemoryLength = 0;
         let res = sys::raw_BytestringGetLen(&key, &mut length);
@@ -213,7 +212,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #8: BytestringGetLen → kInvalidSyscallInput (wrong type) ────
 
-    fn test_bs_get_len_wrong_type(&self) {
+    fn test_bs_get_len_wrong_type() {
         let key = static_key!("bs_get_len_wrong_type");
         // Write as NNInt
         let set_val: i128 = 0;
@@ -228,7 +227,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #9: BytestringGet → kStorageKeyNotExist ─────────────────────
 
-    fn test_bs_get_key_not_exist(&self) {
+    fn test_bs_get_key_not_exist() {
         let key = static_key!("nonexistent_bs_get");
         let mut buf = [0u8; 1024];
         let mut written_len: RuntimeMemoryLength = 0;
@@ -239,7 +238,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #10: BytestringGet → kInvalidSyscallInput (wrong type) ──────
 
-    fn test_bs_get_wrong_type(&self) {
+    fn test_bs_get_wrong_type() {
         let key = static_key!("bs_get_wrong_type");
         // Write as NNInt
         let set_val: i128 = 0;
@@ -256,7 +255,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #11: BytestringSet → kInvalidSyscallInput (too long) ────────
 
-    fn test_bs_set_too_long(&self) {
+    fn test_bs_set_too_long() {
         let key = static_key!("bs_set_too_long");
         let data = [0u8; 1025]; // > kBytestringMaxLen (1024)
         let res = sys::raw_BytestringSet(&key, &data, 0);
@@ -265,7 +264,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #12: BytestringSet → kInvalidSyscallInput (invalid flags) ───
 
-    fn test_bs_set_invalid_flags(&self) {
+    fn test_bs_set_invalid_flags() {
         let key = static_key!("bs_set_invalid_flags");
         let res = sys::raw_BytestringSet(&key, b"data", 0x2);
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
@@ -273,7 +272,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #13: NonnegativeIntGet → kStorageKeyNotExist ────────────────
 
-    fn test_nnint_get_key_not_exist(&self) {
+    fn test_nnint_get_key_not_exist() {
         let key = static_key!("nnint_get_key_not_exist");
         let mut current_set: i128 = 0;
         let mut current_set_opt: bool = false;
@@ -290,7 +289,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #14: NonnegativeIntGet → kInvalidSyscallInput (wrong type) ──
 
-    fn test_nnint_get_wrong_type(&self) {
+    fn test_nnint_get_wrong_type() {
         let key = static_key!("nnint_get_wrong_type");
         // Write as bytestring
         sys::raw_BytestringSet(&key, b"data", 0).unwrap();
@@ -310,7 +309,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #15: NonnegativeIntSetAdd → kInvalidSyscallInput (negative) ─
 
-    fn test_nnint_set_add_negative(&self) {
+    fn test_nnint_set_add_negative() {
         let key = static_key!("nnint_set_add_negative");
         let set_val: i128 = 1;
         let add_val: i128 = -2; // 1 + (-2) = -1, always negative
@@ -321,7 +320,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #16: NonnegativeIntSetAdd → kInvalidSyscallInput (flags) ────
 
-    fn test_nnint_set_add_invalid_flags(&self) {
+    fn test_nnint_set_add_invalid_flags() {
         let key = static_key!("nnint_set_add_invalid_flags");
         let add_val: i128 = 0;
         let res = sys::raw_NonnegativeIntSetAdd(
@@ -332,7 +331,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #17: DeleteObject → kInvalidSyscallInput (invalid flags) ────
 
-    fn test_delete_invalid_flags(&self) {
+    fn test_delete_invalid_flags() {
         let key = static_key!("delete_invalid_flags");
         let res = sys::raw_DeleteObject(&key, 0x2);
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
@@ -340,7 +339,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #18: RetrocausalQueueInsert → kInvalidSyscallInput (too large)
 
-    fn test_rcq_insert_too_large(&self) {
+    fn test_rcq_insert_too_large() {
         let key = static_key!("rcq_insert_too_large");
         let data = [0u8; 257]; // > kQueueEntryMaxLen (256)
         let res = sys::raw_RetrocausalQueueInsert(&key, &data);
@@ -349,7 +348,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #19: RetrocausalQueueInsert → kInvalidSyscallInput (wrong type)
 
-    fn test_rcq_insert_wrong_type(&self) {
+    fn test_rcq_insert_wrong_type() {
         let key = static_key!("rcq_insert_wrong_type");
         // Write bytestring first
         sys::raw_BytestringSet(&key, b"data", 0).unwrap();
@@ -360,7 +359,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #20: RetrocausalQueueConsume → kNoRetrocausalQueueEntry ─────
 
-    fn test_rcq_consume_empty(&self) {
+    fn test_rcq_consume_empty() {
         let key = static_key!("rcq_consume_empty");
         let mut buf = [0u8; 256];
         let mut written_len: RuntimeMemoryLength = 0;
@@ -378,7 +377,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #21: RetrocausalQueueConsume → kInvalidSyscallInput (wrong type)
 
-    fn test_rcq_consume_wrong_type(&self) {
+    fn test_rcq_consume_wrong_type() {
         let key = static_key!("rcq_consume_wrong_type");
         // Write bytestring first
         sys::raw_BytestringSet(&key, b"data", 0).unwrap();
@@ -396,7 +395,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #22: LogEvent → kInvalidSyscallInput (data too long) ────────
 
-    fn test_log_event_data_too_long(&self) {
+    fn test_log_event_data_too_long() {
         let data = [0u8; 1025]; // > kMaxEventLength (1024)
         let res = sys::raw_LogEvent(None, None, None, &data);
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
@@ -404,7 +403,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #23: LogEvent → kInvalidSyscallInput (noncontinuous topics) ─
 
-    fn test_log_event_noncontinuous_topics(&self) {
+    fn test_log_event_noncontinuous_topics() {
         let topic0 = [0u8; 32];
         let topic2 = [1u8; 32];
         // topic0=Some, topic1=None, topic2=Some → gap
@@ -414,7 +413,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #25: SHA256Update → kInvalidSyscallInput (no buffer) ────────
 
-    fn test_sha256_update_no_buffer(&self) {
+    fn test_sha256_update_no_buffer() {
         // reset=false on non-existent buffer
         let res = sys::raw_SHA256Update(0, &[0u8; 1], false);
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
@@ -422,7 +421,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #26: SHA256Update → kInvalidSyscallInput (too many buffers) ─
 
-    fn test_sha256_update_too_many_buffers(&self) {
+    fn test_sha256_update_too_many_buffers() {
         // Open 8 buffers (max = kMaxSHA256Buffers = 8)
         for i in 0u32..8 {
             sys::raw_SHA256Update(i, &[0u8; 1], true).unwrap();
@@ -434,7 +433,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #27: SHA256Update → kInvalidSyscallInput (buffer too large) ─
 
-    fn test_sha256_update_buffer_too_large(&self) {
+    fn test_sha256_update_buffer_too_large() {
         // Fill buffer to exactly the limit (4096 bytes)
         let data = [0u8; 4096];
         sys::raw_SHA256Update(0, &data, true).unwrap();
@@ -445,7 +444,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #28: SHA256Finalize → kInvalidSyscallInput (no buffer) ──────
 
-    fn test_sha256_finalize_no_buffer(&self) {
+    fn test_sha256_finalize_no_buffer() {
         let mut output = SHA256Hash::default();
         let res = sys::raw_SHA256Finalize(0, &mut output);
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
@@ -453,7 +452,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #29: SHA256Finalize → kInvalidSyscallInput (double finalize)
 
-    fn test_sha256_finalize_double(&self) {
+    fn test_sha256_finalize_double() {
         // Create and finalize buffer
         sys::raw_SHA256Update(0, b"test", true).unwrap();
         let mut output = SHA256Hash::default();
@@ -465,7 +464,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #30: GetTransactionStatistics → kInvalidSyscallInput ────────
 
-    fn test_get_tx_stats_invalid(&self) {
+    fn test_get_tx_stats_invalid() {
         // Call the syscall dispatch shim directly to pass an invalid statistic
         // value (9999) without triggering UB from transmuting an invalid enum.
         // GetTransactionStatistics is syscall #22. Routes through the shared
@@ -493,7 +492,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #31: ChangePublicKeyRegistration → kInvalidSyscallInput (oob)
 
-    fn test_change_pubkey_index_oob(&self) {
+    fn test_change_pubkey_index_oob() {
         let scheme: i32 = 0; // Ed25519
         let weight: u32 = 1;
         let res = sys::raw_ChangePublicKeyRegistration(
@@ -507,7 +506,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #33: DeployContract → kInvalidSyscallInput (not available) ──
 
-    fn test_deploy_contract_not_available(&self) {
+    fn test_deploy_contract_not_available() {
         let nonce = SHA256Hash::default();
         let contract_hash = SHA256Hash::from([0xFFu8; 32]);
         let mut deployed_address = ContractAddress::from([0u8; 32]);
@@ -521,7 +520,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #34: Return with too-large buffer → fault ───────────────────
 
-    fn test_return_buffer_too_long(&self) {
+    fn test_return_buffer_too_long() {
         let addr = sdk::get_current_address();
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_too_long
@@ -557,7 +556,6 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     // ── #35: DeployContract → kContractAlreadyDeployed ──────────────
 
     fn test_deploy_contract_already_deployed(
-        &self,
         contract_hash: &SHA256Hash,
     ) {
         let nonce = SHA256Hash::default();
@@ -582,7 +580,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #36: Invoke with garbage flags → kInvalidSyscallInput ───────
 
-    fn test_invoke_invalid_flags(&self) {
+    fn test_invoke_invalid_flags() {
         let addr = sdk::get_current_address();
         let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: u32::MAX, returned_auth_token_len: u32::MAX, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
@@ -602,7 +600,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #36: Write syscall in read-only frame → kInvalidSyscallInput
 
-    fn test_write_syscall_in_read_only(&self) {
+    fn test_write_syscall_in_read_only() {
         let addr = sdk::get_current_address();
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_try_bytestring_set
@@ -628,7 +626,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── No-Return-syscall test ────────────────────────────────────────
 
-    fn test_invoke_no_return_syscall(&self, target: &ContractAddress) {
+    fn test_invoke_no_return_syscall(target: &ContractAddress) {
         let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         // Invoke the raw export at entrypoint 0xFF on a separate contract.
         // That export just returns without calling the Return syscall.
@@ -658,7 +656,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── Return auth token edge-case internal helpers ────────────────
 
-    fn internal_return_misaligned_auth_tokens(&self) {
+    fn internal_return_misaligned_auth_tokens() {
         let auth_tokens: [u8; 3] = [0, 0, 0]; // not a multiple of sizeof(u32)
         unsafe {
             direct_syscall(
@@ -675,7 +673,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         unreachable!()
     }
 
-    fn internal_return_revert_with_auth_tokens(&self) {
+    fn internal_return_revert_with_auth_tokens() {
         let auth_tokens: [u32; 1] = [0];
         let ptr = auth_tokens.as_ptr() as *const u8;
         let len = core::mem::size_of_val(&auth_tokens);
@@ -694,7 +692,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         unreachable!()
     }
 
-    fn internal_return_with_empty_auth_tokens(&self) {
+    fn internal_return_with_empty_auth_tokens() {
         let buf = [42u8; 4];
         unsafe {
             direct_syscall(
@@ -711,7 +709,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         unreachable!()
     }
 
-    fn internal_return_with_auth_token_ids(&self) {
+    fn internal_return_with_auth_token_ids() {
         let buf = [99u8; 4];
         let auth_tokens: [u32; 2] = [0, 1];
         let ptr = auth_tokens.as_ptr() as *const u8;
@@ -733,7 +731,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── Return auth token edge-case tests ───────────────────────────
 
-    fn test_return_misaligned_auth_tokens(&self) {
+    fn test_return_misaligned_auth_tokens() {
         let addr = sdk::get_current_address();
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_misaligned_auth_tokens
@@ -749,7 +747,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         expect_frame_status(res, &outputs, InvocationFrameStatusCode::Fault);
     }
 
-    fn test_return_revert_with_auth_tokens(&self) {
+    fn test_return_revert_with_auth_tokens() {
         let addr = sdk::get_current_address();
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_revert_with_auth_tokens
@@ -765,7 +763,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         expect_frame_status(res, &outputs, InvocationFrameStatusCode::Fault);
     }
 
-    fn test_return_with_empty_auth_tokens(&self) {
+    fn test_return_with_empty_auth_tokens() {
         let addr = sdk::get_current_address();
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_with_empty_auth_tokens
@@ -795,7 +793,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         assert_eq!(&buffer[..4], &[42, 42, 42, 42]);
     }
 
-    fn test_return_with_auth_token_ids(&self) {
+    fn test_return_with_auth_token_ids() {
         let addr = sdk::get_current_address();
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_with_auth_token_ids

@@ -39,14 +39,13 @@ fn assert_not_fault(actual: i32) {
     assert_ne!(actual, K_FAULT);
 }
 
-#[sdk::storage]
 pub struct OutputAliasTestContract;
 
 #[contract(exports = "guest_exports")]
 impl OutputAliasTest for OutputAliasTestContract {
     // Point both i128 output pointers (current_set and current_add) at the
     // exact same address. This is exact overlap and must fault.
-    fn test_nnint_exact_overlap(&self) {
+    fn test_nnint_exact_overlap() {
         let key = static_key!("alias_test_key");
         let mut shared: i128 = 0xDEAD_BEEF;
         let mut opt: bool = false;
@@ -71,7 +70,7 @@ impl OutputAliasTest for OutputAliasTestContract {
 
     // Place current_set at buf+0 and current_add at buf+8.
     // i128 is 16 bytes, so [0,16) and [8,24) partially overlap.
-    fn test_nnint_partial_overlap(&self) {
+    fn test_nnint_partial_overlap() {
         let key = static_key!("alias_test_key");
         let mut buf = [0xAAu8; 32];
         let mut opt: bool = false;
@@ -98,7 +97,7 @@ impl OutputAliasTest for OutputAliasTestContract {
     }
 
     // Normal non-overlapping outputs. Should succeed (no fault).
-    fn test_nnint_no_overlap(&self) {
+    fn test_nnint_no_overlap() {
         let key = static_key!("alias_test_key");
         let mut current_set: i128 = 0;
         let mut current_set_opt: bool = false;
@@ -124,7 +123,7 @@ impl OutputAliasTest for OutputAliasTestContract {
     // GetCalldata: (span_ptr, span_len, written_len_ptr, ...)
     // If written_len_ptr falls within [span_ptr, span_ptr+span_len),
     // it's span-writable overlap and must fault.
-    fn test_calldata_span_writable_overlap(&self) {
+    fn test_calldata_span_writable_overlap() {
         let mut buf = [0xBBu8; 64];
         // Place output_written_len inside the span
         let span_ptr = buf.as_mut_ptr() as u32;
@@ -149,7 +148,7 @@ impl OutputAliasTest for OutputAliasTestContract {
     }
 
     // Non-overlapping span and writable output. Should succeed.
-    fn test_calldata_no_overlap(&self) {
+    fn test_calldata_no_overlap() {
         let mut buf = [0u8; 64];
         let mut written_len: u32 = 0xDEAD;
 
@@ -171,7 +170,7 @@ impl OutputAliasTest for OutputAliasTestContract {
 
     // Two optional input pointers at the same address must fault.
     // LogEvent: (topic0_ptr, topic1_ptr, topic2_ptr, data_ptr, data_len, 0, 0)
-    fn test_log_event_input_input_alias(&self) {
+    fn test_log_event_input_input_alias() {
         let topic = [0u8; 32];
         let topic_ptr = &topic as *const _ as u32;
 
@@ -192,7 +191,7 @@ impl OutputAliasTest for OutputAliasTestContract {
         assert_fault(err_code);
     }
 
-    fn test_nnint_input_alias_output(&self) {
+    fn test_nnint_input_alias_output() {
 
         let mut buf = [0xAAu8; 64];
         let mut opt: bool = false;

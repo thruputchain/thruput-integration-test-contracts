@@ -7,7 +7,6 @@ use sdk::*;
 
 use groundhog_erc20_if::ERC20Client;
 
-#[sdk::storage]
 #[derive(Debug)]
 pub struct InitialTokenClaimContract;
 
@@ -17,7 +16,6 @@ pub struct InitialTokenClaimContract;
 #[contract]
 impl InitialTokenClaim for InitialTokenClaimContract {
     fn claim_initial_tokens(
-        &mut self,
         hash: &SHA256Hash,
         nonce: &SHA256Hash,
         entrypoint: &ContractEntrypointID,

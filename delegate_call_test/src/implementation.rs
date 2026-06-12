@@ -3,13 +3,11 @@
 use super::interface::*;
 use sdk::*;
 
-#[sdk::storage]
 struct DelegateCallTestContract;
 
 #[contract]
 impl DelegateCallTest for DelegateCallTestContract {
     fn test_delegate_call_context(
-        &self,
     ) -> (ContractAddress, ContractAddress) {
         let current_address = get_current_address();
         let msg_sender = get_caller();
@@ -17,7 +15,6 @@ impl DelegateCallTest for DelegateCallTestContract {
     }
 
     fn test_normal_invoke_context(
-        &self,
     ) -> (ContractAddress, ContractAddress) {
         let current_address = get_current_address();
         let msg_sender = get_caller();
@@ -25,7 +22,6 @@ impl DelegateCallTest for DelegateCallTestContract {
     }
 
     fn test_delegate_call(
-        &self,
         _target_address: ContractAddress,
     ) {
         // TODO: Implement delegate call to target_address
@@ -33,7 +29,6 @@ impl DelegateCallTest for DelegateCallTestContract {
     }
 
     fn test_normal_invoke(
-        &self,
         _target_address: ContractAddress,
     ) {
         // TODO: Implement normal invoke to target_address

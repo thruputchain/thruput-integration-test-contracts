@@ -1,13 +1,12 @@
 use crate::{ReturnFaultTest, Client, ClientError};
 use sdk::*;
 
-#[sdk::storage]
 pub struct ReturnFaultTestContract;
 
 #[contract]
 impl ReturnFaultTest for ReturnFaultTestContract {
 
-    fn run_test(&self) {
+    fn run_test() {
         let addr = sdk::get_current_address();
         let client = Client::new(&addr);
 
@@ -23,7 +22,7 @@ impl ReturnFaultTest for ReturnFaultTestContract {
         }
     }
 
-    fn test_inner(&self) {
+    fn test_inner() {
         let ptr: *const u8 = 65536 as *const u8;
         let slice = unsafe { core::slice::from_raw_parts(ptr, 1) as &[u8] };
 

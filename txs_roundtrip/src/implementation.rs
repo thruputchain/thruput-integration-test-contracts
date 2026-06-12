@@ -7,7 +7,6 @@ use sdk::*;
 use sdk::__xdrs::txs;
 use sdk::{ReadXDR, WriteXDR};
 
-#[sdk::storage]
 pub struct TxsRoundtripContract;
 
 fn roundtrip<'a, T>(data: &'a [u8]) -> Vec<u8>
@@ -31,7 +30,7 @@ macro_rules! impl_roundtrip_methods {
         #[contract]
         impl TxsRoundtrip for TxsRoundtripContract {
             $(
-                fn $method_name(&self, data: &[u8]) -> Vec<u8> {
+                fn $method_name(data: &[u8]) -> Vec<u8> {
                     roundtrip::<$type_name>(data)
                 }
             )*
