@@ -9,9 +9,7 @@ use groundhog_erc20_if::ERC20Client;
 
 #[sdk::storage]
 #[derive(Debug)]
-pub struct InitialTokenClaimContract {
-    // This contract doesn't need persistent state
-}
+pub struct InitialTokenClaimContract;
 
 // This implements the InitialTokenClaim interface. The `contract` macro provides
 // an exported entrypoint for each method; these will be placed in a
