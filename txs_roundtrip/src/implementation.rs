@@ -54,7 +54,7 @@ impl_roundtrip_methods! {
     roundtrip_storage_delta_vec: crate::roundtrip::StorageDeltaVec,
     roundtrip_i32: i32,
     roundtrip_u32: u32,
-    roundtrip_storage_err_xdr: sdk::storage::error::StorageError,
+    roundtrip_library_exn_xdr: sdk::exn::LibraryExn,
     roundtrip_opaque_vector: Vec<u8>,
     roundtrip_opaque_slice: &[u8],
 }
