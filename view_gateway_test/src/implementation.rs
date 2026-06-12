@@ -2,10 +2,10 @@ use super::interface::ViewGatewayTest;
 use alloc::vec::Vec;
 use sdk::*;
 
-#[derive(Default)]
+#[sdk::storage]
 pub struct ViewGatewayTestContract;
 
-#[contract(storage = false)]
+#[contract]
 impl ViewGatewayTest for ViewGatewayTestContract {
     fn read_value(&self, key: &[u8; 32]) -> Vec<u8> {
         let storage_key = StorageKey::new(*key);

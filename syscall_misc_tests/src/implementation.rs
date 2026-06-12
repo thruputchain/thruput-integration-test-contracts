@@ -26,7 +26,7 @@ unsafe fn direct_syscall(
 
 const K_SYSCALL_RETURN: SyscallWord = sys::SyscallNo::kReturn.0 as SyscallWord;
 
-#[derive(Default)]
+#[sdk::storage]
 struct SyscallMiscTestsContract;
 
 fn expect_err(res: Result<(), sys::SysErr>, expected: SyscallErrorCode) {
@@ -61,7 +61,7 @@ fn expect_frame_status(
 const UNWRITTEN_FRAME_STATUS: InvocationFrameStatusCode =
     InvocationFrameStatusCode(-1);
 
-#[contract(storage = false)]
+#[contract]
 impl SyscallMiscTests for SyscallMiscTestsContract {
     // ── Existing tests ──────────────────────────────────────────────
 

@@ -39,10 +39,10 @@ fn assert_not_fault(actual: i32) {
     assert_ne!(actual, K_FAULT);
 }
 
-#[derive(Default)]
+#[sdk::storage]
 pub struct OutputAliasTestContract;
 
-#[contract(exports = "guest_exports", storage = false)]
+#[contract(exports = "guest_exports")]
 impl OutputAliasTest for OutputAliasTestContract {
     // Point both i128 output pointers (current_set and current_add) at the
     // exact same address. This is exact overlap and must fault.

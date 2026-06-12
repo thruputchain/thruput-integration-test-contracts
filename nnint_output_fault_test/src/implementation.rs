@@ -33,10 +33,10 @@ fn assert_fault(actual: i32) {
     assert_eq!(actual, SyscallErrorCode::kSyscallErrorCodeFault.0);
 }
 
-#[derive(Default)]
+#[sdk::storage]
 pub struct NnintOutputFaultTestContract;
 
-#[contract(exports = "guest_exports", storage = false)]
+#[contract(exports = "guest_exports")]
 impl NnintOutputFaultTest for NnintOutputFaultTestContract {
     fn test_fault_valid_first(&self) {
         let key = static_key!("fault_test_key");

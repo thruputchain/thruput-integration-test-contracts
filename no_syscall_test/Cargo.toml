@@ -5,7 +5,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sdk = { workspace = true }
+sdk = { workspace = true, features = ["storage"] }
 groundhog-xdr = { workspace = true, features = ["xdrs", "syscalls"] }
 groundhog-syscall = { workspace = true }
 

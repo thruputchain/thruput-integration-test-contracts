@@ -3,10 +3,10 @@
 use super::interface::*;
 use sdk::*;
 
-#[derive(Default)]
+#[sdk::storage]
 struct DelegateCallTestContract;
 
-#[contract(storage = false)]
+#[contract]
 impl DelegateCallTest for DelegateCallTestContract {
     fn test_delegate_call_context(
         &self,

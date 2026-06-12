@@ -7,7 +7,8 @@ use sdk::*;
 
 use groundhog_erc20_if::ERC20Client;
 
-#[derive(Default, Debug)]
+#[sdk::storage]
+#[derive(Debug)]
 pub struct InitialTokenClaimContract {
     // This contract doesn't need persistent state
 }
@@ -15,7 +16,7 @@ pub struct InitialTokenClaimContract {
 // This implements the InitialTokenClaim interface. The `contract` macro provides
 // an exported entrypoint for each method; these will be placed in a
 // module with the specified name ("guest_exports").
-#[contract(storage = false)]
+#[contract]
 impl InitialTokenClaim for InitialTokenClaimContract {
     fn claim_initial_tokens(
         &mut self,

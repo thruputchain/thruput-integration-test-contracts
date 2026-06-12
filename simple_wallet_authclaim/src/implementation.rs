@@ -2,10 +2,10 @@ use super::interface::*;
 use sdk::transaction::InvocationFrameStatusCode;
 use sdk::*;
 
-#[derive(Default)]
+#[sdk::storage]
 pub struct SimpleWalletAuthClaimContract;
 
-#[contract(storage = false)]
+#[contract]
 impl SimpleWalletAuthClaim for SimpleWalletAuthClaimContract {
     fn initialize(&mut self, owner: &Ed25519PublicKey) {
         let pk = PublicKey::Ed25519 {

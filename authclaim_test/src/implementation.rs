@@ -1,10 +1,10 @@
 use super::interface::*;
 use sdk::*;
 
-#[derive(Default)]
+#[sdk::storage]
 pub struct AuthClaimTestContract;
 
-#[contract(storage = false)]
+#[contract]
 impl AuthClaimTest for AuthClaimTestContract {
     fn test_get_auth_claim(&self) {
         let auth_claim = sdk::get_auth_claim().unwrap();

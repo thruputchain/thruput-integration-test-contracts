@@ -1,10 +1,10 @@
 use crate::{ReturnFaultTest, Client, ClientError};
 use sdk::*;
 
-#[derive(Default)]
+#[sdk::storage]
 pub struct ReturnFaultTestContract;
 
-#[contract(storage = false)]
+#[contract]
 impl ReturnFaultTest for ReturnFaultTestContract {
 
     fn run_test(&self) {

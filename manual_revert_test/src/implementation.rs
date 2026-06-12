@@ -1,10 +1,10 @@
 use crate::interface::*;
 use sdk::*;
 
-#[derive(Default)]
+#[sdk::storage]
 struct ManualRevertTestContract;
 
-#[contract(storage = false)]
+#[contract]
 impl ManualRevertTest for ManualRevertTestContract {
     fn test_basic_manual_revert(
         &self,

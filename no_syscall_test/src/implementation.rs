@@ -3,7 +3,7 @@ use sdk::*;
 use sdk::sys::SyscallErrorCode;
 use groundhog_xdr::syscalls::SyscallWord;
 
-#[derive(Default)]
+#[sdk::storage]
 pub struct NoSyscallTestContract;
 
 // `groundhog_syscall::syscall_wrapper` is the single shared syscall-dispatch
@@ -28,7 +28,7 @@ unsafe fn direct_syscall(
     )
 }
 
-#[contract(storage = false)]
+#[contract]
 impl NoSyscallTest for NoSyscallTestContract {
 
     fn run_test(&self, syscall: u64) {

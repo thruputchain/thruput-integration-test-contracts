@@ -3,7 +3,7 @@ use groundhog_erc20_if::ERC20Client;
 use sdk::sys::{self, SyscallErrorCode};
 use sdk::*;
 
-#[derive(Default)]
+#[sdk::storage]
 pub struct DevWalletContract;
 
 // Local-node deploy policy: hogd charges deployment storage to the deployed
@@ -44,7 +44,7 @@ fn require_root_source_address_auth() {
     require_source_address_auth();
 }
 
-#[contract(storage = false)]
+#[contract]
 impl DevWallet for DevWalletContract {
     fn initialize(&mut self, owner: &Ed25519PublicKey) {
         let pk = PublicKey::Ed25519 { ed25519: *owner };

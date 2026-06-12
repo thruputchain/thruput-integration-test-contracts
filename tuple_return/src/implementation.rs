@@ -4,11 +4,11 @@ use super::interface::TupleReturn;
 use alloc::vec;
 use sdk::*;
 
-#[derive(Default)]
+#[sdk::storage]
 pub struct TupleReturnContract;
 
 // Check to make sure specs are properly generated for tuple return types.
-#[contract(storage = false)]
+#[contract]
 impl TupleReturn for TupleReturnContract {
     fn call1(&self, _n: u32) -> (u32, u32) {
         (1, 2)

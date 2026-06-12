@@ -30,10 +30,10 @@ unsafe fn direct_syscall(
 const K_SYSCALL_BYTESTRING_SET: SyscallWord =
     groundhog_xdr::SyscallNo::kBytestringSet.0 as SyscallWord;
 
-#[derive(Default)]
+#[sdk::storage]
 pub struct ReadOnlyTestContract;
 
-#[contract(storage = false)]
+#[contract]
 impl ReadOnlyTest for ReadOnlyTestContract {
     fn read_only_bytestring_set(&self, expect_error: bool) {
         let key: StorageKeyContractData = static_key!("test");
