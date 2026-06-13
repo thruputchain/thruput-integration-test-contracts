@@ -6,7 +6,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sdk = { workspace = true }
+sdk = { workspace = true, features = ["alloc"] }
 groundhog-erc20-if = { workspace = true }
 
 [lib]
