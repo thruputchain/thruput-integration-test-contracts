@@ -2,12 +2,11 @@ use super::interface::*;
 use sdk::transaction::InvocationFrameStatusCode;
 use sdk::*;
 
-#[derive(Default)]
 pub struct SimpleWalletAuthClaimContract;
 
-#[contract(storage = false)]
+#[contract]
 impl SimpleWalletAuthClaim for SimpleWalletAuthClaimContract {
-    fn initialize(&mut self, owner: &Ed25519PublicKey) {
+    fn initialize(owner: &Ed25519PublicKey) {
         let pk = PublicKey::Ed25519 {
             ed25519: *owner,
         };
@@ -16,7 +15,6 @@ impl SimpleWalletAuthClaim for SimpleWalletAuthClaimContract {
     }
 
     fn do_action(
-        &self,
         invocation_bytes: &[u8],
     ) {
         let auth_claim = sdk::get_auth_claim().unwrap();

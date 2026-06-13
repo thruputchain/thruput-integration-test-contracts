@@ -30,12 +30,11 @@ unsafe fn direct_syscall(
 const K_SYSCALL_BYTESTRING_SET: SyscallWord =
     groundhog_xdr::SyscallNo::kBytestringSet.0 as SyscallWord;
 
-#[derive(Default)]
 pub struct ReadOnlyTestContract;
 
-#[contract(storage = false)]
+#[contract]
 impl ReadOnlyTest for ReadOnlyTestContract {
-    fn read_only_bytestring_set(&self, expect_error: bool) {
+    fn read_only_bytestring_set(expect_error: bool) {
         let key: StorageKeyContractData = static_key!("test");
         let res = sdk::sys_result::bytestring::bytestring_set(&key, b"test");
         sdk::debug_log!("res: {:?}", res);
@@ -48,7 +47,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         }
     }
 
-    fn read_only_log_event(&self, expect_error: bool) {
+    fn read_only_log_event(expect_error: bool) {
         let data = b"test event";
         let res = groundhog_xdr::syscalls::raw_LogEvent(None, None, None, data);
         sdk::debug_log!("log_event res: {:?}", res);
@@ -61,7 +60,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         }
     }
 
-    fn write_storage_and_log_event(&self) {
+    fn write_storage_and_log_event() {
         let key: StorageKeyContractData = static_key!("rv32_parity_key");
         let storage_value = b"rv32 parity bytes";
         let topic0 = [0x5au8; 32];
@@ -78,7 +77,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         .unwrap();
     }
 
-    fn read_only_native_get_balance(&self, target_addr: &ContractAddress) {
+    fn read_only_native_get_balance(target_addr: &ContractAddress) {
         let flag = groundhog_xdr::invoke_flag::InvokeFlag::ReadOnly.0;
         let entrypoint =
             groundhog_erc20_if::ERC20Entrypoints::get_balance_of.into_u64();
@@ -101,7 +100,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         assert!(res.is_ok(), "get_balance_of should succeed in read-only mode");
     }
 
-    fn read_only_native_transfer(&self, receiver_addr: &ContractAddress) {
+    fn read_only_native_transfer(receiver_addr: &ContractAddress) {
         let flag = groundhog_xdr::invoke_flag::InvokeFlag::ReadOnly.0;
         let entrypoint =
             groundhog_erc20_if::ERC20Entrypoints::transfer.into_u64();
@@ -136,7 +135,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         }
     }
 
-    fn read_only_deploy_output_preserved(&self) {
+    fn read_only_deploy_output_preserved() {
         let addr = sdk::get_current_address();
         let entrypoint =
             crate::ReadOnlyTestEntrypoints::read_only_deploy_inner.into_u64();
@@ -160,7 +159,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         assert!(res.is_ok(), "read-only self-invoke should succeed");
     }
 
-    fn read_only_deploy_inner(&self) {
+    fn read_only_deploy_inner() {
         let nonce = SHA256Hash::default();
         let contract_hash = SHA256Hash::from([0xFFu8; 32]);
         let mut deployed_address = ContractAddress::from([0xABu8; 32]);
@@ -183,7 +182,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         );
     }
 
-    fn read_only_aliasing_before_read_only_check(&self)
+    fn read_only_aliasing_before_read_only_check()
     {
         let addr = sdk::get_current_address();
         let entrypoint = crate::ReadOnlyTestEntrypoints::
@@ -209,7 +208,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         assert!(res.is_ok(), "read-only self-invoke should succeed");
     }
 
-    fn read_only_aliasing_before_read_only_check_inner(&self)
+    fn read_only_aliasing_before_read_only_check_inner()
     {
         let mut buf : [u8;64] = [0xAB;64];
         let key_ptr = buf.as_mut_ptr() as groundhog_xdr::syscalls::SyscallWord;

@@ -6,7 +6,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sdk = { workspace = true, features = ["storage"] }
+sdk = { workspace = true }
 xdrs = { workspace = true, features = ["derive", "alloc", "int128"] }
 
 [lib]

@@ -43,12 +43,11 @@ fn assert_code(actual: i32, expected: SyscallErrorCode) {
     assert_eq!(actual, expected.0);
 }
 
-#[derive(Default)]
 pub struct SyscallParseHardeningTestContract;
 
-#[contract(exports = "guest_exports", storage = false)]
+#[contract(exports = "guest_exports")]
 impl SyscallParseHardeningTest for SyscallParseHardeningTestContract {
-    fn test_verify_signature_noncanonical_scheme_fault(&self) {
+    fn test_verify_signature_noncanonical_scheme_fault() {
         let signature = [0u8; 64];
         let public_key = [0u8; 32];
         let message = [0u8; 1];
@@ -78,7 +77,7 @@ impl SyscallParseHardeningTest for SyscallParseHardeningTestContract {
         );
     }
 
-    fn test_change_pubkey_optional_pointer_fault(&self) {
+    fn test_change_pubkey_optional_pointer_fault() {
         let key_bytes = [0u8; 32];
         let key_scheme: i32 = 0;
         let key_weight: u32 = 1;
@@ -114,7 +113,7 @@ impl SyscallParseHardeningTest for SyscallParseHardeningTestContract {
         assert_code(oob_optional_weight, SyscallErrorCode::kSyscallErrorCodeFault);
     }
 
-    fn test_get_deploy_address_optional_pointer_sentinel(&self) {
+    fn test_get_deploy_address_optional_pointer_sentinel() {
         let nonce = SHA256Hash::default();
         let contract_hash = SHA256Hash::from([7u8; 32]);
         let mut to_be_deployed = ContractAddress::from([0u8; 32]);

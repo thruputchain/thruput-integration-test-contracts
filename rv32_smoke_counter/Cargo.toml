@@ -18,4 +18,4 @@ required-features = ["entrypoints"]
 
 [dependencies]
 groundhog-rv32-runtime = { workspace = true }
-sdk = { workspace = true, features = ["storage"] }
+sdk = { workspace = true }

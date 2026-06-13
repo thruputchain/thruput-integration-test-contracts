@@ -1,13 +1,11 @@
 use crate::interface::*;
 use sdk::*;
 
-#[derive(Default)]
 struct ManualRevertTestContract;
 
-#[contract(storage = false)]
+#[contract]
 impl ManualRevertTest for ManualRevertTestContract {
     fn test_basic_manual_revert(
-        &self,
         should_revert: bool,
     ) {
         let test_key: StorageKeyContractData = static_key!("test_basic_revert");
@@ -19,7 +17,6 @@ impl ManualRevertTest for ManualRevertTestContract {
     }
 
     fn test_error_type_revert(
-        &self,
         error_type: u32,
     ) {
         if error_type != 0 {
@@ -28,17 +25,15 @@ impl ManualRevertTest for ManualRevertTestContract {
     }
 
     fn test_nested_manual_revert(
-        &self,
         child_should_revert: bool,
     ) {
         let parent_key: StorageKeyContractData = static_key!("parent_state");
         bytestring_set(&parent_key, b"parent_data");
 
-        self.internal_revert_method(child_should_revert);
+        Self::internal_revert_method(child_should_revert);
     }
 
     fn test_storage_manual_revert(
-        &self,
         should_revert: bool,
     ) {
         let key1: StorageKeyContractData = static_key!("storage_test_1");
@@ -55,7 +50,6 @@ impl ManualRevertTest for ManualRevertTestContract {
     }
 
     fn internal_revert_method(
-        &self,
         should_revert: bool,
     ) {
         let internal_key: StorageKeyContractData =
@@ -67,7 +61,7 @@ impl ManualRevertTest for ManualRevertTestContract {
         }
     }
 
-    fn check_storage_exists(&self) -> bool {
+    fn check_storage_exists() -> bool {
         let test_key: StorageKeyContractData = static_key!("test_basic_revert");
         bytestring_exists(&test_key)
     }

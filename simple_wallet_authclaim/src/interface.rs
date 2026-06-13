@@ -2,6 +2,6 @@ use sdk::*;
 
 #[contract]
 pub trait SimpleWalletAuthClaim {
-    fn initialize(&mut self, owner: &Ed25519PublicKey);
-    fn do_action(&self, invocation_bytes: &[u8]);
+    fn initialize(owner: &Ed25519PublicKey);
+    fn do_action(invocation_bytes: &[u8]);
 }

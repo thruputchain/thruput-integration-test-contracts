@@ -78,10 +78,10 @@ fn add_to_allowance(
         .unwrap_or_else(|_| throw(ERC20Error::TooLarge))
 }
 
-#[derive(Default)]
+#[sdk::storage]
 pub struct Token;
 
-#[contract(storage = false, version = "0.1.0")]
+#[contract(version = "0.1.0")]
 impl ERC20 for Token {
     fn initialize(&mut self, contract_owner: &ContractAddress) {
         let key = get_owner_key();

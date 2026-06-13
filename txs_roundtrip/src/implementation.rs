@@ -7,7 +7,6 @@ use sdk::*;
 use sdk::__xdrs::txs;
 use sdk::{ReadXDR, WriteXDR};
 
-#[derive(Default)]
 pub struct TxsRoundtripContract;
 
 fn roundtrip<'a, T>(data: &'a [u8]) -> Vec<u8>
@@ -28,10 +27,10 @@ where
 // Macro to generate all roundtrip implementations
 macro_rules! impl_roundtrip_methods {
     ($($method_name:ident: $type_name:ty),* $(,)?) => {
-        #[contract(storage = false)]
+        #[contract]
         impl TxsRoundtrip for TxsRoundtripContract {
             $(
-                fn $method_name(&self, data: &[u8]) -> Vec<u8> {
+                fn $method_name(data: &[u8]) -> Vec<u8> {
                     roundtrip::<$type_name>(data)
                 }
             )*
@@ -54,7 +53,7 @@ impl_roundtrip_methods! {
     roundtrip_storage_delta_vec: crate::roundtrip::StorageDeltaVec,
     roundtrip_i32: i32,
     roundtrip_u32: u32,
-    roundtrip_storage_err_xdr: sdk::storage::error::StorageError,
+    roundtrip_library_exn_xdr: sdk::exn::LibraryExn,
     roundtrip_opaque_vector: Vec<u8>,
     roundtrip_opaque_slice: &[u8],
 }
