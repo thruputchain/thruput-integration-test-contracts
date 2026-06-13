@@ -3,7 +3,6 @@
 #[cfg(feature = "dev")]
 extern crate std;
 
-extern crate alloc;
 
 mod implementation;
 pub mod interface;

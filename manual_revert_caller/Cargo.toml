@@ -9,7 +9,7 @@ doctest = false
 test = false
 
 [dependencies]
-sdk = { workspace = true }
+sdk = { workspace = true, features = ["alloc"] }
 manual_revert_test = { path = "../manual_revert_test" }
 
 [dev-dependencies]
