@@ -9,12 +9,12 @@ doctest = false
 test = false
 
 [dependencies]
-sdk = { workspace = true, features = ["logging", "alloc"] }
+sdk = { workspace = true, features = ["logging"] }
 thiserror = { version = "2.0.10", default-features = false }
 groundhog-xdr = { workspace = true }
 
 [features]
-default = ["guest", "alloc", "xdrs"]
+default = ["guest", "xdrs"]
 entrypoints = []
 guest = []
 mock = ["guest", "sdk/mock"]
