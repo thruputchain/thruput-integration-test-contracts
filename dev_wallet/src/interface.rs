@@ -8,4 +8,9 @@ pub trait DevWallet {
         nonce: &SHA256Hash,
         contract_hash: &SHA256Hash,
     ) -> ContractAddress;
+    fn create_wallet(
+        nonce: &SHA256Hash,
+        wallet_contract_hash: &SHA256Hash,
+        owner: &Ed25519PublicKey,
+    ) -> ContractAddress;
 }
