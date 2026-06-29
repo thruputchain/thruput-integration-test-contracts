@@ -100,12 +100,6 @@ impl DevWallet for DevWalletContract {
         owner: &Ed25519PublicKey,
     ) -> ContractAddress {
         require_root_source_address_auth();
-        let wallet_address =
-            sdk::get_deploy_address(nonce, wallet_contract_hash);
-        let token_client =
-            ERC20Client::new(&sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN);
-        token_client.transfer(&wallet_address, DEPLOY_STORAGE_TOKENS);
-
         let deployed_address =
             sdk::deploy_contract(nonce, wallet_contract_hash);
         Client::new(&deployed_address).initialize(owner);
