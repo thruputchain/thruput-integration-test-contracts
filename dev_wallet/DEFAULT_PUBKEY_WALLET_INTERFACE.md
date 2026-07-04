@@ -49,10 +49,12 @@ Executes one or more contract calls from the wallet, in order, inside one transa
 
 - Must be the transaction root invocation.
 - Must be authorized by `kPubkeySignature` for this wallet address.
-- Returns one raw return-data item per call.
+- Returns one raw return-data item per call, in call order.
 - V1 should be all-or-nothing: if any call aborts or faults, the wallet aborts and no state changes commit.
 
 Single-call usage is `execute([call])`. Multicall usage is `execute([call_a, call_b, call_c])`.
+
+Return values are ordered the same way: `execute([call_a, call_b, call_c]) -> [return_a, return_b, return_c]`.
 
 Do not include partial-success or allow-failure behavior in v1 unless there is a concrete app requirement.
 
