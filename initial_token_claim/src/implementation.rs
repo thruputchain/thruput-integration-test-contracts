@@ -56,12 +56,16 @@ impl InitialTokenClaim for InitialTokenClaimContract {
         let auth_handles = AuthHandleBuf::new();
 
         // Call the initialize entrypoint with provided calldata
+        let mut return_buf = sdk::call::ReturnBuf::new();
+        let mut returned_auth_handles = AuthHandleBuf::new();
         let _ = sdk::call::contract_call(&deployed_addr,
             *entrypoint,
             u64::MAX,
             calldata,
             &auth_handles,
             0,
+            &mut return_buf,
+            &mut returned_auth_handles,
         ).unwrap();
 
         sdk::log(format!("End ITC").as_bytes());

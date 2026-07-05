@@ -61,6 +61,8 @@ impl DevWallet for DevWalletContract {
             &[u8],
         ) = sdk::__xdrs::txs::decode(invocation_bytes).unwrap();
 
+        let mut return_buf = sdk::call::ReturnBuf::new();
+        let mut auth_handles = AuthHandleBuf::new();
         match sdk::call::contract_call(
             &addr,
             entrypoint,
@@ -68,15 +70,17 @@ impl DevWallet for DevWalletContract {
             calldata,
             &AuthHandleBuf::new(),
             0,
+            &mut return_buf,
+            &mut auth_handles,
         ) {
-            Ok(Ok((return_buf, auth_handles))) => sdk::contract_return(
+            Ok(sdk::call::CallOutcome::Return) => sdk::contract_return(
                 return_buf.as_ref(),
                 auth_handles.as_slice(),
             ),
-            Ok(Err(sdk::call::ContractError::Abort(abort_buf))) => {
-                sdk::contract_abort(abort_buf.as_ref())
+            Ok(sdk::call::CallOutcome::Abort) => {
+                sdk::contract_abort(return_buf.as_ref())
             }
-            Ok(Err(sdk::call::ContractError::Fault(_))) | Err(_) => {
+            Err(_) => {
                 trap();
             }
         }
