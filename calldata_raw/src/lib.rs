@@ -4,7 +4,7 @@ extern crate alloc;
 
 use alloc::vec;
 use alloc::vec::Vec;
-use sdk::{get_calldata_len, with_calldata_and_auth_tokens};
+use sdk::{fetch_calldata_and_auth_tokens, get_calldata_len};
 
 pub fn calldata_len(count: u32) {
     for _ in 0..count {
@@ -31,7 +31,12 @@ pub fn calldata(count: u32) {
     let mut len: usize = 0;
 
     for _ in 0..count {
-        let x_len = with_calldata_and_auth_tokens(|x, _| x.len());
+        // Fresh buffers per iteration: each fetch is independent, matching
+        // the pre-existing semantics of one fetch per call.
+        let mut buf = sdk::internal::new_scratch();
+        let mut auth_ids = sdk::contract_op::AuthTokenIdBuf::new();
+        fetch_calldata_and_auth_tokens(&mut buf, &mut auth_ids);
+        let x_len = buf.len();
         if len > 0 {
             assert_eq!(x_len, len);
         }
