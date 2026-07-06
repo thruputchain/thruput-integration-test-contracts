@@ -23,7 +23,7 @@ impl BottleTest for BT {
 
 
     fn run(&mut self) {
-        let target_addr = self.target_addr.try_get().unwrap_or_else(||
+        let target_addr = self.target_addr.try_get().none_if_missing().unwrap_or_else(||
             panic!("bottle-test: target_addr unset; please run setup() before run()"));
 
         let client = Client::new(&target_addr);

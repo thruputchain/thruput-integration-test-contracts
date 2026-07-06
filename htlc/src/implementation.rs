@@ -53,7 +53,7 @@ impl HTLC for HTLCContract {
 
         assert!(amount > 0);
 
-        if self.htlcs.at(hash).try_get().is_some() {
+        if self.htlcs.at(hash).try_get().none_if_missing().is_some() {
             panic!("HTLC already exists");
         }
 
