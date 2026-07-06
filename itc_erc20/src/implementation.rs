@@ -142,11 +142,12 @@ impl ERC20 for Token {
         spender: &ContractAddress,
     ) -> Amount {
         non_negative_int_try_get(&get_allowance_key(owner, spender))
+            .none_if_missing()
             .unwrap_or(0) as Amount
     }
 
     fn get_balance_of(&self, addr: &ContractAddress) -> Amount {
-        non_negative_int_try_get(&get_balance_key(addr)).unwrap_or(0)
+        non_negative_int_try_get(&get_balance_key(addr)).none_if_missing().unwrap_or(0)
             as Amount
     }
 
@@ -175,7 +176,7 @@ impl ERC20 for Token {
     }
 
     fn total_supply(&self) -> Amount {
-        non_negative_int_try_get(&get_total_supply_key()).unwrap_or(0)
+        non_negative_int_try_get(&get_total_supply_key()).none_if_missing().unwrap_or(0)
             as Amount
     }
 }
