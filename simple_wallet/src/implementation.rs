@@ -57,6 +57,8 @@ impl SimpleWallet for SimpleWalletContract {
 
         let auth_handles = AuthHandleBuf::new();
 
+        let mut return_buf = sdk::call::ReturnBuf::new();
+        let mut returned_auth_handles = AuthHandleBuf::new();
         let _ = sdk::call::contract_call(
             &addr,
             entrypoint,
@@ -64,6 +66,8 @@ impl SimpleWallet for SimpleWalletContract {
             calldata,
             &auth_handles,
             0,
+            &mut return_buf,
+            &mut returned_auth_handles,
         )
         .unwrap();
     }
