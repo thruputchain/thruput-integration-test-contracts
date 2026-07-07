@@ -116,9 +116,13 @@ That would let users start with a keypair and later upgrade to a richer wallet w
 
 This should be handled as an address-lifecycle or protocol feature, separate from the default wallet interface.
 
-## Open Questions
+## V1 Implementation Decisions
 
-- What maximum call count should `execute` allow?
-- What maximum aggregate return-data size should the wallet allow?
-- Should each call require an explicit gas limit, or should SDKs assign defaults?
-- Should forwarded auth tokens be supported in v1, or added later?
+- `execute` allows up to 16 child calls.
+- Aggregate raw child return data is capped at the protocol return-buffer limit.
+- Each `WalletCall` carries an explicit child-call gas limit.
+- Forwarded auth tokens are not supported in v1.
+
+## Implementation Notes
+
+The Rust contract implementation may represent `Bytes` with the SDK's concrete XDR bytes type and may represent `ContractEntrypointID` as its underlying big-endian `u64` bits inside `WalletCall` if required by `#[contract_type]` mintability constraints. SDK helpers should hide that wire detail and expose typed entrypoint IDs to callers.
