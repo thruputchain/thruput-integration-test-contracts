@@ -9,7 +9,7 @@ pub trait NoContractWallet {
     // that refers to the pk that derives the current invocation's address.
     //   - This may not be strictly necessary, assuming correctness of the scheduler.
     // 3. invoke address with method and calldata, using the entirety of the gas limit.
-    fn invoke(&self, address: &ContractAddress, method: &[u8], calldata: &[u8]) -> ();
+    fn invoke(&self, address: &ContractAddress, method: &[u8], calldata: &[u8]);
 
     // TODO(geoff) and TODO(dobog): Think about what other methods we want on this "default" contract.
     // I.e. editing the auth data?
