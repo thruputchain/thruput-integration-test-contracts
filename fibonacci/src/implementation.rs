@@ -40,11 +40,9 @@ impl Fibonacci for FibonacciContract {
     }
 
     fn change_nonce_config(required_weight: u32) {
-        sdk::set_address_required_weight(required_weight.into()).unwrap();
+        sdk::set_address_required_weight(required_weight).unwrap();
     }
 }
 
 #[unsafe(export_name = "FFFFFFFFFFFFFFFF")]
-pub extern "C" fn startup_null() -> () {
-    ()
-}
+pub extern "C" fn startup_null() {}
