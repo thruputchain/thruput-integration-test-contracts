@@ -61,6 +61,7 @@ fn add_to_total_supply(diff: Difference) {
     )
 }
 
+#[inline(never)]
 fn add_to_balance(addr: &ContractAddress, diff: Difference) {
     // The standard error contract: a balance outside the non-negative
     // range throws ERC20Error::TooLarge. try_strict_inc reports the
