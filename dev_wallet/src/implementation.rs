@@ -73,7 +73,7 @@ impl DevWallet for DevWalletContract {
             &mut return_buf,
             &mut auth_handles,
         ) {
-            Ok(sdk::call::CallOutcome::Return) => sdk::contract_return(
+            Ok(sdk::call::CallOutcome::Return) => sdk::internal::contract_return(
                 return_buf.as_ref(),
                 auth_handles.as_slice(),
             ),
