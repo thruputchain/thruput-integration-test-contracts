@@ -8,6 +8,11 @@ pub trait DevWallet {
         nonce: &SHA256Hash,
         contract_hash: &SHA256Hash,
     ) -> ContractAddress;
+    /// Deploy and initialize a wallet at its deterministic address.
+    ///
+    /// The caller must transfer enough HOG to the address derived from
+    /// `(msg_sender, nonce, wallet_contract_hash)` before invoking this
+    /// entrypoint. Wallet creation does not transfer HOG itself.
     fn create_wallet(
         nonce: &SHA256Hash,
         wallet_contract_hash: &SHA256Hash,
