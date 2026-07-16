@@ -8,12 +8,18 @@ pub struct DefaultWalletContract;
 const MAX_CALLS: usize = 16;
 const MAX_RETURN_DATA_BYTES: usize = sdk::transaction::kMaxReturnBufferLen as usize;
 
-fn padded_xdr_len(len: usize) -> Option<usize> {
-    len.checked_add(3).map(|len| len & !3)
+fn cxs_u32_len(value: usize) -> Option<usize> {
+    let value = u32::try_from(value).ok()?;
+    Some(match value {
+        0..=62 => 1,
+        63..=255 => 2,
+        256..=65_535 => 3,
+        _ => 5,
+    })
 }
 
 fn encoded_return_item_len(return_data_len: usize) -> Option<usize> {
-    4usize.checked_add(padded_xdr_len(return_data_len)?)
+    cxs_u32_len(return_data_len)?.checked_add(return_data_len)
 }
 
 fn require_root_invocation() {
@@ -53,17 +59,24 @@ impl DefaultWallet for DefaultWalletContract {
         }
 
         let mut returns = Vec::with_capacity(calls.len());
-        let mut encoded_return_data_len = 4usize;
+        let mut encoded_return_data_len =
+            cxs_u32_len(calls.len()).unwrap_or_else(|| throw(WalletError::ReturnDataTooLarge));
         for call in calls.iter() {
+            let auth_handles = AuthHandleBuf::new();
+            let mut return_buf = Vec::new();
+            let mut returned_auth_handles = AuthHandleBuf::new();
+
             match sdk::call::contract_call(
                 &call.target,
                 ContractEntrypointID::from(call.entrypoint.to_be_bytes()),
                 call.gas_limit,
                 call.calldata.as_slice(),
-                &AuthHandleBuf::new(),
+                &auth_handles,
                 0,
+                &mut return_buf,
+                &mut returned_auth_handles,
             ) {
-                Ok(Ok((return_buf, _auth_handles))) => {
+                Ok(sdk::call::CallOutcome::Return) => {
                     encoded_return_data_len = encoded_return_data_len
                         .checked_add(
                             encoded_return_item_len(return_buf.len())
@@ -79,10 +92,10 @@ impl DefaultWallet for DefaultWalletContract {
                             .unwrap_or_else(|_| throw(WalletError::ReturnDataTooLarge)),
                     );
                 }
-                Ok(Err(sdk::call::ContractError::Abort(_))) => {
+                Ok(sdk::call::CallOutcome::Abort) => {
                     throw(WalletError::CallAborted);
                 }
-                Ok(Err(sdk::call::ContractError::Fault(_))) | Err(_) => {
+                Err(_) => {
                     throw(WalletError::CallFaulted);
                 }
             }
