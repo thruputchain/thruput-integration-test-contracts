@@ -6,9 +6,7 @@ pub type WalletBytes = BytesM;
 #[contract_type]
 pub struct WalletCall {
     pub target: ContractAddress,
-    /// Big-endian `ContractEntrypointID` bits. This keeps the public contract
-    /// type mintable while preserving the underlying entrypoint value exactly.
-    pub entrypoint: u64,
+    pub entrypoint: ContractEntrypointID,
     pub gas_limit: u64,
     pub calldata: WalletBytes,
 }

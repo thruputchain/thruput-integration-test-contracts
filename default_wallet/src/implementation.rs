@@ -1,5 +1,6 @@
 use super::interface::*;
 use alloc::vec::Vec;
+use groundhog_domain_separator::syscall::pubkey_account_address;
 use sdk::sys::{self, SyscallErrorCode};
 use sdk::*;
 
@@ -31,12 +32,9 @@ fn require_root_invocation() {
 }
 
 fn require_pubkey_signature_auth() {
-    // The protocol admits `kPubkeySignature` transactions only for the
-    // pubkey-derived account address in the claim preimage. The contract SDK
-    // does not currently expose that derivation helper, so this contract checks
-    // the claim type and relies on the admission invariant for address binding.
     match sdk::get_auth_claim() {
-        Ok(AuthClaim::kPubkeySignature { .. }) => {}
+        Ok(AuthClaim::kPubkeySignature { pubkey_preimage })
+            if pubkey_account_address(&pubkey_preimage) == sdk::get_current_address() => {}
         _ => throw(WalletError::InvalidAuthClaim),
     }
 }
@@ -68,7 +66,7 @@ impl DefaultWallet for DefaultWalletContract {
 
             match sdk::call::contract_call(
                 &call.target,
-                ContractEntrypointID::from(call.entrypoint.to_be_bytes()),
+                call.entrypoint,
                 call.gas_limit,
                 call.calldata.as_slice(),
                 &auth_handles,

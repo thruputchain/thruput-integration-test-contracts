@@ -125,4 +125,4 @@ This should be handled as an address-lifecycle or protocol feature, separate fro
 
 ## Implementation Notes
 
-The Rust contract implementation may represent `Bytes` with the SDK's concrete XDR bytes type and may represent `ContractEntrypointID` as its underlying big-endian `u64` bits inside `WalletCall` if required by `#[contract_type]` mintability constraints. SDK helpers should hide that wire detail and expose typed entrypoint IDs to callers.
+The Rust contract implementation represents `Bytes` with the SDK's concrete XDR bytes type and uses `ContractEntrypointID` directly in `WalletCall`.
