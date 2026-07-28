@@ -19,24 +19,6 @@ fn pubkey_claim_address(auth_claim: &AuthClaim) -> ContractAddress {
     }
 }
 
-fn same_wallet_error(left: WalletError, right: WalletError) -> bool {
-    matches!(
-        (left, right),
-        (
-            WalletError::NotRootInvocation,
-            WalletError::NotRootInvocation
-        ) | (WalletError::InvalidAuthClaim, WalletError::InvalidAuthClaim)
-            | (WalletError::EmptyCallList, WalletError::EmptyCallList)
-            | (WalletError::TooManyCalls, WalletError::TooManyCalls)
-            | (WalletError::CallAborted, WalletError::CallAborted)
-            | (WalletError::CallFaulted, WalletError::CallFaulted)
-            | (
-                WalletError::ReturnDataTooLarge,
-                WalletError::ReturnDataTooLarge
-            )
-    )
-}
-
 fn assert_wallet_error(result: &sdk::TransactResult, expected: WalletError) {
     result.assert_abort();
 
@@ -45,7 +27,7 @@ fn assert_wallet_error(result: &sdk::TransactResult, expected: WalletError) {
     assert_eq!(selector, WalletError::SELECTOR);
 
     let actual: WalletError = sdk::ReadXDR::read_xdr(&mut reader).unwrap();
-    assert!(same_wallet_error(actual, expected));
+    assert_eq!(actual, expected);
 }
 
 #[test]
