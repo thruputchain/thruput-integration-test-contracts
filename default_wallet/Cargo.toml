@@ -1,0 +1,29 @@
+[package]
+name = "default_wallet"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+groundhog-domain-separator = { workspace = true, features = ["syscall"] }
+sdk = { workspace = true, features = ["alloc"] }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+test = false
+
+[features]
+entrypoints = []
+dev = ["sdk/dev", "sdk/std"]
+std = ["sdk/std"]
+logging = ["sdk/logging"]
+
+[dev-dependencies]
+default_wallet = { path = ".", features = ["dev"] }
+groundhog-domain-separator = { workspace = true, features = ["sha2", "syscall-mock"] }
+groundhog-xdr = { workspace = true }
+
+[[bin]]
+name = "default_wallet"
+path = "src/main.rs"
+required-features = ["entrypoints"]
