@@ -1,6 +1,6 @@
 use crate::{Client, Ed25519VerifyWrapper, Ed25519VerifyWrapperContract};
 use ed25519_dalek::{Signer, SigningKey};
-use rand::rngs::OsRng;
+use getrandom::{rand_core::UnwrapErr, SysRng};
 use sdk::*;
 use std::vec;
 
@@ -16,7 +16,7 @@ fn test(client: &Client) {
     let msg = vec![1, 2, 3, 4, 5];
 
     // Generate Ed25519 keypair and sign the message
-    let mut csprng = OsRng;
+    let mut csprng = UnwrapErr(SysRng);
     let signing_key: SigningKey = SigningKey::generate(&mut csprng);
     let public_key: Ed25519PublicKey =
         signing_key.verifying_key().to_bytes().into();
