@@ -1,0 +1,5 @@
+Interface/client-only library — deliberately not implemented as a wasm
+contract (building it as one produced an entrypoint-less module, which the
+spec rewrite now rejects as a missing-#[contract] contract). Host builds
+and its Client remain available to tests; only the contract wasm
+build-and-finalize loop skips it.
