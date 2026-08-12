@@ -7,8 +7,13 @@ pub trait ReadOnlyTest {
     fn write_storage_and_log_event();
     fn read_only_native_get_balance(target_addr: &ContractAddress);
     fn read_only_native_transfer(receiver_addr: &ContractAddress);
-    fn read_only_deploy_output_preserved();
-    fn read_only_deploy_inner();
-    fn read_only_aliasing_before_read_only_check();
+    fn read_only_deploy_output_preserved(
+        callee_addr: &ContractAddress,
+        contract_hash: &SHA256Hash,
+    );
+    fn read_only_deploy_inner(contract_hash: &SHA256Hash);
+    fn read_only_aliasing_before_read_only_check(
+        callee_addr: &ContractAddress,
+    );
     fn read_only_aliasing_before_read_only_check_inner();
 }

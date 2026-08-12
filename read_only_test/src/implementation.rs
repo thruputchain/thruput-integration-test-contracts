@@ -135,40 +135,30 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         }
     }
 
-    fn read_only_deploy_output_preserved() {
-        let addr = sdk::get_current_address();
-        let entrypoint =
-            crate::ReadOnlyTestEntrypoints::read_only_deploy_inner.into_u64();
-        let flag = groundhog_xdr::invoke_flag::InvokeFlag::ReadOnly.0;
-        let res = sdk::sys::raw_Invoke(
-            &addr,
-            &[],
-            &[],
-            &sdk::sys::CopyableInvokeInputs {
-                entrypoint_id: entrypoint,
-                gas_limit: u64::MAX,
-                flags: flag,
-            },
-            &mut sdk::sys::CopyableInvokeOutputs {
-                return_buffer_len: 0,
-                returned_auth_token_len: 0,
-                frame_status: InvocationFrameStatusCode::Return,
-            },
-        );
-        // The inner method handles the deploy error and returns normally
-        assert!(res.is_ok(), "read-only self-invoke should succeed");
+    fn read_only_deploy_output_preserved(
+        callee_addr: &ContractAddress,
+        contract_hash: &SHA256Hash,
+    ) {
+        // `callee_addr` is a *separate* deployment of this same contract: a
+        // self-invoke would be rejected by the reentrance guard before the
+        // read-only frame ever ran.  The inner method handles the deploy error
+        // and returns normally, so this invoke is expected to succeed.
+        Client::new(callee_addr)
+            .with_read_only()
+            .read_only_deploy_inner(contract_hash);
     }
 
-    fn read_only_deploy_inner() {
+    fn read_only_deploy_inner(contract_hash: &SHA256Hash) {
         let nonce = SHA256Hash::default();
-        let contract_hash = SHA256Hash::from([0xFFu8; 32]);
         let mut deployed_address = ContractAddress::from([0xABu8; 32]);
 
         let res = sdk::sys::raw_DeployContract(
-            &nonce, &contract_hash, &mut deployed_address,
+            &nonce, contract_hash, &mut deployed_address,
         );
 
-        // Deploy should fail in read-only mode
+        // `contract_hash` names a real, deployable contract, so the only reason
+        // this can fail is the read-only guard -- which rejects the syscall
+        // before it runs, and must leave the output untouched when it does.
         assert!(res.is_err(), "deploy should fail in read-only mode");
         assert!(res.err().unwrap().is_code(
             SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput
@@ -182,30 +172,14 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         );
     }
 
-    fn read_only_aliasing_before_read_only_check()
-    {
-        let addr = sdk::get_current_address();
-        let entrypoint = crate::ReadOnlyTestEntrypoints::
-            read_only_aliasing_before_read_only_check_inner
-            .into_u64();
-        let flag = groundhog_xdr::invoke_flag::InvokeFlag::ReadOnly.0;
-        let res = sdk::sys::raw_Invoke(
-            &addr,
-            &[],
-            &[],
-            &sdk::sys::CopyableInvokeInputs {
-                entrypoint_id: entrypoint,
-                gas_limit: u64::MAX,
-                flags: flag,
-            },
-            &mut sdk::sys::CopyableInvokeOutputs {
-                return_buffer_len: 0,
-                returned_auth_token_len: 0,
-                frame_status: InvocationFrameStatusCode::Return,
-            },
-        );
-        // The inner method handles the deploy error and returns normally
-        assert!(res.is_ok(), "read-only self-invoke should succeed");
+    fn read_only_aliasing_before_read_only_check(
+        callee_addr: &ContractAddress,
+    ) {
+        // As above, `callee_addr` is a separate deployment of this contract.
+        // The inner method handles the syscall fault and returns normally.
+        Client::new(callee_addr)
+            .with_read_only()
+            .read_only_aliasing_before_read_only_check_inner();
     }
 
     fn read_only_aliasing_before_read_only_check_inner()
@@ -228,6 +202,15 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         };
         assert_eq!(err_code, groundhog_xdr::syscall_error::SyscallErrorCode::kSyscallErrorCodeFault.0);
         assert_eq!(buf, [0xAB;64]);
+
+        // The kFault above only demonstrates an *ordering* if this frame is
+        // genuinely read-only: check that the same syscall, called with
+        // non-aliased arguments, is rejected by the read-only guard.
+        let key: StorageKeyContractData = static_key!("test");
+        let res = sdk::sys_result::bytestring::bytestring_set(&key, b"test");
+        assert!(res.err().unwrap().is_code(
+            SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput
+        ), "frame was not read-only, so the fault above proves no ordering");
     }
 
 
