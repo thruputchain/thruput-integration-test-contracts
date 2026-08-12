@@ -3,8 +3,13 @@ use sdk::*;
 #[contract(client = Client)]
 pub trait SyscallMiscTests {
     // Existing tests
+    //
+    // Tests that drive one of the `internal_*` helpers below take a `target`
+    // address rather than invoking themselves: the reentrance guard rejects a
+    // contract that is already on the invocation stack, so the helper has to
+    // live at a second deployment of this contract.
     fn test_get_return_before_return_buffer_set();
-    fn test_get_return_after_fault();
+    fn test_get_return_after_fault(target: &ContractAddress);
 
     // Internal helpers (invoked via raw_Invoke from other test methods)
     fn internal_always_fault();
@@ -15,7 +20,7 @@ pub trait SyscallMiscTests {
     // Documented error conditions
     fn test_get_msg_sender_root();
     fn test_invoke_contract_not_found();
-    fn test_invoke_frame_reverted();
+    fn test_invoke_frame_reverted(target: &ContractAddress);
     fn test_verify_sig_bad_scheme();
     fn test_verify_sig_bad_key_size();
     fn test_verify_sig_bad_signature();
@@ -46,14 +51,14 @@ pub trait SyscallMiscTests {
     fn test_deploy_contract_not_available();
 
     // Additional behavioral tests
-    fn test_return_buffer_too_long();
+    fn test_return_buffer_too_long(target: &ContractAddress);
 
     // Additional documented error conditions
     fn test_deploy_contract_already_deployed(contract_hash: &SHA256Hash);
 
     // Undocumented edge cases
     fn test_invoke_invalid_flags();
-    fn test_write_syscall_in_read_only();
+    fn test_write_syscall_in_read_only(target: &ContractAddress);
 
     // Verify wasm function that returns without calling Return syscall
     fn test_invoke_no_return_syscall(target: &ContractAddress);
@@ -65,8 +70,8 @@ pub trait SyscallMiscTests {
     fn internal_return_with_auth_token_ids();
 
     // Return auth token edge-case tests
-    fn test_return_misaligned_auth_tokens();
-    fn test_return_revert_with_auth_tokens();
-    fn test_return_with_empty_auth_tokens();
-    fn test_return_with_auth_token_ids();
+    fn test_return_misaligned_auth_tokens(target: &ContractAddress);
+    fn test_return_revert_with_auth_tokens(target: &ContractAddress);
+    fn test_return_with_empty_auth_tokens(target: &ContractAddress);
+    fn test_return_with_auth_token_ids(target: &ContractAddress);
 }
