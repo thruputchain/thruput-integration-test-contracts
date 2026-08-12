@@ -81,15 +81,14 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         );
     }
 
-    fn test_get_return_after_fault() {
-        let addr = sdk::get_current_address();
+    fn test_get_return_after_fault(target: &ContractAddress) {
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_always_fault
                 .into_u64();
 
         let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
-            &addr,
+            target,
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
@@ -158,14 +157,13 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #3: Invoke → frame_status Abort (manual revert) ─────────────
 
-    fn test_invoke_frame_reverted() {
-        let addr = sdk::get_current_address();
+    fn test_invoke_frame_reverted(target: &ContractAddress) {
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_always_revert
                 .into_u64();
         let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
-            &addr,
+            target,
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
@@ -520,15 +518,14 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #34: Return with too-large buffer → fault ───────────────────
 
-    fn test_return_buffer_too_long() {
-        let addr = sdk::get_current_address();
+    fn test_return_buffer_too_long(target: &ContractAddress) {
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_too_long
                 .into_u64();
 
         let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
-            &addr,
+            target,
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
@@ -600,28 +597,28 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #36: Write syscall in read-only frame → kInvalidSyscallInput
 
-    fn test_write_syscall_in_read_only() {
-        let addr = sdk::get_current_address();
+    fn test_write_syscall_in_read_only(target: &ContractAddress) {
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_try_bytestring_set
                 .into_u64();
 
         // Invoke with read-only flag (0x2 = ReadOnly)
         // internal_try_bytestring_set will verify that BytestringSet
-        // returns kInvalidSyscallInput, then return normally
+        // returns kInvalidSyscallInput, then return normally.
+        //
+        // The frame status has to be checked, not just `res`: a child that
+        // panics comes back as Ok with frame_status Fault, so matching on
+        // Ok/Err alone would pass even when the child's assertion failed --
+        // i.e. even when the frame was not read-only and the write succeeded.
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
-            &addr,
+            target,
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0x2 },
-            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS },
+            &mut outputs,
         );
-        match res {
-            Ok(_) => {} // sub-frame verified the error and returned
-            Err(e) => {
-                panic!("invoke should have succeeded, got error: {:?}", e)
-            }
-        }
+        expect_frame_status(res, &outputs, InvocationFrameStatusCode::Return);
     }
 
     // ── No-Return-syscall test ────────────────────────────────────────
@@ -731,14 +728,13 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── Return auth token edge-case tests ───────────────────────────
 
-    fn test_return_misaligned_auth_tokens() {
-        let addr = sdk::get_current_address();
+    fn test_return_misaligned_auth_tokens(target: &ContractAddress) {
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_misaligned_auth_tokens
                 .into_u64();
         let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
-            &addr,
+            target,
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
@@ -747,14 +743,13 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         expect_frame_status(res, &outputs, InvocationFrameStatusCode::Fault);
     }
 
-    fn test_return_revert_with_auth_tokens() {
-        let addr = sdk::get_current_address();
+    fn test_return_revert_with_auth_tokens(target: &ContractAddress) {
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_revert_with_auth_tokens
                 .into_u64();
         let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
-            &addr,
+            target,
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
@@ -763,14 +758,13 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         expect_frame_status(res, &outputs, InvocationFrameStatusCode::Fault);
     }
 
-    fn test_return_with_empty_auth_tokens() {
-        let addr = sdk::get_current_address();
+    fn test_return_with_empty_auth_tokens(target: &ContractAddress) {
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_with_empty_auth_tokens
                 .into_u64();
         let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
-            &addr,
+            target,
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
@@ -793,14 +787,13 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         assert_eq!(&buffer[..4], &[42, 42, 42, 42]);
     }
 
-    fn test_return_with_auth_token_ids() {
-        let addr = sdk::get_current_address();
+    fn test_return_with_auth_token_ids(target: &ContractAddress) {
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_with_auth_token_ids
                 .into_u64();
         let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
-            &addr,
+            target,
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
