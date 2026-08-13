@@ -1,0 +1,28 @@
+[package]
+name = "genesis_root"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sdk = { workspace = true, features = ["alloc"] }
+groundhog-erc20-if = { workspace = true }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+test = false
+
+[features]
+entrypoints = []
+dev = ["sdk/dev", "std"]
+std = ["sdk/std"]
+logging = ["sdk/logging"]
+alloc = []
+
+[dev-dependencies]
+genesis_root = { path = ".", features = ["dev"] }
+
+[[bin]]
+name = "genesis_root"
+path = "src/main.rs"
+required-features = ["entrypoints"]
