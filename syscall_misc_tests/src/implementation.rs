@@ -625,8 +625,10 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     fn test_invoke_no_return_syscall(target: &ContractAddress) {
         let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
-        // Invoke the raw export at entrypoint 0xFF on a separate contract.
-        // That export just returns without calling the Return syscall.
+        // Invoke the raw entrypoint 0xFF on a separate contract. Its body
+        // returns without calling the Return syscall (see lib.rs). The two
+        // runtimes define different semantics for that, asserted per target
+        // below.
         let res = sys::raw_Invoke(
             target,
             &[],
@@ -634,21 +636,33 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             &sys::CopyableInvokeInputs { entrypoint_id: 0xFF, gas_limit: u64::MAX, flags: 0 },
             &mut outputs,
         );
-        assert!(res.is_ok(), "invoke of noop should succeed");
-        assert_eq!(outputs.return_buffer_len, 0, "return buffer should be empty");
 
-        let mut buffer = [0u8; 1024];
-        let mut written_len: RuntimeMemoryLength = 0;
-        let mut auth_token_id_list_buf = [0u8; 1024];
-        let mut auth_token_id_list_result_len: RuntimeMemoryLength = 0;
-        let res = sys::raw_GetReturnedBuffer(
-            buffer.as_mut_slice(),
-            &mut written_len,
-            &mut auth_token_id_list_buf.as_mut_slice(),
-            &mut auth_token_id_list_result_len,
-        );
-        assert!(res.is_ok(), "GetReturnedBuffer should succeed");
-        assert_eq!(written_len, 0, "returned buffer should be empty");
+        // rv32: the SDK's `_start` dispatcher ebreaks when a wrapper returns
+        // without the Return syscall, so the child frame faults
+        // deterministically.
+        #[cfg(target_arch = "riscv32")]
+        expect_frame_status(res, &outputs, InvocationFrameStatusCode::Fault);
+
+        // wasm: a bare export return maps to a successful Return with an
+        // empty return buffer.
+        #[cfg(not(target_arch = "riscv32"))]
+        {
+            assert!(res.is_ok(), "invoke of noop should succeed");
+            assert_eq!(outputs.return_buffer_len, 0, "return buffer should be empty");
+
+            let mut buffer = [0u8; 1024];
+            let mut written_len: RuntimeMemoryLength = 0;
+            let mut auth_token_id_list_buf = [0u8; 1024];
+            let mut auth_token_id_list_result_len: RuntimeMemoryLength = 0;
+            let res = sys::raw_GetReturnedBuffer(
+                buffer.as_mut_slice(),
+                &mut written_len,
+                &mut auth_token_id_list_buf.as_mut_slice(),
+                &mut auth_token_id_list_result_len,
+            );
+            assert!(res.is_ok(), "GetReturnedBuffer should succeed");
+            assert_eq!(written_len, 0, "returned buffer should be empty");
+        }
     }
 
     // ── Return auth token edge-case internal helpers ────────────────
