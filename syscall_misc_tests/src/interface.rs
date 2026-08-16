@@ -63,6 +63,16 @@ pub trait SyscallMiscTests {
     // Verify wasm function that returns without calling Return syscall
     fn test_invoke_no_return_syscall(target: &ContractAddress);
 
+    // Error-code precedence pins: the order of checks decides which code wins
+    // when one input violates multiple constraints.
+    fn internal_rcq_obs_cap_seed(count: u32);
+    fn test_rcq_cap_precedence(count: u32);
+    fn test_get_returned_buffer_no_buffer_beats_misaligned();
+    fn test_invoke_unowned_token_beats_reentrance();
+    fn test_invoke_self_is_reentrance();
+    fn internal_bytestring_set_oob_key();
+    fn test_readonly_fault_beats_readonly_rejection(target: &ContractAddress);
+
     // Return auth token edge-case internal helpers
     fn internal_return_misaligned_auth_tokens();
     fn internal_return_revert_with_auth_tokens();
