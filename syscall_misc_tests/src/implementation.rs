@@ -26,6 +26,17 @@ unsafe fn direct_syscall(
 
 const K_SYSCALL_RETURN: SyscallWord = sys::SyscallNo::kReturn.0 as SyscallWord;
 
+/// Key derivation shared with the C++ side's make_obs_cap_key (rcq observation
+/// cap tests): 'o','c','k' prefix, index LE at bytes [4, 8).
+fn obs_cap_key(index: u32) -> StorageKeyContractData {
+    let mut key = [0u8; 32];
+    key[0] = b'o';
+    key[1] = b'c';
+    key[2] = b'k';
+    key[4..8].copy_from_slice(&index.to_le_bytes());
+    key.into()
+}
+
 struct SyscallMiscTestsContract;
 
 fn expect_err(res: Result<(), sys::SysErr>, expected: SyscallErrorCode) {
@@ -616,6 +627,154 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0x2 },
+            &mut outputs,
+        );
+        expect_frame_status(res, &outputs, InvocationFrameStatusCode::Return);
+    }
+
+    // ── #37: precedence: RCQ read-cap beats empty-queue, loses to wrong-type
+
+    fn internal_rcq_obs_cap_seed(count: u32) {
+        for i in 0..count {
+            let key = obs_cap_key(i);
+            sys::raw_RetrocausalQueueInsert(&key, b"e").unwrap();
+        }
+    }
+
+    fn test_rcq_cap_precedence(count: u32) {
+        // A bytestring-occupied key, written before the cap is reached.
+        let bs_key = static_key!("rcq_cap_wrong_type");
+        sys::raw_BytestringSet(&bs_key, b"data", 0).unwrap();
+
+        // Observe `count` seeded entries, exactly filling the per-tx
+        // observation cap.
+        for i in 0..count {
+            let key = obs_cap_key(i);
+            let mut len: RuntimeMemoryLength = 0;
+            sys::raw_RetrocausalQueuePeekLen(&key, &mut len).unwrap();
+            assert!(len == 1);
+        }
+
+        // A cap-crossing read of a real entry trips the read limit.
+        let mut len: RuntimeMemoryLength = 0;
+        let res = sys::raw_RetrocausalQueuePeekLen(&obs_cap_key(count), &mut len);
+        expect_err(
+            res,
+            SyscallErrorCode::kSyscallErrorCodeRetrocausalQueueReadLimitReached,
+        );
+
+        // Once tripped, an empty-queue read reports the cap, not emptiness:
+        // the read-limit check runs before the empty-queue check.
+        let empty_key = static_key!("rcq_cap_empty_key");
+        let mut len: RuntimeMemoryLength = 0;
+        let res = sys::raw_RetrocausalQueuePeekLen(&empty_key, &mut len);
+        expect_err(
+            res,
+            SyscallErrorCode::kSyscallErrorCodeRetrocausalQueueReadLimitReached,
+        );
+
+        // ...but a wrong-type key reports the type error: the item-type
+        // dispatch runs before the read-limit check.
+        let mut buf = [0u8; 8];
+        let mut written: RuntimeMemoryLength = 0;
+        let res = sys::raw_RetrocausalQueueConsume(
+            &bs_key,
+            false,
+            buf.as_mut_slice(),
+            &mut written,
+        );
+        expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
+    }
+
+    // ── #38: precedence: no-return-buffer beats misaligned token span ──
+
+    fn test_get_returned_buffer_no_buffer_beats_misaligned() {
+        let mut buffer = [0; 64];
+        let mut written_len = 0;
+        let mut token_buf = [0u8; 3]; // len % 4 != 0
+        let mut token_written: RuntimeMemoryLength = 0;
+        let res = sys::raw_GetReturnedBuffer(
+            buffer.as_mut_slice(),
+            &mut written_len,
+            &mut token_buf.as_mut_slice(),
+            &mut token_written,
+        );
+        expect_err(
+            res,
+            SyscallErrorCode::kSyscallErrorCodeNoReturnBufferAvailable,
+        );
+    }
+
+    // ── #39: precedence: unowned forwarded token beats reentrance ──
+
+    fn test_invoke_unowned_token_beats_reentrance() {
+        let addr = sdk::get_current_address();
+        let fabricated_token_id: [u8; 4] = 0xDEADu32.to_le_bytes();
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: u32::MAX, returned_auth_token_len: u32::MAX, frame_status: UNWRITTEN_FRAME_STATUS };
+        let res = sys::raw_Invoke(
+            &addr,
+            &[],
+            &fabricated_token_id,
+            &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0 },
+            &mut outputs,
+        );
+        // The token-ownership check runs before the reentrance check.
+        expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
+        assert!(outputs.return_buffer_len == u32::MAX);
+        assert!(outputs.returned_auth_token_len == u32::MAX);
+        assert!(outputs.frame_status == UNWRITTEN_FRAME_STATUS);
+    }
+
+    // ── #40: reentrance beats resolution: self-invoke reports kReentrance
+    // even when the frame address has no deployed contract (default-wallet
+    // fallback execution at an undeployed address).
+
+    fn test_invoke_self_is_reentrance() {
+        let addr = sdk::get_current_address();
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: u32::MAX, returned_auth_token_len: u32::MAX, frame_status: UNWRITTEN_FRAME_STATUS };
+        let res = sys::raw_Invoke(
+            &addr,
+            &[],
+            &[],
+            &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0 },
+            &mut outputs,
+        );
+        expect_err(res, SyscallErrorCode::kSyscallErrorCodeReentrance);
+        assert!(outputs.frame_status == UNWRITTEN_FRAME_STATUS);
+    }
+
+    // ── #41: precedence: argument parse fault beats read-only rejection ──
+
+    fn internal_bytestring_set_oob_key() {
+        // BytestringSet with an out-of-bounds key pointer, issued raw so the
+        // pointer never passes through the SDK. The parse-fault check runs
+        // before the read-only-frame check, so this is Fault (not
+        // InvalidSyscallInput) even inside a read-only frame.
+        let err_code = unsafe {
+            direct_syscall(
+                sys::SyscallNo::kBytestringSet.0 as SyscallWord,
+                0x00FF_0000, // key pointer far beyond guest memory
+                0,           // value pointer
+                0,           // value length
+                0,           // flags
+                0,
+                0,
+                0,
+            )
+        };
+        assert!(err_code == SyscallErrorCode::kSyscallErrorCodeFault.0);
+    }
+
+    fn test_readonly_fault_beats_readonly_rejection(target: &ContractAddress) {
+        let entrypoint =
+            crate::SyscallMiscTestsEntrypoints::internal_bytestring_set_oob_key
+                .into_u64();
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
+        let res = sys::raw_Invoke(
+            target,
+            &[],
+            &[],
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0x2 }, // ReadOnly
             &mut outputs,
         );
         expect_frame_status(res, &outputs, InvocationFrameStatusCode::Return);
