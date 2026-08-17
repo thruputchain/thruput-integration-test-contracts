@@ -293,9 +293,11 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     fn test_nnint_get_key_not_exist() {
         let key = static_key!("nnint_get_key_not_exist");
-        let mut current_set: i128 = 0;
-        let mut current_set_opt: bool = false;
-        let mut current_add: i128 = 0;
+        // Sentinel-seeded outputs: an inner-syscall error must leave every
+        // output unwritten (the wrapper disarms staged outputs on error).
+        let mut current_set: i128 = 0x5EED_5EED;
+        let mut current_set_opt: bool = true;
+        let mut current_add: i128 = 0x5EED_5EED;
         let res = sys::raw_NonnegativeIntGet(
             &key,
             true,
@@ -304,6 +306,9 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             &mut current_add,
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeStorageKeyNotExist);
+        assert!(current_set == 0x5EED_5EED);
+        assert!(current_set_opt);
+        assert!(current_add == 0x5EED_5EED);
     }
 
     // ── #14: NonnegativeIntGet → kInvalidSyscallInput (wrong type) ──
@@ -464,9 +469,11 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     // ── #28: SHA256Finalize → kInvalidSyscallInput (no buffer) ──────
 
     fn test_sha256_finalize_no_buffer() {
-        let mut output = SHA256Hash::default();
+        // Sentinel-seeded output: the inner error must leave it unwritten.
+        let mut output = SHA256Hash::from([0xAB; 32]);
         let res = sys::raw_SHA256Finalize(0, &mut output);
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
+        assert!(output == SHA256Hash::from([0xAB; 32]));
     }
 
     // ── #29: SHA256Finalize → kInvalidSyscallInput (double finalize)

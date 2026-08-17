@@ -35,6 +35,8 @@ const K_SYSCALL_VERIFY_SIGNATURE: SyscallWord =
     groundhog_xdr::SyscallNo::kVerifySignature.0 as SyscallWord;
 const K_SYSCALL_CHANGE_PUBLIC_KEY_REGISTRATION: SyscallWord =
     groundhog_xdr::SyscallNo::kChangePublicKeyRegistration.0 as SyscallWord;
+const K_SYSCALL_CONSOLE_LOG: SyscallWord =
+    groundhog_xdr::SyscallNo::kConsoleLog.0 as SyscallWord;
 // An offset that is out of bounds for the contract's linear memory, but is not
 // the all-ones optional-pointer null sentinel.
 const K_OOB_PTR: SyscallWord = SyscallWord::MAX - 1;
@@ -151,5 +153,68 @@ impl SyscallParseHardeningTest for SyscallParseHardeningTestContract {
             )
         };
         assert_code(oob_optional_caller, SyscallErrorCode::kSyscallErrorCodeFault);
+    }
+
+    fn test_verify_signature_wrong_size_signature() {
+        // A 63-byte signature with a valid 32-byte key: the signature half of
+        // the size check in the inner syscall rejects it (the check also
+        // guards a fixed-size 64-byte subspan). The key half is pinned by the
+        // syscall_misc_tests guest.
+        let signature = [0u8; 63];
+        let public_key = [0u8; 32];
+        let message = [0u8; 1];
+
+        let wrong_size_sig = unsafe {
+            direct_syscall(
+                K_SYSCALL_VERIFY_SIGNATURE,
+                0, // Ed25519
+                signature.as_ptr() as SyscallWord,
+                signature.len() as SyscallWord,
+                public_key.as_ptr() as SyscallWord,
+                public_key.len() as SyscallWord,
+                message.as_ptr() as SyscallWord,
+                message.len() as SyscallWord,
+            )
+        };
+        assert_code(
+            wrong_size_sig,
+            SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput,
+        );
+    }
+
+    fn test_zero_len_span_oob_pointer_fault() {
+        // A zero-length span still bounds-checks its pointer: base <=
+        // memory_size is accepted (pinned at the bridge layer), anything past
+        // the end faults even though no bytes would be read.
+        let oob_zero_len = unsafe {
+            direct_syscall(K_SYSCALL_CONSOLE_LOG, K_OOB_PTR, 0, 0, 0, 0, 0, 0)
+        };
+        assert_code(oob_zero_len, SyscallErrorCode::kSyscallErrorCodeFault);
+
+        // Control: a zero-length span at a valid pointer parses and succeeds.
+        let buf = [0u8; 1];
+        let ok = unsafe {
+            direct_syscall(
+                K_SYSCALL_CONSOLE_LOG,
+                buf.as_ptr() as SyscallWord,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+            )
+        };
+        assert_code(ok, SyscallErrorCode::kSyscallErrorCodeNone);
+    }
+
+    fn test_span_end_u32_wrap_fault() {
+        // ptr + len must be summed wider than 32 bits: 0xFFFF_FF00 + 0x200
+        // wraps to 0x100 in u32, which is in bounds, so a wrapping
+        // reimplementation would accept this span instead of faulting.
+        let wrap = unsafe {
+            direct_syscall(K_SYSCALL_CONSOLE_LOG, 0xFFFF_FF00, 0x200, 0, 0, 0, 0, 0)
+        };
+        assert_code(wrap, SyscallErrorCode::kSyscallErrorCodeFault);
     }
 }
