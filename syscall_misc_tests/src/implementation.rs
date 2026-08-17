@@ -138,6 +138,16 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         sys::Return(&buffer, false, &[]);
     }
 
+    fn internal_return_exact_max() {
+        let mut buffer = [0u8; sdk::transaction::kMaxReturnBufferLen as usize];
+        let mut i: usize = 0;
+        while i < buffer.len() {
+            buffer[i] = (i % 251) as u8;
+            i += 1;
+        }
+        sys::Return(&buffer, false, &[]);
+    }
+
     fn internal_try_bytestring_set() {
         let key = static_key!("test_readonly_key");
         let res = sys::raw_BytestringSet(&key, b"data", 0);
@@ -559,6 +569,43 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             res,
             SyscallErrorCode::kSyscallErrorCodeNoReturnBufferAvailable,
         );
+    }
+
+    // ── #34b: Return with exactly kMaxReturnBufferLen bytes → Return ─
+
+    fn test_return_buffer_exact_max(target: &ContractAddress) {
+        let entrypoint =
+            crate::SyscallMiscTestsEntrypoints::internal_return_exact_max
+                .into_u64();
+
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
+        let res = sys::raw_Invoke(
+            target,
+            &[],
+            &[],
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
+            &mut outputs,
+        );
+        expect_frame_status(res, &outputs, InvocationFrameStatusCode::Return);
+        assert!(outputs.return_buffer_len == sdk::transaction::kMaxReturnBufferLen);
+
+        let mut buffer = [0u8; sdk::transaction::kMaxReturnBufferLen as usize];
+        let mut written_len: RuntimeMemoryLength = 0;
+        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
+        let mut auth_token_id_list_buf = [0u8; 1024];
+        sys::raw_GetReturnedBuffer(
+            buffer.as_mut_slice(),
+            &mut written_len,
+            &mut auth_token_id_list_buf.as_mut_slice(),
+            &mut auth_token_id_list_return_len,
+        )
+        .unwrap();
+        assert!(written_len == sdk::transaction::kMaxReturnBufferLen);
+        let mut i: usize = 0;
+        while i < buffer.len() {
+            assert!(buffer[i] == (i % 251) as u8);
+            i += 1;
+        }
     }
 
     // ── #35: DeployContract → kContractAlreadyDeployed ──────────────

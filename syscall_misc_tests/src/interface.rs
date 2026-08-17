@@ -15,6 +15,7 @@ pub trait SyscallMiscTests {
     fn internal_always_fault();
     fn internal_always_revert();
     fn internal_return_too_long();
+    fn internal_return_exact_max();
     fn internal_try_bytestring_set();
 
     // Documented error conditions
@@ -52,6 +53,7 @@ pub trait SyscallMiscTests {
 
     // Additional behavioral tests
     fn test_return_buffer_too_long(target: &ContractAddress);
+    fn test_return_buffer_exact_max(target: &ContractAddress);
 
     // Additional documented error conditions
     fn test_deploy_contract_already_deployed(contract_hash: &SHA256Hash);
