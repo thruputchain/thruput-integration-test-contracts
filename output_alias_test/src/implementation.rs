@@ -191,6 +191,57 @@ impl OutputAliasTest for OutputAliasTestContract {
         assert_fault(err_code);
     }
 
+    // Zero-length span aliasing under the half-open overlap predicate: a
+    // zero-length data span whose pointer lands strictly inside topic0's
+    // 32-byte range faults; at the topic's exact start or one-past-end it
+    // does not alias and the event logs.
+    fn test_log_event_zero_len_data_alias() {
+        let topic = [0u8; 32];
+        let topic_ptr = &topic as *const _ as u32;
+
+        let inside = unsafe {
+            direct_syscall(
+                K_SYSCALL_LOG_EVENT,
+                topic_ptr,
+                SyscallWord::MAX, // topic1 = None
+                SyscallWord::MAX, // topic2 = None
+                topic_ptr + 8,    // zero-len data inside topic0's range
+                0,
+                0,
+                0,
+            )
+        };
+        assert_fault(inside);
+
+        let at_start = unsafe {
+            direct_syscall(
+                K_SYSCALL_LOG_EVENT,
+                topic_ptr,
+                SyscallWord::MAX,
+                SyscallWord::MAX,
+                topic_ptr, // zero-len data at topic0's start: no alias
+                0,
+                0,
+                0,
+            )
+        };
+        assert_not_fault(at_start);
+
+        let at_end = unsafe {
+            direct_syscall(
+                K_SYSCALL_LOG_EVENT,
+                topic_ptr,
+                SyscallWord::MAX,
+                SyscallWord::MAX,
+                topic_ptr + 32, // zero-len data one-past topic0: no alias
+                0,
+                0,
+                0,
+            )
+        };
+        assert_not_fault(at_end);
+    }
+
     fn test_nnint_input_alias_output() {
 
         let mut buf = [0xAAu8; 64];

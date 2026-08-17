@@ -15,6 +15,7 @@ pub trait SyscallMiscTests {
     fn internal_always_fault();
     fn internal_always_revert();
     fn internal_return_too_long();
+    fn internal_return_exact_max();
     fn internal_try_bytestring_set();
 
     // Documented error conditions
@@ -52,6 +53,7 @@ pub trait SyscallMiscTests {
 
     // Additional behavioral tests
     fn test_return_buffer_too_long(target: &ContractAddress);
+    fn test_return_buffer_exact_max(target: &ContractAddress);
 
     // Additional documented error conditions
     fn test_deploy_contract_already_deployed(contract_hash: &SHA256Hash);
@@ -62,6 +64,16 @@ pub trait SyscallMiscTests {
 
     // Verify wasm function that returns without calling Return syscall
     fn test_invoke_no_return_syscall(target: &ContractAddress);
+
+    // Error-code precedence pins: the order of checks decides which code wins
+    // when one input violates multiple constraints.
+    fn internal_rcq_obs_cap_seed(count: u32);
+    fn test_rcq_cap_precedence(count: u32);
+    fn test_get_returned_buffer_no_buffer_beats_misaligned();
+    fn test_invoke_unowned_token_beats_reentrance();
+    fn test_invoke_self_is_reentrance();
+    fn internal_bytestring_set_oob_key();
+    fn test_readonly_fault_beats_readonly_rejection(target: &ContractAddress);
 
     // Return auth token edge-case internal helpers
     fn internal_return_misaligned_auth_tokens();
