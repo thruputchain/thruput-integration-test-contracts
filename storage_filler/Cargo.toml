@@ -1,0 +1,25 @@
+[package]
+name = "storage_filler"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sdk = { workspace = true, features = ["alloc"] }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+
+[[bin]]
+name = "storage_filler"
+path = "src/main.rs"
+required-features = ["entrypoints"]
+
+[features]
+entrypoints = []
+dev = ["sdk/dev"]
+std = ["sdk/std"]
+logging = ["sdk/logging"]
+
+[dev-dependencies]
+storage_filler = { path = ".", features = ["dev", "std"] }
