@@ -20,9 +20,12 @@ required-features = ["entrypoints"]
 default = ["guest"]
 entrypoints = []
 guest = []
-dev = ["sdk/dev"]
-mock = ["guest", "sdk/mock"]
+dev = ["guest", "sdk/dev"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]
-sha256_raw = { path = ".", features = ["mock", "entrypoints"] }
+# The one convention for a contract's self dev-dependency: `dev` and
+# nothing else. NOT "entrypoints" — that is the rv32 bin's
+# `required-features`, so enabling it here makes host `cargo test` try to
+# link the `#![no_main]` bin ("undefined symbol: main").
+sha256_raw = { path = ".", features = ["dev"] }
