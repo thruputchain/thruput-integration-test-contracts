@@ -7,9 +7,14 @@ edition.workspace = true
 sdk = { workspace = true, features = ["alloc"] }
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["rlib"]
 doctest = false
 test = false
+
+[[bin]]
+name = "calldata_raw"
+path = "src/main.rs"
+required-features = ["entrypoints"]
 
 [features]
 entrypoints = []

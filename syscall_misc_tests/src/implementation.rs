@@ -5,9 +5,8 @@ use sdk::*;
 use groundhog_xdr::syscalls::SyscallWord;
 
 // `groundhog_syscall::syscall_wrapper` is the single shared syscall-dispatch
-// chokepoint: the SDK routes its own syscalls through it too, so the wasm
-// linker sees exactly one `marmot.syscall` import (the meter caps function
-// imports at 1). The thin `direct_syscall` shim keeps the existing call sites
+// chokepoint: the SDK routes its own syscalls through it too, so a guest
+// artifact carries exactly one syscall entry sequence. The thin `direct_syscall` shim keeps the existing call sites
 // (which pass `SyscallWord`-typed args) unchanged.
 #[inline(always)]
 #[allow(clippy::too_many_arguments)]
@@ -856,7 +855,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         #[cfg(target_arch = "riscv32")]
         expect_frame_status(res, &outputs, InvocationFrameStatusCode::Fault);
 
-        // wasm: a bare export return maps to a successful Return with an
+        // Host mock: a bare return maps to a successful Return with an
         // empty return buffer.
         #[cfg(not(target_arch = "riscv32"))]
         {

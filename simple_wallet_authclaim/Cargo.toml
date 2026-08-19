@@ -8,7 +8,7 @@ edition = "2021"
 sdk = { workspace = true }
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["rlib"]
 doctest = false
 test = false
 

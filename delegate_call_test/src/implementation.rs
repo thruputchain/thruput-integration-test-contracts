@@ -25,18 +25,14 @@ impl DelegateCallTest for DelegateCallTestContract {
         _target_address: ContractAddress,
     ) {
         // TODO: Implement delegate call to target_address
-        // This will be implemented when SDK supports WASM-to-WASM delegate calls
+        // This will be implemented when the SDK supports guest-to-guest delegate calls
     }
 
     fn test_normal_invoke(
         _target_address: ContractAddress,
     ) {
         // TODO: Implement normal invoke to target_address
-        // This will be implemented when SDK supports WASM-to-WASM calls
+        // This will be implemented when the SDK supports guest-to-guest calls
     }
 }
 
-#[unsafe(export_name = "FFFFFFFFFFFFFFFF")]
-pub extern "C" fn startup_null() -> () {
-    ()
-}

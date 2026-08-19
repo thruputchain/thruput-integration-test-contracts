@@ -9,7 +9,7 @@ sdk = { workspace = true, features = ["alloc"] }
 groundhog-erc1271-if = { workspace = true }
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["rlib"]
 doctest = false
 test = false
 

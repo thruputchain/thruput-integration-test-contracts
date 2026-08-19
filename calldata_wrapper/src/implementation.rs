@@ -17,7 +17,3 @@ impl CalldataWrapper for CalldataWrapperContract {
     }
 }
 
-#[unsafe(export_name = "FFFFFFFFFFFFFFFF")]
-pub extern "C" fn startup_null() -> () {
-    ()
-}

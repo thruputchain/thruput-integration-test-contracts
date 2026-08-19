@@ -13,7 +13,7 @@ groundhog-syscall = { workspace = true }
 sha2 = { workspace = true, optional = true }
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["rlib"]
 doctest = false
 
 [features]

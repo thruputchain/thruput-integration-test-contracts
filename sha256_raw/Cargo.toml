@@ -7,9 +7,14 @@ edition = "2021"
 sdk = { workspace = true, features = ["alloc"] }
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["rlib"]
 doctest = false
 test = false
+
+[[bin]]
+name = "sha256_raw"
+path = "src/main.rs"
+required-features = ["entrypoints"]
 
 [features]
 default = ["guest"]

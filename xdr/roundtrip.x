@@ -32,7 +32,7 @@ union uunion switch (unsigned int d) {
     bool one;
   case 2:
     int two;
-  // double not supported in wasm
+  // double not supported by the contract ABI
   case 4:
     string four<>;
 };

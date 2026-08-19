@@ -10,7 +10,7 @@ groundhog-xdr = { workspace = true, features = ["xdrs", "syscalls"] }
 groundhog-syscall = { workspace = true }
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["rlib"]
 doctest = false
 
 [features]

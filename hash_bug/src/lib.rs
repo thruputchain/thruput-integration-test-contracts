@@ -8,16 +8,16 @@ use hex_literal::hex;
 const EXPECT: [u8; 32] =
     hex!("2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824");
 
-#[unsafe(export_name = "FFFFFFFFFFFFFFFF")]
-pub extern "C" fn test_hello() -> () {
+/// The host-side reference for the digest the guest entrypoint returns.
+pub fn test_hello() {
     let hash = sha2::Sha256::digest(b"hello");
 
     assert_eq!(hash.as_ref(), EXPECT);
 }
 
-// rv32 dispatches guest-side: a hand-written record registers the same
-// method id ("FFFFFFFFFFFFFFFF" = u64::MAX) outside the #[contract] macro's
-// calldata/Return glue, and the wrapper returns the in-guest digest.
+// rv32 dispatches guest-side: a hand-written record registers method id
+// u64::MAX outside the #[contract] macro's calldata/Return glue, and the
+// wrapper returns the in-guest digest.
 #[cfg(target_arch = "riscv32")]
 mod rv32_entry {
     use sha2::Digest;

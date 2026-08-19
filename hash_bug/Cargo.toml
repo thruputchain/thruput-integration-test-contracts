@@ -12,7 +12,7 @@ hex-literal = { version = "1.1.0" }
 sdk = { workspace = true }
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["rlib"]
 doctest = false
 
 [[bin]]
