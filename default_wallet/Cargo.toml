@@ -8,7 +8,7 @@ groundhog-domain-separator = { workspace = true, features = ["syscall"] }
 sdk = { workspace = true, features = ["alloc"] }
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["rlib"]
 doctest = false
 test = false
 

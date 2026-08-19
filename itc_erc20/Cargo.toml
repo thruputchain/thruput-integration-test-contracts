@@ -19,7 +19,7 @@ groundhog-erc20-if = { workspace = true }
 erc20-native-test = { workspace = true, optional = true, features = ["no_check_aborts"] }
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["rlib"]
 doctest = false
 
 [features]

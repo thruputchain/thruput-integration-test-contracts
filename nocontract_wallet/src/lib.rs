@@ -11,6 +11,6 @@ pub use interface::Client;
 
 #[cfg(feature = "guest")]
 const _: () = {
-    compile_error!("nocontract_wallet is not implemented as a wasm contract");
+    compile_error!("nocontract_wallet is not implemented as a guest contract");
 };
 

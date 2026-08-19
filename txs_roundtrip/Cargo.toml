@@ -9,7 +9,7 @@ sdk = { workspace = true, features = ["alloc"] }
 xdrs = { workspace = true, features = ["derive", "alloc", "int128"] }
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["rlib"]
 doctest = false
 
 [features]

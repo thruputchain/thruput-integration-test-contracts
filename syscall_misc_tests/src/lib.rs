@@ -15,17 +15,8 @@ pub use interface::SyscallMiscTestsEntrypoints;
 pub use interface::Client;
 
 // Raw entrypoint 0xFF: a function that returns without calling the Return
-// syscall. Wired per target because the two runtimes dispatch differently,
-// and the two runtimes give it different semantics (see
-// test_invoke_no_return_syscall).
-
-// wasm dispatches host-side via the export table: export name
-// "00000000000000FF". A bare export return maps to a successful empty
-// Return.
-#[cfg(target_arch = "wasm32")]
-#[export_name = "00000000000000FF"]
-pub extern "C" fn noop_no_return_syscall() {}
-
+// syscall (see test_invoke_no_return_syscall).
+//
 // rv32 dispatches guest-side: the #[contract] macro normally emits one
 // `Entrypoint` record per method into the `groundhog_rv32_entrypoints`
 // section, which the SDK's `_start` dispatcher scans. Hand-writing a record

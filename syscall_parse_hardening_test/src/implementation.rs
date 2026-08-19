@@ -4,13 +4,13 @@ use sdk::sys::SyscallErrorCode;
 use groundhog_xdr::syscalls::SyscallWord;
 
 // `groundhog_syscall::syscall_wrapper` is the single shared syscall-dispatch
-// chokepoint: the SDK routes its own syscalls through it too, so the wasm
-// linker sees exactly one `marmot.syscall` import (the meter caps function
-// imports at 1). The thin `direct_syscall` shim keeps the existing call sites
-// (which pass `SyscallWord`-typed args) unchanged.
+// chokepoint: the SDK routes its own syscalls through it too, so a guest
+// artifact carries exactly one syscall entry sequence. The thin
+// `direct_syscall` shim keeps the existing call sites (which pass
+// `SyscallWord`-typed args) unchanged.
 //
-// Note: on wasm32 these slots are 32 bits, so the 64-bit "non-canonical -1"
-// values exercised below are truncated by the host ABI; the full 64-bit width
+// Note: on rv32 these slots are 32 bits, so the 64-bit "non-canonical -1"
+// values exercised below are truncated by the guest ABI; the full 64-bit width
 // is still exercised on the native test path, where `SyscallWord` is `u64`.
 #[inline(always)]
 #[allow(clippy::too_many_arguments)]
@@ -54,11 +54,11 @@ impl SyscallParseHardeningTest for SyscallParseHardeningTestContract {
         let public_key = [0u8; 32];
         let message = [0u8; 1];
 
-        // Under the wasm32 ABI each value slot is delivered as a bare 32-bit
+        // Under the rv32 ABI each value slot is delivered as a bare 32-bit
         // word, so every bit pattern is a valid i32 scheme: there is no
         // "non-canonical" (improperly sign-extended) or out-of-range encoding to
         // reject at argument-parsing time, and a value wider than 32 bits cannot
-        // even be expressed in an i32 wasm argument. The scheme is therefore
+        // even be expressed in a 32-bit register argument. The scheme is therefore
         // always parsed successfully; an unknown scheme (here -1) is rejected by
         // the inner syscall with kSyscallErrorCodeInvalidSyscallInput.
         let unknown_scheme = unsafe {
@@ -121,7 +121,7 @@ impl SyscallParseHardeningTest for SyscallParseHardeningTestContract {
         let mut to_be_deployed = ContractAddress::from([0u8; 32]);
 
         // The all-ones value is the explicit null sentinel for an omitted
-        // optional pointer (SyscallWord::MAX == u32::MAX on wasm32), so the
+        // optional pointer (SyscallWord::MAX == u32::MAX on rv32), so the
         // optional caller_address is treated as None and the call succeeds.
         let null_sentinel_ok = unsafe {
             direct_syscall(

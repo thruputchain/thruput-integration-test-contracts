@@ -10,7 +10,7 @@ sdk = { workspace = true }
 fibonacci = { path = "../fibonacci" }
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["rlib"]
 doctest = false
 test = false
 

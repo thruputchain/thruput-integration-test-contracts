@@ -58,7 +58,3 @@ impl_roundtrip_methods! {
     roundtrip_opaque_slice: &[u8],
 }
 
-#[unsafe(export_name = "FFFFFFFFFFFFFFFF")]
-pub extern "C" fn startup_null() -> () {
-    ()
-}

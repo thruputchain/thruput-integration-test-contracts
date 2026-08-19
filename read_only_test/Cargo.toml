@@ -13,7 +13,7 @@ groundhog-erc20-if = { workspace = true }
 bottle-test-if = { workspace = true, optional = true }
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["rlib"]
 doctest = false
 
 [features]

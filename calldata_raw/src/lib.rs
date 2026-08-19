@@ -12,21 +12,6 @@ pub fn calldata_len(count: u32) {
     }
 }
 
-#[unsafe(export_name = "0")]
-pub extern "C" fn calldata_len_raw_1() -> () {
-    calldata_len(1);
-}
-
-#[unsafe(export_name = "1")]
-pub extern "C" fn calldata_len_raw_100() -> () {
-    calldata_len(100);
-}
-
-#[unsafe(export_name = "2")]
-pub extern "C" fn calldata_len_raw_1000() -> () {
-    calldata_len(1000);
-}
-
 pub fn calldata(count: u32) {
     let mut len: usize = 0;
 
@@ -44,21 +29,6 @@ pub fn calldata(count: u32) {
     }
 }
 
-#[unsafe(export_name = "10")]
-pub extern "C" fn calldata_1() -> () {
-    calldata(1);
-}
-
-#[unsafe(export_name = "11")]
-pub extern "C" fn calldata_100() -> () {
-    calldata(100);
-}
-
-#[unsafe(export_name = "12")]
-pub extern "C" fn calldata_1000() -> () {
-    calldata(1000);
-}
-
 pub fn calldata_raw(count: u32) {
     let len = get_calldata_len();
     let mut buf: Vec<u8> = vec![0; len as usize];
@@ -70,22 +40,51 @@ pub fn calldata_raw(count: u32) {
     }
 }
 
-#[unsafe(export_name = "20")]
-pub extern "C" fn calldata_raw_1() -> () {
-    calldata_raw(1);
-}
+// Raw entrypoints, registered without the `#[contract]` macro.
+//
+// rv32 dispatches guest-side: the macro normally emits one `Entrypoint`
+// record per method into the `groundhog_rv32_entrypoints` section, which the
+// SDK's `_start` dispatcher scans. Hand-writing the records registers these
+// benchmark entrypoints outside the macro's calldata/Return glue, which is
+// the whole point of this contract — it measures the raw syscalls, not the
+// wrapper around them.
+//
+// The dispatcher traps (ebreak) when a wrapper returns, so every wrapper
+// must call `raw_Return` itself; an empty buffer is the equivalent of the
+// bare return these entrypoints used to do.
+#[cfg(target_arch = "riscv32")]
+mod rv32_entries {
+    use sdk::__rv32::Entrypoint;
 
-#[unsafe(export_name = "21")]
-pub extern "C" fn calldata_raw_100() -> () {
-    calldata_raw(100);
-}
+    fn done() -> ! {
+        sdk::sys::raw_Return(&[], false, &[])
+    }
 
-#[unsafe(export_name = "22")]
-pub extern "C" fn calldata_raw_1000() -> () {
-    calldata_raw(1000);
-}
+    macro_rules! raw_entrypoint {
+        ($static_name:ident, $wrapper:ident, $method_id:expr, $body:expr) => {
+            extern "C" fn $wrapper() {
+                $body;
+                done()
+            }
 
-#[unsafe(export_name = "FFFFFFFFFFFFFFFF")]
-pub extern "C" fn startup_null() -> () {
-    ()
+            #[used]
+            #[unsafe(link_section = "groundhog_rv32_entrypoints")]
+            static $static_name: Entrypoint = Entrypoint {
+                method_id: $method_id,
+                wrapper: $wrapper,
+            };
+        };
+    }
+
+    raw_entrypoint!(CALLDATA_LEN_1, calldata_len_raw_1, 0x0, super::calldata_len(1));
+    raw_entrypoint!(CALLDATA_LEN_100, calldata_len_raw_100, 0x1, super::calldata_len(100));
+    raw_entrypoint!(CALLDATA_LEN_1000, calldata_len_raw_1000, 0x2, super::calldata_len(1000));
+
+    raw_entrypoint!(CALLDATA_1, calldata_1, 0x10, super::calldata(1));
+    raw_entrypoint!(CALLDATA_100, calldata_100, 0x11, super::calldata(100));
+    raw_entrypoint!(CALLDATA_1000, calldata_1000, 0x12, super::calldata(1000));
+
+    raw_entrypoint!(CALLDATA_RAW_1, calldata_raw_1, 0x20, super::calldata_raw(1));
+    raw_entrypoint!(CALLDATA_RAW_100, calldata_raw_100, 0x21, super::calldata_raw(100));
+    raw_entrypoint!(CALLDATA_RAW_1000, calldata_raw_1000, 0x22, super::calldata_raw(1000));
 }
