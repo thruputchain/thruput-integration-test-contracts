@@ -5,8 +5,8 @@ use sdk::*;
 pub struct GenesisRootContract;
 
 const GENESIS_ROOT_ADDRESS: ContractAddress = ContractAddress::new([
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 2,
 ]);
 
 #[contract]
@@ -19,7 +19,12 @@ impl GenesisRoot for GenesisRootContract {
         root_funding: u128,
         allocation: u128,
     ) -> ContractAddress {
-        let token = ERC20Client::new(&sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN);
+        let mut block_height: BlockHeight = 0.into();
+        sdk::sys::raw_GetBlockHeight(&mut block_height).unwrap();
+        assert!(block_height.into_inner() <= 1);
+
+        let token =
+            ERC20Client::new(&sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN);
         token.mint(&GENESIS_ROOT_ADDRESS, root_funding);
 
         let deployed = sdk::get_deploy_address(nonce, contract_hash);
