@@ -9,6 +9,6 @@ mod implementation;
 mod interface;
 
 pub use implementation::GenesisRootContract;
-pub use interface::{Client, GenesisRoot};
+pub use interface::{Client, Distribution, GenesisRoot};
 
 sdk::declare_mock_contract!();

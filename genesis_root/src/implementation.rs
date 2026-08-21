@@ -41,7 +41,7 @@ impl GenesisRoot for GenesisRootContract {
             let auth_handles = AuthHandleBuf::new();
             let mut return_buf = sdk::call::ReturnBuf::new();
             let mut returned_auth_handles = AuthHandleBuf::new();
-            sdk::call::contract_call(
+            match sdk::call::contract_call(
                 &deployed,
                 distribution.initializer,
                 u64::MAX,
@@ -50,8 +50,13 @@ impl GenesisRoot for GenesisRootContract {
                 0,
                 &mut return_buf,
                 &mut returned_auth_handles,
-            )
-            .unwrap();
+            ) {
+                Ok(sdk::call::CallOutcome::Return) => {}
+                Ok(sdk::call::CallOutcome::Abort) => {
+                    sdk::contract_abort(return_buf.as_ref())
+                }
+                Err(_) => trap(),
+            }
         }
     }
 }
