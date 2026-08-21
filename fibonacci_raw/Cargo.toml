@@ -9,17 +9,25 @@ edition = "2021"
 sdk = { workspace = true }
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["rlib"]
 doctest = false
 test = false
+
+[[bin]]
+name = "fibonacci_raw"
+path = "src/main.rs"
+required-features = ["entrypoints"]
 
 [features]
 default = ["guest"]
 entrypoints = []
 guest = []
-dev = ["sdk/dev"]
-mock = ["guest", "sdk/mock"]
+dev = ["guest", "sdk/dev"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]
-fibonacci_raw = { path = ".", features = ["mock", "entrypoints"] }
+# The one convention for a contract's self dev-dependency: `dev` and
+# nothing else. NOT "entrypoints" — that is the rv32 bin's
+# `required-features`, so enabling it here makes host `cargo test` try to
+# link the `#![no_main]` bin ("undefined symbol: main").
+fibonacci_raw = { path = ".", features = ["dev"] }

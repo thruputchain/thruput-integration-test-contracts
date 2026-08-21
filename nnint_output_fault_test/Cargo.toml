@@ -10,18 +10,17 @@ groundhog-xdr = { workspace = true, features = ["xdrs", "syscalls"] }
 groundhog-syscall = { workspace = true }
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["rlib"]
 doctest = false
 
 [features]
 entrypoints = []
-dev = ["sdk/dev"]
-mock = ["sdk/mock", "std"]
+dev = ["sdk/dev", "std"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]
-nnint_output_fault_test = { path = ".", features = ["mock"] }
+nnint_output_fault_test = { path = ".", features = ["dev"] }
 
 [[bin]]
 name = "nnint_output_fault_test"

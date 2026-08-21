@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [lib]
-crate-type = ["cdylib", "lib"]
+crate-type = ["lib"]
 doctest = false
 test = false
 
@@ -17,15 +17,14 @@ groundhog-xdr = { workspace = true }
 default = ["guest", "xdrs"]
 entrypoints = []
 guest = []
-mock = ["guest", "sdk/mock"]
 alloc = []
 xdrs = []
-dev = ["sdk/dev", "std"]
+dev = ["guest", "sdk/dev", "std"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
 
 [dev-dependencies]
-manual_revert_test = { path = ".", features = ["mock"] }
+manual_revert_test = { path = ".", features = ["dev"] }
 
 [[bin]]
 name = "manual_revert_test"

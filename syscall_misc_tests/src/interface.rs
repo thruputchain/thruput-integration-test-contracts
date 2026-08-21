@@ -62,7 +62,7 @@ pub trait SyscallMiscTests {
     fn test_invoke_invalid_flags();
     fn test_write_syscall_in_read_only(target: &ContractAddress);
 
-    // Verify wasm function that returns without calling Return syscall
+    // Verify a raw entrypoint that returns without calling the Return syscall
     fn test_invoke_no_return_syscall(target: &ContractAddress);
 
     // Error-code precedence pins: the order of checks decides which code wins

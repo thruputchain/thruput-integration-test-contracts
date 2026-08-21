@@ -6,9 +6,8 @@ use groundhog_xdr::syscalls::SyscallWord;
 pub struct NoSyscallTestContract;
 
 // `groundhog_syscall::syscall_wrapper` is the single shared syscall-dispatch
-// chokepoint: the SDK routes its own syscalls through it too, so the wasm
-// linker sees exactly one `marmot.syscall` import (the meter caps function
-// imports at 1). The thin `direct_syscall` shim keeps the existing call site
+// chokepoint: the SDK routes its own syscalls through it too, so a guest
+// artifact carries exactly one syscall entry sequence. The thin `direct_syscall` shim keeps the existing call site
 // (which passes `SyscallWord`-typed args) unchanged.
 #[inline(always)]
 #[allow(clippy::too_many_arguments)]

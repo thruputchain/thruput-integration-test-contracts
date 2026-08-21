@@ -13,18 +13,18 @@ groundhog-erc20-if = { workspace = true }
 bottle-test-if = { workspace = true, optional = true }
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["rlib"]
 doctest = false
 
 [features]
 entrypoints = []
-dev = ["sdk/dev"]
+dev = ["sdk/dev", "std"]
 std = ["sdk/std"]
 logging = ["sdk/logging"]
 bottle-test = ["dep:bottle-test-if"]
 
 [dev-dependencies]
-read_only_test = { path = ".", features = ["dev", "std"] }
+read_only_test = { path = ".", features = ["dev"] }
 
 [[bin]]
 name = "read_only_test"

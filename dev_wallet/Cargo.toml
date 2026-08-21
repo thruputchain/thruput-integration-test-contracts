@@ -8,7 +8,7 @@ sdk = { workspace = true }
 groundhog-erc20-if = { workspace = true }
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["rlib"]
 doctest = false
 test = false
 

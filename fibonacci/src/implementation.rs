@@ -43,6 +43,3 @@ impl Fibonacci for FibonacciContract {
         sdk::set_address_required_weight(required_weight).unwrap();
     }
 }
-
-#[unsafe(export_name = "FFFFFFFFFFFFFFFF")]
-pub extern "C" fn startup_null() {}
