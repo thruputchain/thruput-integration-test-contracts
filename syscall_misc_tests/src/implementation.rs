@@ -758,9 +758,13 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         );
     }
 
-    // ── #39: precedence: unowned forwarded token beats reentrance ──
+    // ── #39: precedence: an unowned forwarded token loses to reentrance ──
+    //
+    // Named to keep this method's slot in the name-sorted rv32 entrypoint
+    // table, which the guest dispatcher scans linearly: moving it would shift
+    // the exact-gas trace pins in hogd's error_trace_tests.
 
-    fn test_invoke_unowned_token_beats_reentrance() {
+    fn test_invoke_unowned_token_loses_to_reentrance() {
         let addr = sdk::get_current_address();
         let fabricated_token_id: [u8; 4] = 0xDEADu32.to_le_bytes();
         let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: u32::MAX, returned_auth_token_len: u32::MAX, frame_status: UNWRITTEN_FRAME_STATUS };
@@ -771,8 +775,9 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0 },
             &mut outputs,
         );
-        // The token-ownership check runs before the reentrance check.
-        expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
+        // The reentrance check runs before the auth-token list is read at all,
+        // so the token never gets as far as its ownership check.
+        expect_err(res, SyscallErrorCode::kSyscallErrorCodeReentrance);
         assert!(outputs.return_buffer_len == u32::MAX);
         assert!(outputs.returned_auth_token_len == u32::MAX);
         assert!(outputs.frame_status == UNWRITTEN_FRAME_STATUS);
