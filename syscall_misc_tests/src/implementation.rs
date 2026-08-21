@@ -760,9 +760,13 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #39: precedence: an unowned forwarded token loses to reentrance ──
     //
-    // Named to keep this method's slot in the name-sorted rv32 entrypoint
-    // table, which the guest dispatcher scans linearly: moving it would shift
-    // the exact-gas trace pins in hogd's error_trace_tests.
+    // Named to keep the test_invoke_unowned_token_* prefix. Renaming is not
+    // free here: the guest dispatcher scans the rv32 entrypoint table
+    // linearly, so a record's position sets how much gas the frame burns
+    // before its first syscall, and hogd holds exact-gas trace pins over this
+    // contract. Measured, this rename moved the record one slot later and cost
+    // 10 gas, so hogd's error_trace_tests figures drop by 10. Table order does
+    // not track the method name -- measure after renaming, don't predict.
 
     fn test_invoke_unowned_token_loses_to_reentrance() {
         let addr = sdk::get_current_address();
