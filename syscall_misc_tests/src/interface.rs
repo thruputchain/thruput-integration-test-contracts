@@ -70,7 +70,7 @@ pub trait SyscallMiscTests {
     fn internal_rcq_obs_cap_seed(count: u32);
     fn test_rcq_cap_precedence(count: u32);
     fn test_get_returned_buffer_no_buffer_beats_misaligned();
-    fn test_invoke_unowned_token_beats_reentrance();
+    fn test_invoke_unowned_token_loses_to_reentrance();
     fn test_invoke_self_is_reentrance();
     fn internal_bytestring_set_oob_key();
     fn test_readonly_fault_beats_readonly_rejection(target: &ContractAddress);
