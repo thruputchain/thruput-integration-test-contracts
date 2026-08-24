@@ -165,6 +165,14 @@ impl PaymentChannel for PaymentChannelContract {
         assert!(!channel.joined, "Channel already joined");
         assert!(!channel.is_closing(), "Channel is closing");
 
+        // Reject a join whose deposit would make the channel total
+        // unrepresentable, before moving tokens — the same aggregate invariant
+        // deposit() enforces, so total_deposit() can never overflow later.
+        channel
+            .deposit_a
+            .checked_add(amount)
+            .expect("join would overflow channel total");
+
         // Transfer tokens from caller (party B) to this contract
         let caller = sdk::get_caller();
         let token_client = channel.token_client();
@@ -188,21 +196,30 @@ impl PaymentChannel for PaymentChannelContract {
         assert!(!channel.is_closing(), "Channel is closing");
 
         // Determine which party is depositing based on caller, and check the
-        // accumulator has headroom before moving any tokens. The release
-        // contract profile disables overflow checks, so an unchecked `+=` on a
-        // top-up whose sum exceeds i128::MAX would wrap the deposit negative
-        // and corrupt every later total_deposit() close/dispute check. Doing
+        // channel has headroom before moving any tokens. The release contract
+        // profile disables overflow checks, so an unchecked `+=` on a top-up
+        // whose sum exceeds i128::MAX would wrap the deposit negative. Checking
+        // the aggregate total (not just this party's balance) is required: a
+        // per-party top-up can keep that party under the limit while pushing
+        // deposit_a + deposit_b past it, which would then panic the checked
+        // total_deposit() on every close/dispute and lock the channel. Doing
         // this before transfer_from means a rejected top-up commits no token
         // side effect.
         let caller = sdk::get_caller();
-        let updated = if caller == channel.party_a_dest {
-            channel.deposit_a.checked_add(amount).map(|new| (true, new))
+        let is_party_a = if caller == channel.party_a_dest {
+            true
         } else if caller == channel.party_b_dest {
-            channel.deposit_b.checked_add(amount).map(|new| (false, new))
+            false
         } else {
             panic!("Caller is not a channel party");
         };
-        let (is_party_a, new_deposit) = updated.expect("deposit would overflow channel balance");
+        // A representable aggregate total also bounds each non-negative party
+        // balance, so this single check makes the stored `+=` below safe.
+        channel
+            .deposit_a
+            .checked_add(channel.deposit_b)
+            .and_then(|total| total.checked_add(amount))
+            .expect("deposit would overflow channel total");
 
         // Transfer tokens from caller to this contract
         let token_client = channel.token_client();
@@ -211,9 +228,9 @@ impl PaymentChannel for PaymentChannelContract {
             .transfer_from(&caller, &self_address, amount as u128);
 
         if is_party_a {
-            channel.deposit_a = new_deposit;
+            channel.deposit_a += amount;
         } else {
-            channel.deposit_b = new_deposit;
+            channel.deposit_b += amount;
         }
 
         self.channels.at_mut_exclusive(&channel_id).set(&channel);
