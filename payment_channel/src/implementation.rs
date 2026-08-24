@@ -57,7 +57,11 @@ impl Channel {
     }
 
     pub fn total_deposit(&self) -> i128 {
-        self.deposit_a + self.deposit_b
+        // Checked so a corrupted or overflowing pair fails loudly rather than
+        // wrapping the total that close/dispute settlement is checked against.
+        self.deposit_a
+            .checked_add(self.deposit_b)
+            .expect("channel total deposit overflow")
     }
 
     pub fn is_closing(&self) -> bool {
@@ -183,8 +187,22 @@ impl PaymentChannel for PaymentChannelContract {
         assert!(channel.joined, "Channel not yet joined");
         assert!(!channel.is_closing(), "Channel is closing");
 
-        // Determine which party is depositing based on caller
+        // Determine which party is depositing based on caller, and check the
+        // accumulator has headroom before moving any tokens. The release
+        // contract profile disables overflow checks, so an unchecked `+=` on a
+        // top-up whose sum exceeds i128::MAX would wrap the deposit negative
+        // and corrupt every later total_deposit() close/dispute check. Doing
+        // this before transfer_from means a rejected top-up commits no token
+        // side effect.
         let caller = sdk::get_caller();
+        let updated = if caller == channel.party_a_dest {
+            channel.deposit_a.checked_add(amount).map(|new| (true, new))
+        } else if caller == channel.party_b_dest {
+            channel.deposit_b.checked_add(amount).map(|new| (false, new))
+        } else {
+            panic!("Caller is not a channel party");
+        };
+        let (is_party_a, new_deposit) = updated.expect("deposit would overflow channel balance");
 
         // Transfer tokens from caller to this contract
         let token_client = channel.token_client();
@@ -192,12 +210,10 @@ impl PaymentChannel for PaymentChannelContract {
         token_client
             .transfer_from(&caller, &self_address, amount as u128);
 
-        if caller == channel.party_a_dest {
-            channel.deposit_a += amount;
-        } else if caller == channel.party_b_dest {
-            channel.deposit_b += amount;
+        if is_party_a {
+            channel.deposit_a = new_deposit;
         } else {
-            panic!("Caller is not a channel party");
+            channel.deposit_b = new_deposit;
         }
 
         self.channels.at_mut_exclusive(&channel_id).set(&channel);
