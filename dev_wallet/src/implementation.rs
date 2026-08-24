@@ -3,7 +3,10 @@ use groundhog_erc20_if::ERC20Client;
 use sdk::sys::{self, SyscallErrorCode};
 use sdk::*;
 
-pub struct DevWalletContract;
+#[storage]
+pub struct DevWalletContract {
+    owner: sdk::storage::Value<Ed25519PublicKey>,
+}
 
 // Local-node deploy policy: hogd charges deployment storage to the deployed
 // contract address, so the wallet funds that address before deploying it.
@@ -45,7 +48,14 @@ fn require_root_source_address_auth() {
 
 #[contract]
 impl DevWallet for DevWalletContract {
-    fn initialize(owner: &Ed25519PublicKey) {
+    fn initialize(&mut self, owner: &Ed25519PublicKey) {
+        // One-shot: this entrypoint is unauthenticated, and
+        // add_address_public_key overwrites key 0, so a re-call would hand
+        // ownership of the wallet to the caller. Refuse once an owner is set.
+        if self.owner.try_get().none_if_missing().is_some() {
+            trap();
+        }
+        self.owner.set(owner);
         let pk = PublicKey::Ed25519 { ed25519: *owner };
         sdk::add_address_public_key(0, pk, 1).unwrap();
         sdk::set_address_required_weight(1).unwrap();

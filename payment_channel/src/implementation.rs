@@ -85,6 +85,15 @@ fn serialize_state(state: &ChannelState) -> Vec<u8> {
 #[contract]
 impl PaymentChannel for PaymentChannelContract {
     fn initialize(&mut self, dispute_period: u64) {
+        // One-shot: anyone can reach this entrypoint, so a re-call must not
+        // rewrite the dispute period out from under open channels.
+        assert!(
+            self.default_dispute_period
+                .try_get()
+                .none_if_missing()
+                .is_none(),
+            "Already initialized"
+        );
         assert!(dispute_period > 0, "Dispute period must be positive");
         self.default_dispute_period.set(&dispute_period);
     }

@@ -42,6 +42,10 @@ fn get_block_height() -> BlockHeight {
 #[contract]
 impl HTLC for HTLCContract {
 
+    /// Intentionally a no-op: the contract keeps no root-level state to set
+    /// up (channels live in the `htlcs` map). The entrypoint stays in the
+    /// interface because hogd's htlc_integration_test drives it as part of
+    /// the standard deploy-then-initialize flow.
     fn initialize(&mut self) {}
 
     fn create_htlc(&mut self, 

@@ -38,6 +38,11 @@ impl ERC1271 for SimpleWalletContract {
 #[contract]
 impl SimpleWallet for SimpleWalletContract {
     fn initialize(&mut self, owner: &Ed25519PublicKey) {
+        // One-shot: the first call permanently sets the owner. Anyone can
+        // reach this entrypoint, so a re-call must not overwrite ownership.
+        if self.owner.try_get().none_if_missing().is_some() {
+            trap();
+        }
         self.owner.set(owner);
     }
 
