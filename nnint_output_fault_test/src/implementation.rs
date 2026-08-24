@@ -60,8 +60,8 @@ impl NnintOutputFaultTest for NnintOutputFaultTestContract {
             current_set, 0xDEAD_BEEF,
             "current_set was overwritten by faulting syscall"
         );
-        assert_eq!(
-            current_set_opt, true,
+        assert!(
+            current_set_opt,
             "current_set_opt was overwritten by faulting syscall"
         );
     }
@@ -86,8 +86,8 @@ impl NnintOutputFaultTest for NnintOutputFaultTestContract {
         };
 
         assert_fault(err_code);
-        assert_eq!(
-            current_set_opt, true,
+        assert!(
+            current_set_opt,
             "current_set_opt was overwritten by faulting syscall"
         );
         assert_eq!(
@@ -116,8 +116,8 @@ impl NnintOutputFaultTest for NnintOutputFaultTestContract {
             )
         };
         assert_fault(err_code);
-        assert_eq!(
-            current_set_opt, true,
+        assert!(
+            current_set_opt,
             "current_set_opt was overwritten by faulting syscall"
         );
         assert_eq!(

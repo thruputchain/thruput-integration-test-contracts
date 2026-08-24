@@ -12,9 +12,5 @@ pub struct Distribution {
 
 #[contract(client = Client)]
 pub trait GenesisRoot {
-    fn distribute(
-        distributions: Vec<Distribution>,
-        root_funding: u128,
-        token_funding: u128,
-    );
+    fn distribute(distributions: Vec<Distribution>, root_funding: u128, token_funding: u128);
 }

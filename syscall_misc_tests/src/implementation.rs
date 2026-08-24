@@ -82,7 +82,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let res = sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
-            &mut auth_token_id_list_buf.as_mut_slice(),
+            auth_token_id_list_buf.as_mut_slice(),
             &mut auth_token_id_list_return_len,
         );
         expect_err(
@@ -113,7 +113,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let res = sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
-            &mut auth_token_id_list_buf.as_mut_slice(),
+            auth_token_id_list_buf.as_mut_slice(),
             &mut auth_token_id_list_return_len,
         );
         expect_err(
@@ -568,7 +568,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let res = sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
-            &mut auth_token_id_list_buf.as_mut_slice(),
+            auth_token_id_list_buf.as_mut_slice(),
             &mut auth_token_id_list_return_len,
         );
         expect_err(
@@ -602,7 +602,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
-            &mut auth_token_id_list_buf.as_mut_slice(),
+            auth_token_id_list_buf.as_mut_slice(),
             &mut auth_token_id_list_return_len,
         )
         .unwrap();
@@ -749,7 +749,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let res = sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
-            &mut token_buf.as_mut_slice(),
+            token_buf.as_mut_slice(),
             &mut token_written,
         );
         expect_err(
@@ -1014,7 +1014,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let res = sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
-            &mut auth_token_id_list_buf.as_mut_slice(),
+            auth_token_id_list_buf.as_mut_slice(),
             &mut auth_token_id_list_result_len,
         );
         assert!(res.is_ok());

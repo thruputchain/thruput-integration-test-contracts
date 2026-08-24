@@ -6,17 +6,12 @@ use sdk::*;
 pub struct GenesisRootContract;
 
 const GENESIS_ROOT_ADDRESS: ContractAddress = ContractAddress::new([
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 2,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
 ]);
 
 #[contract]
 impl GenesisRoot for GenesisRootContract {
-    fn distribute(
-        distributions: Vec<Distribution>,
-        root_funding: u128,
-        token_funding: u128,
-    ) {
+    fn distribute(distributions: Vec<Distribution>, root_funding: u128, token_funding: u128) {
         let mut block_height: BlockHeight = 0.into();
         sdk::sys::raw_GetBlockHeight(&mut block_height).unwrap();
         assert!(block_height.into_inner() <= 1);
@@ -27,15 +22,10 @@ impl GenesisRoot for GenesisRootContract {
         token.mint(&GENESIS_ROOT_ADDRESS, root_funding);
 
         for distribution in distributions {
-            let deployed = sdk::get_deploy_address(
-                &distribution.nonce,
-                &distribution.contract_hash,
-            );
+            let deployed =
+                sdk::get_deploy_address(&distribution.nonce, &distribution.contract_hash);
             token.mint(&deployed, distribution.allocation);
-            let actual = sdk::deploy_contract(
-                &distribution.nonce,
-                &distribution.contract_hash,
-            );
+            let actual = sdk::deploy_contract(&distribution.nonce, &distribution.contract_hash);
             assert_eq!(actual, deployed);
 
             let auth_handles = AuthHandleBuf::new();
@@ -52,9 +42,7 @@ impl GenesisRoot for GenesisRootContract {
                 &mut returned_auth_handles,
             ) {
                 Ok(sdk::call::CallOutcome::Return) => {}
-                Ok(sdk::call::CallOutcome::Abort) => {
-                    sdk::contract_abort(return_buf.as_ref())
-                }
+                Ok(sdk::call::CallOutcome::Abort) => sdk::contract_abort(return_buf.as_ref()),
                 Err(_) => trap(),
             }
         }
