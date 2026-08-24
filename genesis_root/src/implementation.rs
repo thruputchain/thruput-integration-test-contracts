@@ -17,6 +17,12 @@ impl GenesisRoot for GenesisRootContract {
         root_funding: u128,
         token_funding: u128,
     ) {
+        // The ceremony mints `root_funding` to the hardcoded genesis root
+        // address below. If this contract were ever installed at any other
+        // address, those tokens would be minted to an address nobody
+        // controls and silently burn — refuse to run anywhere else.
+        assert_eq!(sdk::get_current_address(), GENESIS_ROOT_ADDRESS);
+
         let mut block_height: BlockHeight = 0.into();
         sdk::sys::raw_GetBlockHeight(&mut block_height).unwrap();
         assert!(block_height.into_inner() <= 1);

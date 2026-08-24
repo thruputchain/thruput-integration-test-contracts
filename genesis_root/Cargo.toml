@@ -10,7 +10,6 @@ groundhog-erc20-if = { workspace = true }
 [lib]
 crate-type = ["rlib"]
 doctest = false
-test = false
 
 [features]
 entrypoints = []
