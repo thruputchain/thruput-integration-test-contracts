@@ -1,0 +1,1 @@
+disabled: reason not recorded; the marker was already present in the initial import (a784a95, 2026-05-13) — see that commit's context. Only sdk_rs scripts honor this marker; hogd's CMake still builds the crate for hogd/hog_exec/runtime/manual_revert_rv32_test.cc and manual_revert_comprehensive_test.cc.
