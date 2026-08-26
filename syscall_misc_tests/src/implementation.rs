@@ -858,11 +858,13 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             &mut outputs,
         );
 
-        // rv32: the SDK's `_start` dispatcher ebreaks when a wrapper returns
-        // without the Return syscall, so the child frame faults
-        // deterministically.
+        // rv32: the SDK's `_start` dispatcher falls through to its
+        // unknown-method arm when a wrapper returns without the Return
+        // syscall, so the child frame aborts with LibraryExn::UnknownMethod.
+        // (Before SDK 0.21.0 that arm was a bare ebreak and the frame
+        // faulted.)
         #[cfg(target_arch = "riscv32")]
-        expect_frame_status(res, &outputs, InvocationFrameStatusCode::Fault);
+        expect_frame_status(res, &outputs, InvocationFrameStatusCode::Abort);
 
         // Host mock: a bare return maps to a successful Return with an
         // empty return buffer.
