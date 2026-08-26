@@ -21,8 +21,9 @@ pub use interface::Client;
 // `Entrypoint` record per method into the `groundhog_rv32_entrypoints`
 // section, which the SDK's `_start` dispatcher scans. Hand-writing a record
 // registers a raw entrypoint outside the macro's calldata/Return glue. The
-// dispatcher traps (ebreak) when a wrapper returns, so invoking this
-// entrypoint deterministically faults the child frame.
+// dispatcher falls through to its unknown-method arm when a wrapper returns,
+// so invoking this entrypoint aborts the child frame with
+// LibraryExn::UnknownMethod.
 #[cfg(target_arch = "riscv32")]
 mod rv32_no_return_entry {
     extern "C" fn noop_no_return_syscall() {}

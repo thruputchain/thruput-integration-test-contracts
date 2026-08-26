@@ -847,9 +847,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     fn test_invoke_no_return_syscall(target: &ContractAddress) {
         let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         // Invoke the raw entrypoint 0xFF on a separate contract. Its body
-        // returns without calling the Return syscall (see lib.rs). The two
-        // runtimes define different semantics for that, asserted per target
-        // below.
+        // returns without calling the Return syscall (see lib.rs).
         let res = sys::raw_Invoke(
             target,
             &[],
@@ -858,32 +856,73 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             &mut outputs,
         );
 
-        // rv32: the SDK's `_start` dispatcher ebreaks when a wrapper returns
-        // without the Return syscall, so the child frame faults
-        // deterministically.
-        #[cfg(target_arch = "riscv32")]
-        expect_frame_status(res, &outputs, InvocationFrameStatusCode::Fault);
+        // Both targets abort the child frame with LibraryExn::UnknownMethod,
+        // by different routes: on rv32 the wrapper runs and returns, and the
+        // `_start` dispatcher falls through to its unknown-method arm; on the
+        // host mock 0xFF is not a registered method (the entrypoint record is
+        // rv32-only), so `register_unknown_method` answers instead. The SDK
+        // wires the mock that way precisely so the two agree -- before 0.21.0
+        // they did not, rv32 taking a bare ebreak to a deterministic fault.
+        expect_frame_status(res, &outputs, InvocationFrameStatusCode::Abort);
 
-        // Host mock: a bare return maps to a successful Return with an
-        // empty return buffer.
-        #[cfg(not(target_arch = "riscv32"))]
-        {
-            assert!(res.is_ok(), "invoke of noop should succeed");
-            assert_eq!(outputs.return_buffer_len, 0, "return buffer should be empty");
-
-            let mut buffer = [0u8; 1024];
-            let mut written_len: RuntimeMemoryLength = 0;
-            let mut auth_token_id_list_buf = [0u8; 1024];
-            let mut auth_token_id_list_result_len: RuntimeMemoryLength = 0;
-            let res = sys::raw_GetReturnedBuffer(
-                buffer.as_mut_slice(),
-                &mut written_len,
-                &mut auth_token_id_list_buf.as_mut_slice(),
-                &mut auth_token_id_list_result_len,
-            );
-            assert!(res.is_ok(), "GetReturnedBuffer should succeed");
-            assert_eq!(written_len, 0, "returned buffer should be empty");
+        // The frame status alone would also match a contract that aborted for
+        // its own reasons, so pin the payload: it must decode as the SDK's
+        // typed UnknownMethod, which is the whole point of 0.21.0 replacing
+        // the bare trap.
+        let err = sdk::call::try_call_raw_with::<(), (), _>(
+            target,
+            sdk::contract::ContractEntrypointID::from_u64(0xFF),
+            u64::MAX,
+            &(),
+            0,
+            |exn| exn.try_as::<LibraryExn>(),
+        )
+        .expect_err("an entrypoint that never returns must abort the call");
+        match err {
+            sdk::call::RawCallError::Exception(decoded) => {
+                assert!(
+                    decoded == Some(LibraryExn::UnknownMethod),
+                    "abort payload must be LibraryExn::UnknownMethod"
+                );
+            }
+            _ => panic!("expected a contract exception, not a call failure"),
         }
+    }
+
+    // ── A panicking entrypoint faults, on both targets ──────────────
+
+    fn internal_always_panic() {
+        panic!("internal_always_panic");
+    }
+
+    fn test_invoke_panic_faults(target: &ContractAddress) {
+        let entrypoint =
+            crate::SyscallMiscTestsEntrypoints::internal_always_panic
+                .into_u64();
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
+        let res = sys::raw_Invoke(
+            target,
+            &[],
+            &[],
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
+            &mut outputs,
+        );
+
+        // A panic is not an abort: it carries no payload. rv32 is the
+        // reference here -- the release profile compiles panic sites straight
+        // to `unimp` (panic=immediate-abort) and the VM takes that as a trap,
+        // faulting the child frame. Asserted ungated, on purpose: the host
+        // mock routes a contract panic through InvokeErrorCode::Deterministic
+        // instead, and if that does not land on the same frame status it is
+        // the mock that needs to follow the guest, not this test that needs a
+        // cfg. The contrast with UnknownMethod above is the point: a payload
+        // or no payload, never a third answer per target.
+        expect_frame_status(res, &outputs, InvocationFrameStatusCode::Fault);
+        assert_eq!(outputs.return_buffer_len, 0, "a fault returns no buffer");
+        assert_eq!(
+            outputs.returned_auth_token_len, 0,
+            "a fault returns no auth tokens"
+        );
     }
 
     // ── Return auth token edge-case internal helpers ────────────────

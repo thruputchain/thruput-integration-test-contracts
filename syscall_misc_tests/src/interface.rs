@@ -65,6 +65,11 @@ pub trait SyscallMiscTests {
     // Verify a raw entrypoint that returns without calling the Return syscall
     fn test_invoke_no_return_syscall(target: &ContractAddress);
 
+    // The other half of that pair: a panicking entrypoint faults instead,
+    // with no payload of any kind.
+    fn internal_always_panic();
+    fn test_invoke_panic_faults(target: &ContractAddress);
+
     // Error-code precedence pins: the order of checks decides which code wins
     // when one input violates multiple constraints.
     fn internal_rcq_obs_cap_seed(count: u32);
