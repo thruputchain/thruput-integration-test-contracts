@@ -445,7 +445,9 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     // ── #26: SHA256Update → kInvalidSyscallInput (too many buffers) ─
 
     fn test_sha256_update_too_many_buffers() {
-        // Open 8 buffers (max = kMaxSHA256Buffers = 8)
+        // Open 8 buffers. The limit is the chain's
+        // kConfigParamMaxSHA256Buffers, which the harness runs at its default
+        // of kDefaultMaxSHA256Buffers = 8.
         for i in 0u32..8 {
             sys::raw_SHA256Update(i, &[0u8; 1], true).unwrap();
         }
