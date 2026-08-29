@@ -1077,4 +1077,54 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         // Ownership validation causes a deterministic exit (fault).
         expect_frame_status(res, &outputs, InvocationFrameStatusCode::Fault);
     }
+
+    // ── #42: precedence: a misaligned auth-token span beats the cross-invoke
+    // depth bound ──
+    //
+    // The span-length check sits in syscall_Invoke_inner, above the
+    // validate_new_invocation call the depth guard lives behind, so a call
+    // that is both misaligned and over the bound reports the parse error.
+    //
+    // Only an rv32 caller can express this: hogd's native syscall entry takes
+    // a typed span of uint32_t token ids, whose length is a count of ids, so
+    // it is aligned by construction.
+    //
+    // Both of these run under a depth-1 fixture, where the root frame fits and
+    // every cross invoke it makes is over the bound.
+
+    fn test_invoke_misaligned_tokens_beat_depth(target: &ContractAddress) {
+        // Three bytes: not a whole number of 4-byte token ids.
+        let misaligned: [u8; 3] = [0xad, 0xde, 0x00];
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: u32::MAX, returned_auth_token_len: u32::MAX, frame_status: UNWRITTEN_FRAME_STATUS };
+        let res = sys::raw_Invoke(
+            target,
+            &[],
+            &misaligned,
+            &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0 },
+            &mut outputs,
+        );
+        expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
+        assert!(outputs.return_buffer_len == u32::MAX);
+        assert!(outputs.returned_auth_token_len == u32::MAX);
+        assert!(outputs.frame_status == UNWRITTEN_FRAME_STATUS);
+    }
+
+    // The control for the pin above: the same invoke with an aligned (empty)
+    // token span, so nothing is wrong with it except that the bound has no
+    // room. Without this, the pin would read the same if the span check
+    // swallowed every call.
+    fn test_invoke_depth_refused(target: &ContractAddress) {
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: u32::MAX, returned_auth_token_len: u32::MAX, frame_status: UNWRITTEN_FRAME_STATUS };
+        let res = sys::raw_Invoke(
+            target,
+            &[],
+            &[],
+            &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0 },
+            &mut outputs,
+        );
+        expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvokeDepthExceeded);
+        assert!(outputs.return_buffer_len == u32::MAX);
+        assert!(outputs.returned_auth_token_len == u32::MAX);
+        assert!(outputs.frame_status == UNWRITTEN_FRAME_STATUS);
+    }
 }
