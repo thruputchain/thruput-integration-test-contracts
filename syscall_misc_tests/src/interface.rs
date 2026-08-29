@@ -91,4 +91,10 @@ pub trait SyscallMiscTests {
     fn test_return_revert_with_auth_tokens(target: &ContractAddress);
     fn test_return_with_empty_auth_tokens(target: &ContractAddress);
     fn test_return_with_auth_token_ids(target: &ContractAddress);
+
+    // Cross-invoke depth precedence pins. These need an rv32 caller: hogd's
+    // native syscall entry takes a typed span of uint32_t token ids, whose
+    // length is a count of ids, so it cannot express a misaligned byte span.
+    fn test_invoke_misaligned_tokens_beat_depth(target: &ContractAddress);
+    fn test_invoke_depth_refused(target: &ContractAddress);
 }
