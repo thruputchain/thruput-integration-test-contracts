@@ -10,6 +10,5 @@ pub use interface::ReturnFaultTest;
 
 // A client stub that provides the interface via cross-contract calls
 pub use interface::Client;
-pub use interface::ClientError;
 
 pub use implementation::ReturnFaultTestContract;

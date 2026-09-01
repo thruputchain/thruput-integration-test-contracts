@@ -1,4 +1,4 @@
-use crate::{ReturnFaultTest, Client, ClientError};
+use crate::{Client, ReturnFaultTest};
 use sdk::*;
 
 pub struct ReturnFaultTestContract;
@@ -14,7 +14,7 @@ impl ReturnFaultTest for ReturnFaultTestContract {
             Ok(_) => {
                 panic!("test_inner should have failed");
             }
-            Err(ClientError::Fault(_)) => {
+            Err(CallError::Fault(_)) => {
                 // Expected: inner contract faulted due to out-of-bounds memory access
             }
             Err(e) =>

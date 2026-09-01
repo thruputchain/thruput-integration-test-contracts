@@ -1,7 +1,6 @@
 use crate::interface::*;
 use alloc::format;
 use manual_revert_test::Client as ManualRevertTestClient;
-use manual_revert_test::ClientError as ManualRevertTestClientError;
 use sdk::*;
 use sdk::storage::Value;
 
@@ -15,10 +14,7 @@ pub struct ManualRevertCallerContract {
 }
 
 impl ManualRevertCallerContract {
-    fn check_result(
-        result: &Result<(), ManualRevertTestClientError>,
-        should_revert: bool,
-    ) {
+    fn check_result(result: &Result<(), CallError>, should_revert: bool) {
         log(format!(
             "doing check_result: should_revert {:?} res {:?}",
             should_revert, result
@@ -30,11 +26,11 @@ impl ManualRevertCallerContract {
                     panic!("Manual revert should have failed");
                 }
             }
-            Err(ManualRevertTestClientError::Fault(_)) => {
+            Err(CallError::Fault(_)) => {
                 panic!("Fault");
             }
             Err(_) => {
-                // Any abort (ManualRevertTestError, Library, or Unknown)
+                // Any thrown exception, whatever its type
                 if !should_revert {
                     panic!("Manual revert should not have failed");
                 }

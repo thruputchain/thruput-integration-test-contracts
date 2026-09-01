@@ -1,5 +1,4 @@
-use crate::{Client, Sha256WrapperContract, Sha256Wrapper};
-use crate::interface::ClientError;
+use crate::{Client, Sha256Wrapper, Sha256WrapperContract};
 use sha2::{Digest, Sha256};
 
 use std::vec;
@@ -39,7 +38,7 @@ fn gas_limit_does_not_propagate(client: &Client) {
     // Call with tiny gas limit — should fail with OOG
     let result = client.with_gas_limit(1).try_sha256(&data);
     assert!(
-        matches!(result, Err(ClientError::Fault(_))),
+        matches!(result, Err(sdk::CallError::Fault(_))),
         "Expected OOG fault with gas_limit=1, got: {:?}",
         result
     );
