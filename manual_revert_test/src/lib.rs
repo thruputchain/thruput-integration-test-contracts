@@ -11,5 +11,4 @@ pub use interface::ManualRevertTestError;
 
 // A client stub that provides the interface via cross-contract calls
 pub use interface::Client;
-pub use interface::ClientError;
 
