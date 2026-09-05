@@ -82,7 +82,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let res = sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
-            &mut auth_token_id_list_buf.as_mut_slice(),
+            auth_token_id_list_buf.as_mut_slice(),
             &mut auth_token_id_list_return_len,
         );
         expect_err(
@@ -101,7 +101,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             target,
             &[],
             &[],
-            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0, reserved: 0 },
             &mut outputs,
         );
         expect_frame_status(res, &outputs, InvocationFrameStatusCode::Fault);
@@ -113,7 +113,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let res = sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
-            &mut auth_token_id_list_buf.as_mut_slice(),
+            auth_token_id_list_buf.as_mut_slice(),
             &mut auth_token_id_list_return_len,
         );
         expect_err(
@@ -169,7 +169,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             &nonexistent,
             &[],
             &[],
-            &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0 },
+            &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0, reserved: 0 },
             &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS },
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
@@ -186,7 +186,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             target,
             &[],
             &[],
-            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0, reserved: 0 },
             &mut outputs,
         );
         expect_frame_status(res, &outputs, InvocationFrameStatusCode::Abort);
@@ -555,7 +555,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             target,
             &[],
             &[],
-            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0, reserved: 0 },
             &mut outputs,
         );
         expect_frame_status(res, &outputs, InvocationFrameStatusCode::Fault);
@@ -568,7 +568,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let res = sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
-            &mut auth_token_id_list_buf.as_mut_slice(),
+            auth_token_id_list_buf.as_mut_slice(),
             &mut auth_token_id_list_return_len,
         );
         expect_err(
@@ -589,7 +589,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             target,
             &[],
             &[],
-            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0, reserved: 0 },
             &mut outputs,
         );
         expect_frame_status(res, &outputs, InvocationFrameStatusCode::Return);
@@ -602,7 +602,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
-            &mut auth_token_id_list_buf.as_mut_slice(),
+            auth_token_id_list_buf.as_mut_slice(),
             &mut auth_token_id_list_return_len,
         )
         .unwrap();
@@ -648,7 +648,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             &addr,
             &[],
             &[],
-            &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0xFFFF }, // garbage flags
+            &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0xFFFF, reserved: 0 }, // garbage flags
             &mut outputs,
         );
         // outputs should not be written on syscall error
@@ -679,7 +679,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             target,
             &[],
             &[],
-            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0x2 },
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0x2, reserved: 0 },
             &mut outputs,
         );
         expect_frame_status(res, &outputs, InvocationFrameStatusCode::Return);
@@ -749,7 +749,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let res = sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
-            &mut token_buf.as_mut_slice(),
+            token_buf.as_mut_slice(),
             &mut token_written,
         );
         expect_err(
@@ -776,7 +776,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             &addr,
             &[],
             &fabricated_token_id,
-            &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0 },
+            &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0, reserved: 0 },
             &mut outputs,
         );
         // The reentrance check runs before the auth-token list is read at all,
@@ -798,7 +798,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             &addr,
             &[],
             &[],
-            &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0 },
+            &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0, reserved: 0 },
             &mut outputs,
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeReentrance);
@@ -836,7 +836,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             target,
             &[],
             &[],
-            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0x2 }, // ReadOnly
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0x2, reserved: 0 }, // ReadOnly
             &mut outputs,
         );
         expect_frame_status(res, &outputs, InvocationFrameStatusCode::Return);
@@ -852,7 +852,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             target,
             &[],
             &[],
-            &sys::CopyableInvokeInputs { entrypoint_id: 0xFF, gas_limit: u64::MAX, flags: 0 },
+            &sys::CopyableInvokeInputs { entrypoint_id: 0xFF, gas_limit: u64::MAX, flags: 0, reserved: 0 },
             &mut outputs,
         );
 
@@ -904,7 +904,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             target,
             &[],
             &[],
-            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0, reserved: 0 },
             &mut outputs,
         );
 
@@ -1011,7 +1011,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             target,
             &[],
             &[],
-            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0, reserved: 0 },
             &mut outputs,
         );
         expect_frame_status(res, &outputs, InvocationFrameStatusCode::Fault);
@@ -1026,7 +1026,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             target,
             &[],
             &[],
-            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0, reserved: 0 },
             &mut outputs,
         );
         expect_frame_status(res, &outputs, InvocationFrameStatusCode::Fault);
@@ -1041,7 +1041,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             target,
             &[],
             &[],
-            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0, reserved: 0 },
             &mut outputs,
         );
         expect_frame_status(res, &outputs, InvocationFrameStatusCode::Return);
@@ -1053,7 +1053,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let res = sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
-            &mut auth_token_id_list_buf.as_mut_slice(),
+            auth_token_id_list_buf.as_mut_slice(),
             &mut auth_token_id_list_result_len,
         );
         assert!(res.is_ok());
@@ -1070,7 +1070,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             target,
             &[],
             &[],
-            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0 },
+            &sys::CopyableInvokeInputs { entrypoint_id: entrypoint, gas_limit: u64::MAX, flags: 0, reserved: 0 },
             &mut outputs,
         );
         // The child claims to return token IDs it doesn't own.
@@ -1100,7 +1100,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             target,
             &[],
             &misaligned,
-            &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0 },
+            &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0, reserved: 0 },
             &mut outputs,
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
@@ -1119,7 +1119,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             target,
             &[],
             &[],
-            &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0 },
+            &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0, reserved: 0 },
             &mut outputs,
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvokeDepthExceeded);

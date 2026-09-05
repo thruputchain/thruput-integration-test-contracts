@@ -39,6 +39,7 @@ fn test_read_only_bytestring_set_inner(
             entrypoint_id,
             gas_limit: u64::MAX, // gas limit
             flags: flag,
+            reserved: 0,
         },
         &mut outputs,
     )

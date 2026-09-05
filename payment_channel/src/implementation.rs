@@ -126,15 +126,15 @@ impl PaymentChannel for PaymentChannelContract {
         };
 
         let channel = Channel {
-            party_a_pubkey: party_a_pubkey.clone(),
-            party_a_dest: party_a_dest.clone(),
+            party_a_pubkey: *party_a_pubkey,
+            party_a_dest,
             deposit_a: amount,
 
-            party_b_pubkey: party_b_pubkey.clone(),
-            party_b_dest: party_b_dest.clone(),
+            party_b_pubkey: *party_b_pubkey,
+            party_b_dest: *party_b_dest,
             deposit_b: 0,
 
-            token: token.clone(),
+            token: *token,
             joined: false,
 
             dispute_period,
@@ -157,7 +157,7 @@ impl PaymentChannel for PaymentChannelContract {
         channel_id
     }
 
-    fn join_channel(&mut self, channel_id: u64, amount: i128) -> () {
+    fn join_channel(&mut self, channel_id: u64, amount: i128) {
         assert!(amount > 0, "Deposit must be positive");
 
         let mut channel = self.channels.at(&channel_id).get();

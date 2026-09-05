@@ -27,7 +27,7 @@ pub struct ChannelState {
 #[contract(client = Client)]
 pub trait PaymentChannel {
     // Initialize the contract storage with the default dispute period (in blocks) for new channels.
-    fn initialize(&mut self, dispute_period: u64) -> ();
+    fn initialize(&mut self, dispute_period: u64);
 
     // Open a new channel. The caller deposits `amount` tokens.
     // Returns the channel ID (derived deterministically from params).

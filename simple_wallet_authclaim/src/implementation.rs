@@ -30,7 +30,7 @@ impl SimpleWalletAuthClaim for SimpleWalletAuthClaimContract {
             }
         }
 
-        let res = sdk::__xdrs::txs::decode(&invocation_bytes);
+        let res = sdk::__xdrs::txs::decode(invocation_bytes);
         let (addr, entrypoint, gas_limit, calldata): (
             ContractAddress,
             ContractEntrypointID,
@@ -50,12 +50,13 @@ impl SimpleWalletAuthClaim for SimpleWalletAuthClaimContract {
         };
         sdk::sys::raw_Invoke(
             &addr,
-            &calldata,
+            calldata,
             &[],
             &sdk::sys::CopyableInvokeInputs {
                 entrypoint_id: method_id,
                 gas_limit,
                 flags: 0, // TODO(geoff): invoke flags go here
+                reserved: 0,
             },
             &mut outputs,
         )
