@@ -163,7 +163,7 @@ impl ERC20 for Token {
         add_to_balance(receiver, diff);
         add_to_total_supply(diff);
 
-        log_transfer_event(CONTRACT_ADDR_ZERO, receiver, amount);
+        log_mint_event(receiver, amount);
     }
 
     fn burn(&mut self, owner: &ContractAddress, amount: Amount) {
@@ -173,7 +173,7 @@ impl ERC20 for Token {
         add_to_balance(owner, -diff);
         add_to_total_supply(-diff);
 
-        log_transfer_event(owner, CONTRACT_ADDR_ZERO, amount);
+        log_burn_event(owner, amount);
     }
 
     fn total_supply(&self) -> Amount {
