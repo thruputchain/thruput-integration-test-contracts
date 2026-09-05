@@ -59,9 +59,9 @@ impl HTLC for HTLCContract {
 
         let htlc = HTLCEntry {
             sender: sdk::get_caller(),
-            receiver: receiver.clone(),
-            token: token.clone(),
-            amount: amount.clone(),
+            receiver: *receiver,
+            token: *token,
+            amount,
             expiration_height: expiration_height.clone(),
         };
 
@@ -93,7 +93,7 @@ impl HTLC for HTLCContract {
     }
 
     fn refund_htlc(&mut self, 
-        hash: &SHA256Hash) -> () {
+        hash: &SHA256Hash) {
         let htlc = self.htlcs.at(hash).get();
 
         if htlc.expiration_height >= get_block_height() {

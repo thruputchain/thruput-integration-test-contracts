@@ -90,6 +90,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
                 entrypoint_id: entrypoint,
                 gas_limit: u64::MAX,
                 flags: flag,
+                reserved: 0,
             },
             &mut sdk::sys::CopyableInvokeOutputs {
                 return_buffer_len: 0,
@@ -119,6 +120,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
                 entrypoint_id: entrypoint,
                 gas_limit: u64::MAX,
                 flags: flag,
+                reserved: 0,
             },
             &mut outputs,
         );

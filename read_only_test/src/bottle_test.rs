@@ -37,6 +37,7 @@ impl BottleTest for BT {
                 entrypoint_id: crate::ReadOnlyTestEntrypoints::read_only_bytestring_set.into_u64(),
                 gas_limit: u64::MAX,
                 flags: flag,
+                reserved: 0,
             },
             &mut outputs,
         )
