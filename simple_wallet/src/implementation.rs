@@ -1,38 +1,26 @@
-//! A simple wallet contract implementing ERC1271 signature verification.
+//! A simple wallet: one owner key, whose signature over an encoded
+//! invocation authorizes the wallet to perform that call.
+//!
+//! Verifies the signature directly. This used to go through the ERC1271
+//! interface, which the SDK has retired in favour of `SignedOp`; the wire
+//! shape here — `do_action(signature, invocation_bytes)` — is unchanged, as
+//! hogd's load generators and integration tests drive it.
 
 extern crate alloc;
 
 use super::interface::*;
-use alloc::vec::Vec;
-use groundhog_erc1271_if::{ERC1271, ERC1271Error};
 use sdk::crypto::verify_signature_ed25519;
-use sdk::signer::{Opaque, Signed};
 use sdk::*;
+
+#[contract_exception]
+pub enum WalletError {
+    /// The signature does not verify under the owner's key.
+    InvalidSignature = 1,
+}
 
 #[storage]
 pub struct SimpleWalletContract {
     owner: sdk::storage::Value<Ed25519PublicKey>,
-}
-
-#[contract(version = "0.1.0")]
-impl ERC1271 for SimpleWalletContract {
-    fn is_valid_signature(
-        &self,
-        msg: &[u8],
-        signature: &[u8],
-    ) -> Vec<Signed<Opaque>> {
-        if signature.len() != 64 {
-            sdk::throw(ERC1271Error::InvalidSignature);
-        }
-
-        let signature = Ed25519Signature::new(signature.try_into().unwrap());
-
-        if !verify_signature_ed25519(&self.owner.get(), &signature, msg) {
-            sdk::throw(ERC1271Error::InvalidSignature);
-        }
-
-        Vec::new()
-    }
 }
 
 #[contract]
@@ -46,7 +34,9 @@ impl SimpleWallet for SimpleWalletContract {
         signature: &Ed25519Signature,
         invocation_bytes: &[u8],
     ) {
-        self.is_valid_signature(invocation_bytes, signature.as_ref());
+        if !verify_signature_ed25519(&self.owner.get(), signature, invocation_bytes) {
+            sdk::throw(WalletError::InvalidSignature);
+        }
 
         let (addr, entrypoint, gas_limit, calldata): (
             ContractAddress,

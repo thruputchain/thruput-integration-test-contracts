@@ -11,9 +11,8 @@ mod implementation;
 // A client stub that provides the interface via cross-contract calls
 pub use interface::Client;
 
-pub use implementation::SimpleWalletContract;
+pub use implementation::{SimpleWalletContract, WalletError};
 
 pub use interface::SimpleWallet;
-pub use groundhog_erc1271_if::ERC1271;
 
 sdk::declare_mock_contract!();
