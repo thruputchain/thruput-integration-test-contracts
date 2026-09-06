@@ -6,16 +6,16 @@ pub struct ReturnFaultTestContract;
 #[contract]
 impl ReturnFaultTest for ReturnFaultTestContract {
 
-    fn run_test() {
-        let addr = sdk::get_current_address();
-        let client = Client::new(&addr);
+    fn run_test(callee_addr: &ContractAddress) {
+        let client = Client::new(callee_addr);
 
         match client.try_test_inner() {
             Ok(_) => {
                 panic!("test_inner should have failed");
             }
             Err(CallError::Fault(_)) => {
-                // Expected: inner contract faulted due to out-of-bounds memory access
+                // Expected: the inner frame ran and faulted on the
+                // out-of-bounds Return.
             }
             Err(e) =>
                 panic!("Expected the call to fault: {e:?}"),
