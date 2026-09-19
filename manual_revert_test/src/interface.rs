@@ -1,7 +1,7 @@
 use sdk::*;
 
 #[contract_exception]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub enum ManualRevertTestError {
     BasicRevert = 1,
     ErrorTypeRevert = 2,
