@@ -12,7 +12,7 @@ pub struct WalletCall {
 }
 
 #[contract_exception]
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub enum WalletError {
     NotRootInvocation = 1,
     InvalidAuthClaim = 2,
