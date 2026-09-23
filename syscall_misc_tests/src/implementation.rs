@@ -369,15 +369,22 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
 
-    // ── #19: RetrocausalQueueInsert → kInvalidSyscallInput (wrong type)
+    // ── #19: RetrocausalQueueInsert over a value of another type ────
 
-    fn test_rcq_insert_wrong_type() {
-        let key = static_key!("rcq_insert_wrong_type");
+    // An insert is a write, and a write replaces whatever the key held, so a
+    // bytestring at the key is not an error. That holds however recently it
+    // was written: this one is a syscall old, and a committed one behaves the
+    // same way (see RCQTest in hogd, which checks the resulting storage).
+    fn test_rcq_insert_over_bytestring() {
+        let key = static_key!("rcq_insert_over_bytestring");
         // Write bytestring first
         sys::raw_BytestringSet(&key, b"data", 0).unwrap();
-        // Try queue insert at same key
-        let res = sys::raw_RetrocausalQueueInsert(&key, b"entry");
-        expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
+        // The insert converts the key rather than failing.
+        sys::raw_RetrocausalQueueInsert(&key, b"entry").unwrap();
+        // The key holds a queue now: the entry just inserted is readable.
+        let mut len: RuntimeMemoryLength = 0;
+        sys::raw_RetrocausalQueuePeekLen(&key, &mut len).unwrap();
+        assert!(len == 5);
     }
 
     // ── #20: RetrocausalQueueConsume → kNoRetrocausalQueueEntry ─────

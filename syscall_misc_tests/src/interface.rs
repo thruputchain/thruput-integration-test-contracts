@@ -37,7 +37,7 @@ pub trait SyscallMiscTests {
     fn test_nnint_set_add_invalid_flags();
     fn test_delete_invalid_flags();
     fn test_rcq_insert_too_large();
-    fn test_rcq_insert_wrong_type();
+    fn test_rcq_insert_over_bytestring();
     fn test_rcq_consume_empty();
     fn test_rcq_consume_wrong_type();
     fn test_log_event_data_too_long();
