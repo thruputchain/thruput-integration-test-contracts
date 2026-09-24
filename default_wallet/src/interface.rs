@@ -27,4 +27,12 @@ pub enum WalletError {
 pub trait DefaultWallet {
     fn execute(calls: Vec<WalletCall>) -> Vec<WalletBytes>;
     fn deploy(nonce: &SHA256Hash, contract_hash: &SHA256Hash) -> ContractAddress;
+    /// Transfer an exact amount of native HOG to the derived address and deploy
+    /// its attached code in the same transaction. Failure rolls both back.
+    /// The amount is caller-selected collateral, not an estimated storage cost.
+    fn deploy_funded(
+        nonce: &SHA256Hash,
+        contract_hash: &SHA256Hash,
+        amount: u128,
+    ) -> ContractAddress;
 }

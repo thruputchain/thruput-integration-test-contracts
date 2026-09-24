@@ -1,6 +1,7 @@
 use super::interface::*;
 use alloc::vec::Vec;
 use groundhog_domain_separator::syscall::pubkey_account_address;
+use groundhog_erc20_if::ERC20Client;
 use sdk::sys::{self, SyscallErrorCode};
 use sdk::*;
 
@@ -104,6 +105,22 @@ impl DefaultWallet for DefaultWalletContract {
 
     fn deploy(nonce: &SHA256Hash, contract_hash: &SHA256Hash) -> ContractAddress {
         require_root_pubkey_auth();
+        sdk::deploy_contract(nonce, contract_hash)
+    }
+
+    fn deploy_funded(
+        nonce: &SHA256Hash,
+        contract_hash: &SHA256Hash,
+        amount: u128,
+    ) -> ContractAddress {
+        require_root_pubkey_auth();
+        let target = sdk::get_deploy_address(nonce, contract_hash);
+        let token = ERC20Client::new(&sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN);
+        match token.try_transfer(&target, amount) {
+            Ok(()) => {}
+            Err(CallError::Exception(_)) => throw(WalletError::CallAborted),
+            Err(_) => throw(WalletError::CallFaulted),
+        }
         sdk::deploy_contract(nonce, contract_hash)
     }
 }

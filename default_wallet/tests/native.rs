@@ -71,3 +71,34 @@ fn execute_rejects_default_source_address_auth_claim() {
 
     assert_wallet_error(&result, WalletError::InvalidAuthClaim);
 }
+
+#[test]
+fn deploy_funded_rejects_wrong_auth_before_funding() {
+    let env = sdk::TestEnvironment::no_cost();
+    let claim = pubkey_claim(17, 7);
+    let result = env.transaction().with_auth_claim(claim).transact(|tx| {
+        tx.call(&ContractAddress::new([1u8; 32])).run(|| {
+            <DefaultWalletContract as DefaultWallet>::deploy_funded(
+                &[0; 32].into(),
+                &[0; 32].into(),
+                100,
+            )
+        })
+    });
+    assert_wallet_error(&result, WalletError::InvalidAuthClaim);
+}
+
+#[test]
+fn deploy_funded_rejects_source_address_auth() {
+    let env = sdk::TestEnvironment::no_cost();
+    let result = env.transact(|tx| {
+        tx.call(&ContractAddress::new([1u8; 32])).run(|| {
+            <DefaultWalletContract as DefaultWallet>::deploy_funded(
+                &[0; 32].into(),
+                &[0; 32].into(),
+                100,
+            )
+        })
+    });
+    assert_wallet_error(&result, WalletError::InvalidAuthClaim);
+}
