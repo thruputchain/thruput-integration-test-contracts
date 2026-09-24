@@ -14,7 +14,9 @@ fn pubkey_claim(pubkey_byte: u8, nonce: u64) -> AuthClaim {
 
 fn pubkey_claim_address(auth_claim: &AuthClaim) -> ContractAddress {
     match auth_claim {
-        AuthClaim::kPubkeySignature { pubkey_preimage } => pubkey_account_address(pubkey_preimage),
+        AuthClaim::kPubkeySignature { pubkey_preimage } => {
+            pubkey_account_address(pubkey_preimage)
+        }
         _ => panic!("expected pubkey signature claim"),
     }
 }
@@ -22,7 +24,9 @@ fn pubkey_claim_address(auth_claim: &AuthClaim) -> ContractAddress {
 fn assert_wallet_error(result: &sdk::TransactResult, expected: WalletError) {
     result.assert_abort();
 
-    let mut reader = sdk::__xdrs::cxs::buf_reader::BufReader::new(result.frame().abort_buffer());
+    let mut reader = sdk::__xdrs::cxs::buf_reader::BufReader::new(
+        result.frame().abort_buffer(),
+    );
     let selector: u64 = sdk::ReadXDR::read_xdr(&mut reader).unwrap();
     assert_eq!(selector, WalletError::SELECTOR);
 
@@ -37,8 +41,9 @@ fn execute_accepts_matching_pubkey_auth_claim() {
     let wallet_address = pubkey_claim_address(&claim);
 
     let result = env.transaction().with_auth_claim(claim).transact(|tx| {
-        tx.call(&wallet_address)
-            .run(|| <DefaultWalletContract as DefaultWallet>::execute(Vec::new()))
+        tx.call(&wallet_address).run(|| {
+            <DefaultWalletContract as DefaultWallet>::execute(Vec::new())
+        })
     });
 
     assert_wallet_error(&result, WalletError::EmptyCallList);
@@ -53,8 +58,9 @@ fn execute_rejects_pubkey_auth_claim_for_different_address() {
     let wrong_address = ContractAddress::from(wrong_address_bytes);
 
     let result = env.transaction().with_auth_claim(claim).transact(|tx| {
-        tx.call(&wrong_address)
-            .run(|| <DefaultWalletContract as DefaultWallet>::execute(Vec::new()))
+        tx.call(&wrong_address).run(|| {
+            <DefaultWalletContract as DefaultWallet>::execute(Vec::new())
+        })
     });
 
     assert_wallet_error(&result, WalletError::InvalidAuthClaim);
@@ -65,8 +71,9 @@ fn execute_rejects_default_source_address_auth_claim() {
     let env = sdk::TestEnvironment::no_cost();
 
     let result = env.transact(|tx| {
-        tx.call(&ContractAddress::new([1u8; 32]))
-            .run(|| <DefaultWalletContract as DefaultWallet>::execute(Vec::new()))
+        tx.call(&ContractAddress::new([1u8; 32])).run(|| {
+            <DefaultWalletContract as DefaultWallet>::execute(Vec::new())
+        })
     });
 
     assert_wallet_error(&result, WalletError::InvalidAuthClaim);
@@ -101,4 +108,65 @@ fn deploy_funded_rejects_source_address_auth() {
         })
     });
     assert_wallet_error(&result, WalletError::InvalidAuthClaim);
+}
+
+#[test]
+fn deploy_funded_commits_exact_transfer_and_callable_contract() {
+    // Zero storage costs isolate the requested transfer from collateral charges.
+    // The hogd parity suite separately exercises the real cost model.
+    let env = sdk::TestEnvironment::no_cost();
+    let claim = pubkey_claim(17, 7);
+    let wallet = pubkey_claim_address(&claim);
+    env.setup_grant_storage_tokens(&wallet, 1_000);
+    let marker = 42u64.to_be_bytes().into();
+    let contract = env.register_mock(|contract| {
+        contract.register_method(marker, || {
+            sdk::sys::raw_Return(&[42], false, &[])
+        });
+    });
+    let hash = *contract.as_hash();
+    let nonce = [31; 32].into();
+    let result = env.transaction().with_auth_claim(claim).transact(|tx| {
+        tx.call(&wallet).run(|| {
+            let expected = sdk::get_deploy_address(&nonce, &hash);
+            let deployed =
+                <DefaultWalletContract as DefaultWallet>::deploy_funded(
+                    &nonce, &hash, 123,
+                );
+            assert_eq!(deployed, expected);
+            deployed
+        })
+    });
+    result.assert_success();
+    let deployed = result.assert_return_as::<ContractAddress>();
+    env.advance_block();
+
+    env.transact(|tx| {
+        tx.call(&wallet).run(|| {
+            let token = groundhog_erc20_if::ERC20Client::new(
+                &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
+            );
+            assert_eq!(token.get_balance_of(&wallet), 877);
+            assert_eq!(token.get_balance_of(&deployed), 123);
+
+            // Invoke the deployed code through the runtime, rather than merely
+            // checking that deploy_funded returned the predicted address.
+            let mut returned = Vec::new();
+            let mut returned_auth = sdk::AuthHandleBuf::new();
+            let outcome = sdk::call::contract_call(
+                &deployed,
+                marker,
+                u64::MAX,
+                &[],
+                &sdk::AuthHandleBuf::new(),
+                0,
+                &mut returned,
+                &mut returned_auth,
+            )
+            .unwrap();
+            assert_eq!(outcome, sdk::call::CallOutcome::Return);
+            assert_eq!(returned, [42]);
+        })
+    })
+    .assert_success();
 }
