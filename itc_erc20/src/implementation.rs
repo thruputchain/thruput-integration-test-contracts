@@ -125,6 +125,15 @@ impl ERC20 for Token {
         log_transfer_event(owner, receiver, amount);
     }
 
+    fn approve(&mut self, spender: &ContractAddress, amount: Amount) {
+        let owner = get_caller();
+        non_negative_int_set_exclusive(
+            &get_allowance_key(&owner, spender),
+            amount_to_diff(amount),
+        );
+        log_approve_event(&owner, spender, amount);
+    }
+
     fn adjust_allowance(
         &mut self,
         spender: &ContractAddress,
