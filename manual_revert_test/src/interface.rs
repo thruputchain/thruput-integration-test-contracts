@@ -11,6 +11,14 @@ pub enum ManualRevertTestError {
 
 #[contract(client = "Client", throws = ManualRevertTestError)]
 pub trait ManualRevertTest {
+    /// Record the initializer caller and marker, then optionally abort or fault.
+    /// Returns a maximum-sized payload so callers that discard it are exercised.
+    fn test_initializer(
+        expected_sender: ContractAddress,
+        marker: u32,
+        mode: u32,
+    ) -> [u8; 1024];
+
     /// Tests basic manual revert functionality.
     /// When should_revert=true, writes storage then aborts (triggering manual revert).
     /// When should_revert=false, writes storage and returns normally.

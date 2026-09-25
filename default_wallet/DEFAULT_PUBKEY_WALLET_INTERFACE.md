@@ -18,12 +18,24 @@ No deploy step. No `create_wallet` flow. No app-specific wallet setup.
 #[contract(client = DefaultWalletClient, throws = WalletError)]
 pub trait DefaultWallet {
     fn execute(calls: Vec<WalletCall>) -> Vec<Bytes>;
-    fn deploy(nonce: SHA256Hash, contract_hash: SHA256Hash) -> ContractAddress;
+    fn deploy(
+        nonce: SHA256Hash,
+        contract_hash: SHA256Hash,
+        amount: u128,
+        initializer: Option<WalletInitCall>,
+    ) -> ContractAddress;
 }
 
 #[contract_type]
 pub struct WalletCall {
     pub target: ContractAddress,
+    pub entrypoint: ContractEntrypointID,
+    pub gas_limit: u64,
+    pub calldata: Bytes,
+}
+
+#[contract_type]
+pub struct WalletInitCall {
     pub entrypoint: ContractEntrypointID,
     pub gas_limit: u64,
     pub calldata: Bytes,
@@ -58,14 +70,28 @@ Return values are ordered the same way: `execute([call_a, call_b, call_c]) -> [r
 
 Do not include partial-success or allow-failure behavior in v1 unless there is a concrete app requirement.
 
-### `deploy(nonce, contract_hash)`
+### `deploy(nonce, contract_hash, amount, initializer)`
 
-Deploys a contract from the wallet address.
+Funds, deploys and optionally initializes a contract from the wallet address in
+one transaction.
 
 - Must be the transaction root invocation.
 - Must be authorized by `kPubkeySignature` for this wallet address.
 - Uses the wallet address as deployer.
-- Returns the deployed contract address.
+- An amount greater than zero transfers exactly that many raw HOG units to the
+  predicted address before deployment. Zero skips the token call entirely; the
+  target must already have any required collateral.
+- The amount is caller-selected funding, not a storage-cost estimate. It must
+  cover deployment and any initial state created by the initializer.
+- An optional initializer is an ordinary method call on the newly deployed
+  contract. Its caller is the wallet; no auth tokens are forwarded. Its entrypoint,
+  calldata and gas limit are explicit, with no constructor-name convention.
+- Returns only the deployed contract address; initializer return data is discarded.
+- A funding, deployment or initialization failure rolls back all application
+  state and success events. Normal transaction replay bookkeeping still applies.
+- Initializer aborts report `CallAborted`; invocation failures report `CallFaulted`,
+  as for `execute`. Contracts must enforce their own initialization policy on
+  later calls; the wallet does not make a method callable only once.
 - The outer transaction still carries `contracts_to_deploy` when needed.
 
 Including `deploy` makes the default wallet complete: a user can create a keypair, execute one call, execute multiple calls atomically, and deploy contracts.

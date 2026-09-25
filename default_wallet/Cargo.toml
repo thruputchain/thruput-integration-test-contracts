@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 groundhog-domain-separator = { workspace = true, features = ["syscall"] }
 sdk = { workspace = true, features = ["alloc"] }
+groundhog-erc20-if = { workspace = true }
 
 [lib]
 crate-type = ["rlib"]
