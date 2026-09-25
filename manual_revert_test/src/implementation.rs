@@ -5,6 +5,30 @@ struct ManualRevertTestContract;
 
 #[contract]
 impl ManualRevertTest for ManualRevertTestContract {
+    fn test_initializer(
+        expected_sender: ContractAddress,
+        marker: u32,
+        mode: u32,
+    ) -> [u8; 1024] {
+        let sender = sdk::get_caller();
+        assert_eq!(sender, expected_sender);
+        let mut calldata = sdk::internal::new_scratch();
+        let mut auth_handles = AuthHandleBuf::new();
+        sdk::fetch_calldata_and_auth_tokens(&mut calldata, &mut auth_handles);
+        assert!(auth_handles.is_empty());
+        let mut state = [0u8; 36];
+        state[..32].copy_from_slice(sender.as_ref());
+        state[32..].copy_from_slice(&marker.to_be_bytes());
+        bytestring_set(&static_key!("initialized"), &state);
+        if mode == 1 {
+            throw(ManualRevertTestError::BasicRevert);
+        }
+        if mode == 2 {
+            sdk::trap();
+        }
+        [0xAB; 1024]
+    }
+
     fn test_basic_manual_revert(
         should_revert: bool,
     ) {
