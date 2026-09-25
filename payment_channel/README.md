@@ -32,11 +32,11 @@ Party A opens a channel by calling `open_channel` with:
 
 Party A's destination address is automatically set to the caller's address.
 
-**Important**: Before calling `open_channel`, Party A must approve the payment channel contract to spend their tokens via the ERC20 `adjust_allowance` method.
+**Important**: Before calling `open_channel`, Party A must approve the payment channel contract to spend their tokens via the ERC20 `approve` method.
 
 ```
 // First, approve the payment channel to spend tokens
-erc20.adjust_allowance(payment_channel_address, deposit_amount)
+erc20.approve(payment_channel_address, deposit_amount)
 
 // Then open the channel
 channel_id = open_channel(
@@ -56,11 +56,11 @@ channel_id = hash(caller, party_a_pubkey, party_b_pubkey, token, salt)[0..8] as 
 
 ### 2. Joining the Channel
 
-Party B joins by calling `join_channel` with their deposit. They must first approve the payment channel contract to spend their tokens.
+Party B joins by calling `join_channel` with their deposit. They must first approve the payment channel contract to spend their tokens. Each approval replaces that caller's remaining allowance; it does not add to a previous grant.
 
 ```
 // First, approve the payment channel to spend tokens
-erc20.adjust_allowance(payment_channel_address, deposit_amount)
+erc20.approve(payment_channel_address, deposit_amount)
 
 // Then join the channel
 join_channel(channel_id, deposit_amount)
@@ -132,7 +132,7 @@ This transfers the final balances to each party's destination address and delete
 initialize(100);
 
 // Alice approves and opens a channel with Bob, depositing 1000 tokens
-erc20.adjust_allowance(payment_channel, 1000);
+erc20.approve(payment_channel, 1000);
 let channel_id = open_channel(
     alice_pubkey,
     bob_pubkey,
@@ -143,7 +143,7 @@ let channel_id = open_channel(
 );
 
 // Bob approves and joins with 500 tokens (total capacity: 1500)
-erc20.adjust_allowance(payment_channel, 500);
+erc20.approve(payment_channel, 500);
 join_channel(channel_id, 500);
 
 // Off-chain: Alice pays Bob 100 tokens

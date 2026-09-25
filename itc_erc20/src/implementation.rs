@@ -30,14 +30,6 @@ fn get_allowance_key(
     owner: &ContractAddress,
     spender: &ContractAddress,
 ) -> StorageKey {
-    // Spending one's own tokens needs no allowance; reject (owner == spender)
-    // as a proper contract error rather than a debug-only assert, so the
-    // behavior is identical in release. (ERC20Error::Internal for now; a more
-    // descriptive variant can follow in an sdk update.)
-    if owner == spender {
-        throw(ERC20Error::Internal);
-    }
-
     (b"allowance", owner, spender).hash().into()
 }
 
@@ -104,7 +96,7 @@ impl ERC20 for Token {
         add_to_balance(&caller, -diff);
         add_to_balance(to, diff);
 
-        log_transfer_event(&caller, to, amount);
+        TransferEvent::new(&caller, to, amount_to_diff(amount)).log();
     }
 
     fn transfer_from(
@@ -122,7 +114,7 @@ impl ERC20 for Token {
         add_to_balance(owner, -diff);
         add_to_balance(receiver, diff);
 
-        log_transfer_event(owner, receiver, amount);
+        TransferEvent::new(owner, receiver, amount_to_diff(amount)).log();
     }
 
     fn approve(&mut self, spender: &ContractAddress, amount: Amount) {
@@ -131,19 +123,7 @@ impl ERC20 for Token {
             &get_allowance_key(&owner, spender),
             amount_to_diff(amount),
         );
-        log_approve_event(&owner, spender, amount);
-    }
-
-    fn adjust_allowance(
-        &mut self,
-        spender: &ContractAddress,
-        diff: Difference,
-    ) {
-        let owner = get_caller();
-
-        add_to_allowance(&owner, spender, diff);
-
-        log_approval_event(&owner, spender, diff);
+        ApprovalEvent::new(&owner, spender, amount_to_diff(amount)).log();
     }
 
     fn allowance(
@@ -172,7 +152,7 @@ impl ERC20 for Token {
         add_to_balance(receiver, diff);
         add_to_total_supply(diff);
 
-        log_mint_event(receiver, amount);
+        MintEvent::new(receiver, amount_to_diff(amount)).log();
     }
 
     fn burn(&mut self, owner: &ContractAddress, amount: Amount) {
@@ -182,7 +162,7 @@ impl ERC20 for Token {
         add_to_balance(owner, -diff);
         add_to_total_supply(-diff);
 
-        log_burn_event(owner, amount);
+        BurnEvent::new(owner, amount_to_diff(amount)).log();
     }
 
     fn total_supply(&self) -> Amount {
