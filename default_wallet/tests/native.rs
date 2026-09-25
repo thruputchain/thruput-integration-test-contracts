@@ -80,15 +80,16 @@ fn execute_rejects_default_source_address_auth_claim() {
 }
 
 #[test]
-fn deploy_funded_rejects_wrong_auth_before_funding() {
+fn deploy_rejects_wrong_auth_before_funding() {
     let env = sdk::TestEnvironment::no_cost();
     let claim = pubkey_claim(17, 7);
     let result = env.transaction().with_auth_claim(claim).transact(|tx| {
         tx.call(&ContractAddress::new([1u8; 32])).run(|| {
-            <DefaultWalletContract as DefaultWallet>::deploy_funded(
+            <DefaultWalletContract as DefaultWallet>::deploy(
                 &[0; 32].into(),
                 &[0; 32].into(),
                 100,
+                None,
             )
         })
     });
@@ -96,14 +97,15 @@ fn deploy_funded_rejects_wrong_auth_before_funding() {
 }
 
 #[test]
-fn deploy_funded_rejects_source_address_auth() {
+fn deploy_rejects_source_address_auth() {
     let env = sdk::TestEnvironment::no_cost();
     let result = env.transact(|tx| {
         tx.call(&ContractAddress::new([1u8; 32])).run(|| {
-            <DefaultWalletContract as DefaultWallet>::deploy_funded(
+            <DefaultWalletContract as DefaultWallet>::deploy(
                 &[0; 32].into(),
                 &[0; 32].into(),
                 100,
+                None,
             )
         })
     });
@@ -111,7 +113,7 @@ fn deploy_funded_rejects_source_address_auth() {
 }
 
 #[test]
-fn deploy_funded_commits_exact_transfer_and_callable_contract() {
+fn deploy_commits_exact_transfer_and_callable_contract() {
     // Zero storage costs isolate the requested transfer from collateral charges.
     // The hogd parity suite separately exercises the real cost model.
     let env = sdk::TestEnvironment::no_cost();
@@ -129,10 +131,9 @@ fn deploy_funded_commits_exact_transfer_and_callable_contract() {
     let result = env.transaction().with_auth_claim(claim).transact(|tx| {
         tx.call(&wallet).run(|| {
             let expected = sdk::get_deploy_address(&nonce, &hash);
-            let deployed =
-                <DefaultWalletContract as DefaultWallet>::deploy_funded(
-                    &nonce, &hash, 123,
-                );
+            let deployed = <DefaultWalletContract as DefaultWallet>::deploy(
+                &nonce, &hash, 123, None,
+            );
             assert_eq!(deployed, expected);
             deployed
         })
@@ -150,7 +151,7 @@ fn deploy_funded_commits_exact_transfer_and_callable_contract() {
             assert_eq!(token.get_balance_of(&deployed), 123);
 
             // Invoke the deployed code through the runtime, rather than merely
-            // checking that deploy_funded returned the predicted address.
+            // checking that deploy returned the predicted address.
             let mut returned = Vec::new();
             let mut returned_auth = sdk::AuthHandleBuf::new();
             let outcome = sdk::call::contract_call(
@@ -169,4 +170,141 @@ fn deploy_funded_commits_exact_transfer_and_callable_contract() {
         })
     })
     .assert_success();
+}
+
+fn init_call(mode: u8) -> default_wallet::WalletInitCall {
+    default_wallet::WalletInitCall {
+        entrypoint: 43u64.to_be_bytes().into(),
+        gas_limit: u64::MAX,
+        calldata: [mode].as_slice().try_into().unwrap(),
+    }
+}
+
+fn initializer_body() {
+    use sdk::storage::{Keypath, Value};
+    let mut calldata = Vec::new();
+    sdk::contract_op::fetch_calldata_and_auth_tokens(
+        &mut calldata,
+        &mut sdk::AuthHandleBuf::new(),
+    );
+    // Writing the caller proves both initialization and the caller identity.
+    let mut owner: Value<ContractAddress> = Keypath::default().into();
+    owner.set(&sdk::get_caller());
+    match calldata.as_slice() {
+        [0] => sdk::sys::raw_Return(&[0xff, 0x42], false, &[]),
+        [1] => sdk::contract_abort(&[0xff]),
+        [2] => panic!("initializer fault after write"),
+        _ => panic!("unexpected initializer calldata"),
+    }
+}
+
+#[test]
+fn deploy_initializes_atomically_as_the_wallet_with_optional_funding() {
+    use sdk::storage::{Keypath, Value};
+    for amount in [0, 123] {
+        let env = sdk::TestEnvironment::no_cost();
+        let claim = pubkey_claim(17, 7);
+        let wallet = pubkey_claim_address(&claim);
+        env.setup_grant_storage_tokens(&wallet, 1_000);
+        let contract = env.register_mock(|contract| {
+            contract.register_method(init_call(0).entrypoint, initializer_body);
+        });
+        let hash = *contract.as_hash();
+        let nonce = [32; 32].into();
+        let result = env.transaction().with_auth_claim(claim).transact(|tx| {
+            tx.call(&wallet).run(|| {
+                let predicted = sdk::get_deploy_address(&nonce, &hash);
+                let deployed = <DefaultWalletContract as DefaultWallet>::deploy(
+                    &nonce,
+                    &hash,
+                    amount,
+                    Some(init_call(0)),
+                );
+                assert_eq!(deployed, predicted);
+                deployed
+            })
+        });
+        result.assert_success();
+        // The initializer's arbitrary return bytes do not replace the address.
+        let deployed = result.assert_return_as::<ContractAddress>();
+        env.advance_block();
+        env.transact(|tx| {
+            tx.call(&deployed).run(|| {
+                let owner: Value<ContractAddress> = Keypath::default().into();
+                assert_eq!(owner.get(), wallet);
+                let token = groundhog_erc20_if::ERC20Client::new(
+                    &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
+                );
+                assert_eq!(token.get_balance_of(&wallet), 1_000 - amount);
+                assert_eq!(token.get_balance_of(&deployed), amount);
+            })
+        })
+        .assert_success();
+    }
+}
+
+#[test]
+fn initializer_abort_and_fault_roll_back_funding_deployment_and_storage() {
+    use sdk::storage::{Keypath, Value};
+    use sdk::NoneIfMissing;
+    for (mode, expected) in
+        [(1, WalletError::CallAborted), (2, WalletError::CallFaulted)]
+    {
+        let env = sdk::TestEnvironment::no_cost();
+        let claim = pubkey_claim(17, 7);
+        let wallet = pubkey_claim_address(&claim);
+        env.setup_grant_storage_tokens(&wallet, 1_000);
+        let contract = env.register_mock(|contract| {
+            contract.register_method(init_call(0).entrypoint, initializer_body);
+        });
+        let hash = *contract.as_hash();
+        let nonce = [33; 32].into();
+        let address_result = env.transact(|tx| {
+            tx.call(&wallet)
+                .run(|| sdk::get_deploy_address(&nonce, &hash))
+        });
+        address_result.assert_success();
+        let target = address_result.assert_return_as::<ContractAddress>();
+        let result =
+            env.transaction()
+                .with_auth_claim(claim.clone())
+                .transact(|tx| {
+                    tx.call(&wallet).run(|| {
+                        <DefaultWalletContract as DefaultWallet>::deploy(
+                            &nonce,
+                            &hash,
+                            123,
+                            Some(init_call(mode)),
+                        )
+                    })
+                });
+        assert_wallet_error(&result, expected);
+        env.advance_block();
+        env.transact(|tx| {
+            tx.call(&target).run(|| {
+                let owner: Value<ContractAddress> = Keypath::default().into();
+                assert_eq!(owner.try_get().none_if_missing(), None);
+                let token = groundhog_erc20_if::ERC20Client::new(
+                    &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
+                );
+                assert_eq!(token.get_balance_of(&wallet), 1_000);
+                assert_eq!(token.get_balance_of(&target), 0);
+            })
+        })
+        .assert_success();
+        // Reusing the exact deployment identity succeeds only if code rolled back.
+        env.transaction()
+            .with_auth_claim(claim)
+            .transact(|tx| {
+                tx.call(&wallet).run(|| {
+                    <DefaultWalletContract as DefaultWallet>::deploy(
+                        &nonce,
+                        &hash,
+                        123,
+                        Some(init_call(0)),
+                    )
+                })
+            })
+            .assert_success();
+    }
 }
