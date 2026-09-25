@@ -9,6 +9,8 @@ mod implementation;
 mod interface;
 
 pub use implementation::DefaultWalletContract;
-pub use interface::{Client, DefaultWallet, WalletBytes, WalletCall, WalletError};
+pub use interface::{
+    Client, DefaultWallet, WalletBytes, WalletCall, WalletError, WalletInitCall,
+};
 
 sdk::declare_mock_contract!();
