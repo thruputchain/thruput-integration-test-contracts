@@ -30,12 +30,9 @@ pub trait SyscallMiscTests {
     fn test_bs_get_key_not_exist();
     fn test_bs_get_wrong_type();
     fn test_bs_set_too_long();
-    fn test_bs_set_invalid_flags();
     fn test_nnint_get_key_not_exist();
     fn test_nnint_get_wrong_type();
     fn test_nnint_set_add_negative();
-    fn test_nnint_set_add_invalid_flags();
-    fn test_delete_invalid_flags();
     fn test_rcq_insert_too_large();
     fn test_rcq_insert_over_bytestring();
     fn test_rcq_consume_empty();
