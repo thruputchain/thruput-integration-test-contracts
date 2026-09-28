@@ -149,7 +149,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     fn internal_try_bytestring_set() {
         let key = static_key!("test_readonly_key");
-        let res = sys::raw_BytestringSet(&key, b"data", 0);
+        let res = sys::raw_BytestringSet(&key, b"data");
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
 
@@ -235,8 +235,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         // Write as NNInt
         let set_val: i128 = 0;
         let add_val: i128 = 0;
-        sys::raw_NonnegativeIntSetAdd(&key, Some(&set_val), &add_val, 0)
-            .unwrap();
+        sys::raw_NonnegativeIntSetAdd(&key, Some(&set_val), &add_val).unwrap();
         // Try to get bytestring length
         let mut length: RuntimeMemoryLength = 0;
         let res = sys::raw_BytestringGetLen(&key, &mut length);
@@ -261,8 +260,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         // Write as NNInt
         let set_val: i128 = 0;
         let add_val: i128 = 0;
-        sys::raw_NonnegativeIntSetAdd(&key, Some(&set_val), &add_val, 0)
-            .unwrap();
+        sys::raw_NonnegativeIntSetAdd(&key, Some(&set_val), &add_val).unwrap();
         // Try to get bytestring
         let mut buf = [0u8; 1024];
         let mut written_len: RuntimeMemoryLength = 0;
@@ -276,15 +274,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     fn test_bs_set_too_long() {
         let key = static_key!("bs_set_too_long");
         let data = [0u8; 1025]; // > kBytestringMaxLen (1024)
-        let res = sys::raw_BytestringSet(&key, &data, 0);
-        expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
-    }
-
-    // ── #12: BytestringSet → kInvalidSyscallInput (invalid flags) ───
-
-    fn test_bs_set_invalid_flags() {
-        let key = static_key!("bs_set_invalid_flags");
-        let res = sys::raw_BytestringSet(&key, b"data", 0x2);
+        let res = sys::raw_BytestringSet(&key, &data);
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
 
@@ -315,7 +305,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     fn test_nnint_get_wrong_type() {
         let key = static_key!("nnint_get_wrong_type");
         // Write as bytestring
-        sys::raw_BytestringSet(&key, b"data", 0).unwrap();
+        sys::raw_BytestringSet(&key, b"data").unwrap();
         // Try to get as NNInt with force_load=true
         let mut current_set: i128 = 0;
         let mut current_set_opt: bool = false;
@@ -337,26 +327,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let set_val: i128 = 1;
         let add_val: i128 = -2; // 1 + (-2) = -1, always negative
         let res =
-            sys::raw_NonnegativeIntSetAdd(&key, Some(&set_val), &add_val, 0);
-        expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
-    }
-
-    // ── #16: NonnegativeIntSetAdd → kInvalidSyscallInput (flags) ────
-
-    fn test_nnint_set_add_invalid_flags() {
-        let key = static_key!("nnint_set_add_invalid_flags");
-        let add_val: i128 = 0;
-        let res = sys::raw_NonnegativeIntSetAdd(
-            &key, None, &add_val, 0x2, // only 0x0 and 0x1 valid
-        );
-        expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
-    }
-
-    // ── #17: DeleteObject → kInvalidSyscallInput (invalid flags) ────
-
-    fn test_delete_invalid_flags() {
-        let key = static_key!("delete_invalid_flags");
-        let res = sys::raw_DeleteObject(&key, 0x2);
+            sys::raw_NonnegativeIntSetAdd(&key, Some(&set_val), &add_val);
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
 
@@ -378,7 +349,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     fn test_rcq_insert_over_bytestring() {
         let key = static_key!("rcq_insert_over_bytestring");
         // Write bytestring first
-        sys::raw_BytestringSet(&key, b"data", 0).unwrap();
+        sys::raw_BytestringSet(&key, b"data").unwrap();
         // The insert converts the key rather than failing.
         sys::raw_RetrocausalQueueInsert(&key, b"entry").unwrap();
         // The key holds a queue now: the entry just inserted is readable.
@@ -410,7 +381,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     fn test_rcq_consume_wrong_type() {
         let key = static_key!("rcq_consume_wrong_type");
         // Write bytestring first
-        sys::raw_BytestringSet(&key, b"data", 0).unwrap();
+        sys::raw_BytestringSet(&key, b"data").unwrap();
         // Try queue consume at same key
         let mut buf = [0u8; 256];
         let mut written_len: RuntimeMemoryLength = 0;
@@ -704,7 +675,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     fn test_rcq_cap_precedence(count: u32) {
         // A bytestring-occupied key, written before the cap is reached.
         let bs_key = static_key!("rcq_cap_wrong_type");
-        sys::raw_BytestringSet(&bs_key, b"data", 0).unwrap();
+        sys::raw_BytestringSet(&bs_key, b"data").unwrap();
 
         // Observe `count` seeded entries, exactly filling the per-tx
         // observation cap.
