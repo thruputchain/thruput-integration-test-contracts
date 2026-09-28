@@ -78,7 +78,8 @@ impl ReadOnlyTest for ReadOnlyTestContract {
     }
 
     fn read_only_native_get_balance(target_addr: &ContractAddress) {
-        let flag = groundhog_xdr::invoke_flag::InvokeFlag::ReadOnly.0;
+        let flag =
+            groundhog_xdr::invoke_flag::InvokeFlag::ReadOnly.0.cast_unsigned();
         let entrypoint =
             groundhog_erc20_if::ERC20Entrypoints::get_balance_of.into_u64();
         let calldata = cxs::encode(target_addr).unwrap();
@@ -102,7 +103,8 @@ impl ReadOnlyTest for ReadOnlyTestContract {
     }
 
     fn read_only_native_transfer(receiver_addr: &ContractAddress) {
-        let flag = groundhog_xdr::invoke_flag::InvokeFlag::ReadOnly.0;
+        let flag =
+            groundhog_xdr::invoke_flag::InvokeFlag::ReadOnly.0.cast_unsigned();
         let entrypoint =
             groundhog_erc20_if::ERC20Entrypoints::transfer.into_u64();
         // CXS-encode the arguments: (ContractAddress, (u64, u64))
