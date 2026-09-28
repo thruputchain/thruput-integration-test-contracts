@@ -26,7 +26,7 @@ impl BottleTest for BT {
 
         let mut outputs = core::mem::MaybeUninit::uninit();
 
-        let flag: i32 = InvokeFlag::ReadOnly.0;
+        let flag = InvokeFlag::ReadOnly.0.cast_unsigned();
         let calldata = cxs::encode(&true).unwrap();
 
         sys::uninit_Invoke(
