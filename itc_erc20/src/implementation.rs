@@ -10,7 +10,7 @@ use sdk::*;
 
 #[cfg(feature = "checked")]
 // use checked nnint operation to fail before commit
-use sdk::non_negative_int_checked_inc as non_negative_int_inc;
+use sdk::non_negative_int_strict_inc as non_negative_int_inc;
 
 // Compute keys for storing things
 
@@ -117,13 +117,36 @@ impl ERC20 for Token {
         TransferEvent::new(owner, receiver, amount_to_diff(amount)).log();
     }
 
-    fn approve(&mut self, spender: &ContractAddress, amount: Amount) {
+    fn adjust_allowance(
+        &mut self,
+        spender: &ContractAddress,
+        difference: Difference,
+        exclusive: bool,
+    ) {
         let owner = get_caller();
-        non_negative_int_set_exclusive(
-            &get_allowance_key(&owner, spender),
-            amount_to_diff(amount),
-        );
-        ApprovalEvent::new(&owner, spender, amount_to_diff(amount)).log();
+        let key = get_allowance_key(&owner, spender);
+        non_negative_int_try_strict_inc(&key, difference)
+            .unwrap_or_else(|_| throw(ERC20Error::TooLarge));
+        if exclusive {
+            set_storage_flags(&key, StorageDeltaFlags::ExclusiveLock);
+        }
+        AllowanceChangeEvent::new(&owner, spender, difference).log();
+    }
+
+    fn clear_allowance(&mut self, spender: &ContractAddress) {
+        let owner = get_caller();
+        let remaining = amount_to_diff(self.allowance(&owner, spender));
+        delete_exclusive(&get_allowance_key(&owner, spender));
+        AllowanceChangeEvent::new(&owner, spender, -remaining).log();
+    }
+
+    fn clear_balance(&mut self) {
+        let key = get_balance_key(&get_caller());
+        let balance = non_negative_int_try_get(&key)
+            .none_if_missing()
+            .unwrap_or(0);
+        ensure(balance == 0, ERC20Error::BalanceNotZero);
+        delete_exclusive(&key);
     }
 
     fn allowance(
