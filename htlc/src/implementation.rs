@@ -67,7 +67,7 @@ impl HTLC for HTLCContract {
 
         let token_client = htlc.token_client();
         let self_address = sdk::get_current_address();
-        token_client.transfer_from(&htlc.sender, &self_address, htlc.amount as u128);
+        token_client.transfer_from(&htlc.sender, &self_address, htlc.amount);
 
         self.htlcs.at_mut_exclusive(hash).set(&htlc);
     }
@@ -87,7 +87,7 @@ impl HTLC for HTLCContract {
         }
 
         let token_client = htlc.token_client();
-        token_client.transfer(&htlc.receiver, htlc.amount as u128);
+        token_client.transfer(&htlc.receiver, htlc.amount);
 
         self.htlcs.at_mut_exclusive(hash).delete();
     }
@@ -101,7 +101,7 @@ impl HTLC for HTLCContract {
         }
 
         let token_client = htlc.token_client();
-        token_client.transfer(&htlc.sender, htlc.amount as u128);
+        token_client.transfer(&htlc.sender, htlc.amount);
 
         self.htlcs.at_mut_exclusive(hash).delete();
     }

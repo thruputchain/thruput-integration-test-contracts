@@ -149,7 +149,7 @@ impl PaymentChannel for PaymentChannelContract {
         let token_client = channel.token_client();
         let self_address = sdk::get_current_address();
         token_client
-            .transfer_from(&party_a_dest, &self_address, amount as u128);
+            .transfer_from(&party_a_dest, &self_address, amount);
 
         // Atomically create channel (fails if already exists)
         self.channels.at_mut_exclusive(&channel_id).set(&channel);
@@ -178,7 +178,7 @@ impl PaymentChannel for PaymentChannelContract {
         let token_client = channel.token_client();
         let self_address = sdk::get_current_address();
         token_client
-            .transfer_from(&caller, &self_address, amount as u128);
+            .transfer_from(&caller, &self_address, amount);
 
         channel.deposit_b = amount;
         channel.joined = true;
@@ -225,7 +225,7 @@ impl PaymentChannel for PaymentChannelContract {
         let token_client = channel.token_client();
         let self_address = sdk::get_current_address();
         token_client
-            .transfer_from(&caller, &self_address, amount as u128);
+            .transfer_from(&caller, &self_address, amount);
 
         if is_party_a {
             channel.deposit_a += amount;
@@ -366,12 +366,12 @@ impl PaymentChannel for PaymentChannelContract {
 
         if channel.submitted_balance_a > 0 {
             token_client
-                .transfer(&channel.party_a_dest, channel.submitted_balance_a as u128);
+                .transfer(&channel.party_a_dest, channel.submitted_balance_a);
         }
 
         if channel.submitted_balance_b > 0 {
             token_client
-                .transfer(&channel.party_b_dest, channel.submitted_balance_b as u128);
+                .transfer(&channel.party_b_dest, channel.submitted_balance_b);
         }
 
         // Delete the channel
