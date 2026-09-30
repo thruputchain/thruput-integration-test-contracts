@@ -117,7 +117,7 @@ impl DefaultWallet for DefaultWalletContract {
     fn deploy(
         nonce: &SHA256Hash,
         contract_hash: &SHA256Hash,
-        amount: u128,
+        amount: i128,
         initializer: Option<WalletInitCall>,
     ) -> ContractAddress {
         require_root_pubkey_auth();

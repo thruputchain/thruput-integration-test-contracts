@@ -21,7 +21,7 @@ pub trait DefaultWallet {
     fn deploy(
         nonce: SHA256Hash,
         contract_hash: SHA256Hash,
-        amount: u128,
+        amount: i128,
         initializer: Option<WalletInitCall>,
     ) -> ContractAddress;
 }
