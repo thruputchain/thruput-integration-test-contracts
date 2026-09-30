@@ -36,7 +36,7 @@ Party A's destination address is automatically set to the caller's address.
 
 ```
 // First, approve the payment channel to spend tokens
-erc20.adjust_allowance(payment_channel_address, deposit_amount, false)
+erc20.adjust_allowance(payment_channel_address, deposit_amount)
 
 // Then open the channel
 channel_id = open_channel(
@@ -60,7 +60,7 @@ Party B joins by calling `join_channel` with their deposit. They must first appr
 
 ```
 // First, approve the payment channel to spend tokens
-erc20.adjust_allowance(payment_channel_address, deposit_amount, false)
+erc20.adjust_allowance(payment_channel_address, deposit_amount)
 
 // Then join the channel
 join_channel(channel_id, deposit_amount)
@@ -132,7 +132,7 @@ This transfers the final balances to each party's destination address and delete
 initialize(100);
 
 // Alice approves and opens a channel with Bob, depositing 1000 tokens
-erc20.adjust_allowance(payment_channel, 1000, false);
+erc20.adjust_allowance(payment_channel, 1000);
 let channel_id = open_channel(
     alice_pubkey,
     bob_pubkey,
@@ -143,7 +143,7 @@ let channel_id = open_channel(
 );
 
 // Bob approves and joins with 500 tokens (total capacity: 1500)
-erc20.adjust_allowance(payment_channel, 500, false);
+erc20.adjust_allowance(payment_channel, 500);
 join_channel(channel_id, 500);
 
 // Off-chain: Alice pays Bob 100 tokens
