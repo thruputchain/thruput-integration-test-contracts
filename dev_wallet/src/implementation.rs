@@ -7,7 +7,7 @@ pub struct DevWalletContract;
 
 // Local-node deploy policy: hogd charges deployment storage to the deployed
 // contract address, so the wallet funds that address before deploying it.
-const DEPLOY_STORAGE_TOKENS: u128 = 100_000_000;
+const DEPLOY_STORAGE_TOKENS: i128 = 100_000_000;
 
 fn require_source_address_auth() {
     let auth_claim = sdk::get_auth_claim().unwrap();
