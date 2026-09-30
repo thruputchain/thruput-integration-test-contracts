@@ -7,14 +7,14 @@ pub struct Distribution {
     pub contract_hash: SHA256Hash,
     pub initializer: ContractEntrypointID,
     pub initializer_calldata: BytesM,
-    pub allocation: u128,
+    pub allocation: i128,
 }
 
 #[contract(client = Client)]
 pub trait GenesisRoot {
     fn distribute(
         distributions: Vec<Distribution>,
-        root_funding: u128,
-        token_funding: u128,
+        root_funding: i128,
+        token_funding: i128,
     );
 }

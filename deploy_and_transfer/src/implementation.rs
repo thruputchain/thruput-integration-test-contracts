@@ -9,7 +9,7 @@ impl DeployAndTransfer for DeployAndTransferContract {
     fn deploy_and_transfer(
         nonce: &SHA256Hash,
         contract_hash: &SHA256Hash,
-        amount: u128,
+        amount: i128,
     ) -> ContractAddress {
         let deployed_address = sdk::get_deploy_address(nonce, contract_hash);
         let token_client =

@@ -14,8 +14,8 @@ const GENESIS_ROOT_ADDRESS: ContractAddress = ContractAddress::new([
 impl GenesisRoot for GenesisRootContract {
     fn distribute(
         distributions: Vec<Distribution>,
-        root_funding: u128,
-        token_funding: u128,
+        root_funding: i128,
+        token_funding: i128,
     ) {
         let mut block_height: BlockHeight = 0.into();
         sdk::sys::raw_GetBlockHeight(&mut block_height).unwrap();
