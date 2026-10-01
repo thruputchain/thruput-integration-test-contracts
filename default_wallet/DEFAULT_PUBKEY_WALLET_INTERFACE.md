@@ -63,6 +63,9 @@ Executes one or more contract calls from the wallet, in order, inside one transa
 - Must be authorized by `kPubkeySignature` for this wallet address.
 - Returns one raw return-data item per call, in call order.
 - V1 should be all-or-nothing: if any call aborts or faults, the wallet aborts and no state changes commit.
+- A call that aborts with an exception has that exception re-thrown verbatim, so the
+  wallet's caller sees the callee's own error. An abort whose payload is not an
+  exception reports `CallAborted`; an invocation failure reports `CallFaulted`.
 
 Single-call usage is `execute([call])`. Multicall usage is `execute([call_a, call_b, call_c])`.
 
@@ -89,9 +92,10 @@ one transaction.
 - Returns only the deployed contract address; initializer return data is discarded.
 - A funding, deployment or initialization failure rolls back all application
   state and success events. Normal transaction replay bookkeeping still applies.
-- Initializer aborts report `CallAborted`; invocation failures report `CallFaulted`,
-  as for `execute`. Contracts must enforce their own initialization policy on
-  later calls; the wallet does not make a method callable only once.
+- Funding and initializer failures are reported as for `execute`: the token's
+  or initializer's exception is re-thrown verbatim.
+  Contracts must enforce their own initialization policy on later calls; the
+  wallet does not make a method callable only once.
 - The outer transaction still carries `contracts_to_deploy` when needed.
 
 Including `deploy` makes the default wallet complete: a user can create a keypair, execute one call, execute multiple calls atomically, and deploy contracts.

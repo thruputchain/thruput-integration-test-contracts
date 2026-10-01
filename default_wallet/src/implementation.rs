@@ -68,7 +68,12 @@ fn invoke(
         &mut returned_auth_handles,
     ) {
         Ok(sdk::call::CallOutcome::Return) => return_buf,
-        Ok(sdk::call::CallOutcome::Abort) => throw(WalletError::CallAborted),
+        Ok(sdk::call::CallOutcome::Abort) => {
+            match RawExceptionRef::parse(&return_buf) {
+                Ok(exn) => exn.re_throw(),
+                Err(_) => throw(WalletError::CallAborted),
+            }
+        }
         Err(_) => throw(WalletError::CallFaulted),
     }
 }
@@ -128,7 +133,7 @@ impl DefaultWallet for DefaultWalletContract {
             );
             match token.try_transfer(&target, amount) {
                 Ok(()) => {}
-                Err(CallError::Exception(_)) => throw(WalletError::CallAborted),
+                Err(CallError::Exception(exn)) => exn.re_throw(),
                 Err(_) => throw(WalletError::CallFaulted),
             }
         }
