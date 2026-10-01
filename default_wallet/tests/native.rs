@@ -379,8 +379,7 @@ fn execute_calls_deployed_contract_and_returns_each_result() {
 }
 
 #[test]
-fn execute_reports_thrown_callee_error_as_call_aborted() {
-    use sdk::MatchExn;
+fn execute_rethrows_callee_error() {
     const ADDER: ContractAddress = ContractAddress::new([0xAD; 32]);
     let env = sdk::TestEnvironment::no_cost();
     let adder = env.register_mock(|contract| {
@@ -388,19 +387,8 @@ fn execute_reports_thrown_callee_error_as_call_aborted() {
     });
     adder.deploy_contract_to(&ADDER);
 
-    // Called directly, the contract throws its own typed error.
-    env.transact(|tx| {
-        tx.call(&ContractAddress::new([1u8; 32])).run(|| {
-            let err = AdderClient::new(&ADDER)
-                .try_add(u32::MAX, 1)
-                .unwrap_err();
-            assert_eq!(err.try_as(), Some(AdderError::Overflow));
-        })
-    })
-    .assert_success();
-
-    // Through the wallet, the callee's abort becomes the wallet's own error,
-    // even after an earlier call in the batch succeeded.
+    // The callee's typed error reaches the wallet's caller unchanged, even
+    // after an earlier call in the batch succeeded.
     let claim = pubkey_claim(17, 7);
     let wallet = pubkey_claim_address(&claim);
     let result = env.transaction().with_auth_claim(claim).transact(|tx| {
@@ -412,5 +400,5 @@ fn execute_reports_thrown_callee_error_as_call_aborted() {
         })
     });
 
-    assert_wallet_error(&result, WalletError::CallAborted);
+    assert_eq!(result.assert_abort_as::<AdderError>(), AdderError::Overflow);
 }
