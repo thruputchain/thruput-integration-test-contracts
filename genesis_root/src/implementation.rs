@@ -14,6 +14,7 @@ const GENESIS_ROOT_ADDRESS: ContractAddress = ContractAddress::new([
 impl GenesisRoot for GenesisRootContract {
     fn distribute(
         distributions: Vec<Distribution>,
+        account_allocations: Vec<AccountAllocation>,
         root_funding: i128,
         token_funding: i128,
     ) {
@@ -25,6 +26,10 @@ impl GenesisRoot for GenesisRootContract {
         let token = ERC20Client::new(&token_address);
         token.mint(&token_address, token_funding);
         token.mint(&GENESIS_ROOT_ADDRESS, root_funding);
+
+        for allocation in account_allocations {
+            token.mint(&allocation.address, allocation.allocation);
+        }
 
         for distribution in distributions {
             let deployed = sdk::get_deploy_address(
