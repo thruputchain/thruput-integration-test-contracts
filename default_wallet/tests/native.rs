@@ -321,6 +321,7 @@ pub enum AdderError {
 #[sdk::contract(throws = AdderError)]
 pub trait Adder {
     fn add(a: u32, b: u32) -> u32;
+    fn store_sum(a: u32, b: u32) -> u32;
 }
 
 pub struct AdderContract;
@@ -331,15 +332,28 @@ impl Adder for AdderContract {
         use sdk::OrThrow;
         a.checked_add(b).or_throw(AdderError::Overflow)
     }
+
+    fn store_sum(a: u32, b: u32) -> u32 {
+        let sum = Self::add(a, b);
+        stored_sum().set(&sum);
+        sum
+    }
 }
 
-fn add_call(target: &ContractAddress, a: u32, b: u32) -> WalletCall {
+fn stored_sum() -> sdk::storage::Value<u32> {
+    sdk::storage::Keypath::default().into()
+}
+
+fn adder_call(
+    target: &ContractAddress,
+    entrypoint: AdderEntrypoints,
+    a: u32,
+    b: u32,
+) -> WalletCall {
     WalletCall {
         target: *target,
-        entrypoint: AdderEntrypoints::add.into(),
+        entrypoint: entrypoint.into(),
         gas_limit: u64::MAX,
-        // Calldata is the CXS encoding of the argument tuple, as a generated
-        // client sends it.
         calldata: sdk::encode_xdr(&(a, b))
             .unwrap()
             .as_slice()
@@ -362,8 +376,8 @@ fn execute_calls_deployed_contract_and_returns_each_result() {
     let result = env.transaction().with_auth_claim(claim).transact(|tx| {
         tx.call(&wallet).run(|| {
             <DefaultWalletContract as DefaultWallet>::execute(vec![
-                add_call(&ADDER, 2, 3),
-                add_call(&ADDER, 40, 2),
+                adder_call(&ADDER, AdderEntrypoints::add, 2, 3),
+                adder_call(&ADDER, AdderEntrypoints::add, 40, 2),
             ])
         })
     });
@@ -387,20 +401,36 @@ fn execute_rethrows_callee_error() {
     });
     adder.deploy_contract_to(&ADDER);
 
-    // The callee's typed error reaches the wallet's caller unchanged, even
-    // after an earlier call in the batch succeeded.
     let claim = pubkey_claim(17, 7);
     let wallet = pubkey_claim_address(&claim);
-    let result = env.transaction().with_auth_claim(claim).transact(|tx| {
-        tx.call(&wallet).run(|| {
-            <DefaultWalletContract as DefaultWallet>::execute(vec![
-                add_call(&ADDER, 2, 3),
-                add_call(&ADDER, u32::MAX, 1),
-            ])
-        })
-    });
+    let execute = |calls: Vec<WalletCall>| {
+        env.transaction()
+            .with_auth_claim(claim.clone())
+            .transact(|tx| {
+                tx.call(&wallet).run(|| {
+                    <DefaultWalletContract as DefaultWallet>::execute(calls)
+                })
+            })
+    };
 
+    // A committed write, so the rollback check below cannot pass vacuously.
+    execute(vec![adder_call(&ADDER, AdderEntrypoints::store_sum, 2, 3)])
+        .assert_success();
+    env.advance_block();
+
+    // The callee's typed error reaches the wallet's caller unchanged, and the
+    // earlier call's write in the same batch is rolled back with it.
+    let result = execute(vec![
+        adder_call(&ADDER, AdderEntrypoints::store_sum, 40, 2),
+        adder_call(&ADDER, AdderEntrypoints::add, u32::MAX, 1),
+    ]);
     assert_eq!(result.assert_abort_as::<AdderError>(), AdderError::Overflow);
+    env.advance_block();
+
+    env.transact(|tx| {
+        tx.call(&ADDER).run(|| assert_eq!(stored_sum().get(), 5))
+    })
+    .assert_success();
 }
 
 #[test]
