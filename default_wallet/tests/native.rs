@@ -1,4 +1,6 @@
-use default_wallet::{DefaultWallet, DefaultWalletContract, WalletError};
+use default_wallet::{
+    DefaultWallet, DefaultWalletContract, WalletCall, WalletError,
+};
 use groundhog_domain_separator::sha2::pubkey_account_address;
 use groundhog_xdr::auth_claim::PubkeyAccountPreimage;
 use sdk::{AuthClaim, ContractAddress, Ed25519PublicKey, Exn, PublicKey};
@@ -307,4 +309,108 @@ fn initializer_abort_and_fault_roll_back_funding_deployment_and_storage() {
             })
             .assert_success();
     }
+}
+
+#[sdk::contract_exception]
+#[derive(Copy, Clone)]
+pub enum AdderError {
+    Overflow = 1,
+}
+
+/// A minimal contract for the wallet to call.
+#[sdk::contract(throws = AdderError)]
+pub trait Adder {
+    fn add(a: u32, b: u32) -> u32;
+}
+
+pub struct AdderContract;
+
+#[sdk::contract]
+impl Adder for AdderContract {
+    fn add(a: u32, b: u32) -> u32 {
+        use sdk::OrThrow;
+        a.checked_add(b).or_throw(AdderError::Overflow)
+    }
+}
+
+fn add_call(target: &ContractAddress, a: u32, b: u32) -> WalletCall {
+    WalletCall {
+        target: *target,
+        entrypoint: AdderEntrypoints::add.into(),
+        gas_limit: u64::MAX,
+        // Calldata is the CXS encoding of the argument tuple, as a generated
+        // client sends it.
+        calldata: sdk::encode_xdr(&(a, b))
+            .unwrap()
+            .as_slice()
+            .try_into()
+            .unwrap(),
+    }
+}
+
+#[test]
+fn execute_calls_deployed_contract_and_returns_each_result() {
+    const ADDER: ContractAddress = ContractAddress::new([0xAD; 32]);
+    let env = sdk::TestEnvironment::no_cost();
+    let adder = env.register_mock(|contract| {
+        <AdderContract as Adder>::__mock(contract);
+    });
+    adder.deploy_contract_to(&ADDER);
+
+    let claim = pubkey_claim(17, 7);
+    let wallet = pubkey_claim_address(&claim);
+    let result = env.transaction().with_auth_claim(claim).transact(|tx| {
+        tx.call(&wallet).run(|| {
+            <DefaultWalletContract as DefaultWallet>::execute(vec![
+                add_call(&ADDER, 2, 3),
+                add_call(&ADDER, 40, 2),
+            ])
+        })
+    });
+
+    result.assert_success();
+    let returns = result.assert_return_as::<Vec<default_wallet::WalletBytes>>();
+    let returns: Vec<&[u8]> = returns.iter().map(|r| r.as_slice()).collect();
+    let expected = [
+        sdk::encode_xdr(&5u32).unwrap(),
+        sdk::encode_xdr(&42u32).unwrap(),
+    ];
+    assert_eq!(returns, [expected[0].as_slice(), expected[1].as_slice()]);
+}
+
+#[test]
+fn execute_reports_thrown_callee_error_as_call_aborted() {
+    use sdk::MatchExn;
+    const ADDER: ContractAddress = ContractAddress::new([0xAD; 32]);
+    let env = sdk::TestEnvironment::no_cost();
+    let adder = env.register_mock(|contract| {
+        <AdderContract as Adder>::__mock(contract);
+    });
+    adder.deploy_contract_to(&ADDER);
+
+    // Called directly, the contract throws its own typed error.
+    env.transact(|tx| {
+        tx.call(&ContractAddress::new([1u8; 32])).run(|| {
+            let err = AdderClient::new(&ADDER)
+                .try_add(u32::MAX, 1)
+                .unwrap_err();
+            assert_eq!(err.try_as(), Some(AdderError::Overflow));
+        })
+    })
+    .assert_success();
+
+    // Through the wallet, the callee's abort becomes the wallet's own error,
+    // even after an earlier call in the batch succeeded.
+    let claim = pubkey_claim(17, 7);
+    let wallet = pubkey_claim_address(&claim);
+    let result = env.transaction().with_auth_claim(claim).transact(|tx| {
+        tx.call(&wallet).run(|| {
+            <DefaultWalletContract as DefaultWallet>::execute(vec![
+                add_call(&ADDER, 2, 3),
+                add_call(&ADDER, u32::MAX, 1),
+            ])
+        })
+    });
+
+    assert_wallet_error(&result, WalletError::CallAborted);
 }
