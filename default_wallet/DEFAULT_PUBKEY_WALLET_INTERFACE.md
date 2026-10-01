@@ -92,7 +92,8 @@ one transaction.
 - Returns only the deployed contract address; initializer return data is discarded.
 - A funding, deployment or initialization failure rolls back all application
   state and success events. Normal transaction replay bookkeeping still applies.
-- Initializer aborts and invocation failures are reported as for `execute`.
+- Funding and initializer failures are reported as for `execute`: the token's
+  or initializer's exception is re-thrown verbatim.
   Contracts must enforce their own initialization policy on later calls; the
   wallet does not make a method callable only once.
 - The outer transaction still carries `contracts_to_deploy` when needed.

@@ -402,3 +402,25 @@ fn execute_rethrows_callee_error() {
 
     assert_eq!(result.assert_abort_as::<AdderError>(), AdderError::Overflow);
 }
+
+#[test]
+fn deploy_rethrows_funding_error() {
+    let env = sdk::TestEnvironment::no_cost();
+    let claim = pubkey_claim(17, 7);
+    let wallet = pubkey_claim_address(&claim);
+    env.setup_grant_storage_tokens(&wallet, 1_000);
+    let contract = env.register_mock(|_| {});
+    let hash = *contract.as_hash();
+    let nonce = [34; 32].into();
+    let result = env.transaction().with_auth_claim(claim).transact(|tx| {
+        tx.call(&wallet).run(|| {
+            <DefaultWalletContract as DefaultWallet>::deploy(
+                &nonce, &hash, -5, None,
+            )
+        })
+    });
+    assert_eq!(
+        result.assert_abort_as::<groundhog_erc20_if::ERC20Error>(),
+        groundhog_erc20_if::ERC20Error::NegativeAmount
+    );
+}

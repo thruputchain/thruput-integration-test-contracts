@@ -133,7 +133,7 @@ impl DefaultWallet for DefaultWalletContract {
             );
             match token.try_transfer(&target, amount) {
                 Ok(()) => {}
-                Err(CallError::Exception(_)) => throw(WalletError::CallAborted),
+                Err(CallError::Exception(exn)) => exn.re_throw(),
                 Err(_) => throw(WalletError::CallFaulted),
             }
         }
