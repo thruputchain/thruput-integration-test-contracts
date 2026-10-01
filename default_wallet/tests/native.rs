@@ -454,3 +454,69 @@ fn deploy_rethrows_funding_error() {
         groundhog_erc20_if::ERC20Error::NegativeAmount
     );
 }
+
+#[test]
+fn deploy_rethrows_initializer_error() {
+    let env = sdk::TestEnvironment::no_cost();
+    let claim = pubkey_claim(17, 7);
+    let wallet = pubkey_claim_address(&claim);
+    env.setup_grant_storage_tokens(&wallet, 1_000);
+    let contract = env.register_mock(|contract| {
+        <AdderContract as Adder>::__mock(contract);
+    });
+    let hash = *contract.as_hash();
+    let nonce = [35; 32].into();
+    let deploy = |a: u32, b: u32| {
+        // The initializer targets the new contract, so the call's own
+        // target is unused; only its entrypoint and calldata carry over.
+        let call = adder_call(
+            &ContractAddress::new([0; 32]),
+            AdderEntrypoints::store_sum,
+            a,
+            b,
+        );
+        let init = default_wallet::WalletInitCall {
+            entrypoint: call.entrypoint,
+            gas_limit: call.gas_limit,
+            calldata: call.calldata,
+        };
+        env.transaction()
+            .with_auth_claim(claim.clone())
+            .transact(|tx| {
+                tx.call(&wallet).run(|| {
+                    <DefaultWalletContract as DefaultWallet>::deploy(
+                        &nonce,
+                        &hash,
+                        123,
+                        Some(init),
+                    )
+                })
+            })
+    };
+
+    // The initializer's typed error reaches the wallet's caller unchanged.
+    let result = deploy(u32::MAX, 1);
+    assert_eq!(result.assert_abort_as::<AdderError>(), AdderError::Overflow);
+    env.advance_block();
+
+    // Funding rolled back with it.
+    env.transact(|tx| {
+        tx.call(&wallet).run(|| {
+            let token = groundhog_erc20_if::ERC20Client::new(
+                &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
+            );
+            assert_eq!(token.get_balance_of(&wallet), 1_000);
+        })
+    })
+    .assert_success();
+
+    // So did deployment: the same identity deploys, and initializes, again.
+    let result = deploy(2, 3);
+    result.assert_success();
+    let deployed = result.assert_return_as::<ContractAddress>();
+    env.advance_block();
+    env.transact(|tx| {
+        tx.call(&deployed).run(|| assert_eq!(stored_sum().get(), 5))
+    })
+    .assert_success();
+}
