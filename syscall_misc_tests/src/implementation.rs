@@ -77,13 +77,13 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     fn test_get_return_before_return_buffer_set() {
         let mut buffer = [0; 1024];
         let mut written_len = 0;
-        let mut auth_token_id_list_buf = [0u8; 1024];
-        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
+        let mut returned_start: u32 = 0;
+        let mut returned_count: u32 = 0;
         let res = sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
-            auth_token_id_list_buf.as_mut_slice(),
-            &mut auth_token_id_list_return_len,
+            &mut returned_start,
+            &mut returned_count,
         );
         expect_err(
             res,
@@ -96,7 +96,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             crate::SyscallMiscTestsEntrypoints::internal_always_fault
                 .into_u64();
 
-        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_count: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             target,
             &[],
@@ -108,13 +108,13 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
         let mut buffer = [0; 1024];
         let mut written_len = 0;
-        let mut auth_token_id_list_buf = [0u8; 1024];
-        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
+        let mut returned_start: u32 = 0;
+        let mut returned_count: u32 = 0;
         let res = sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
-            auth_token_id_list_buf.as_mut_slice(),
-            &mut auth_token_id_list_return_len,
+            &mut returned_start,
+            &mut returned_count,
         );
         expect_err(
             res,
@@ -170,7 +170,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             &[],
             &[],
             &sys::CopyableInvokeInputs { entrypoint_id: 0, gas_limit: u64::MAX, flags: 0, reserved: 0 },
-            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS },
+            &mut sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_count: 0, frame_status: UNWRITTEN_FRAME_STATUS },
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
@@ -181,7 +181,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_always_revert
                 .into_u64();
-        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_count: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             target,
             &[],
@@ -528,7 +528,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             crate::SyscallMiscTestsEntrypoints::internal_return_too_long
                 .into_u64();
 
-        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_count: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             target,
             &[],
@@ -541,13 +541,13 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         // Buffer should NOT be retrievable after a fault
         let mut buffer = [0u8; 1024];
         let mut written_len: RuntimeMemoryLength = 0;
-        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
-        let mut auth_token_id_list_buf = [0u8; 1024];
+        let mut returned_start: u32 = 0;
+        let mut returned_count: u32 = 0;
         let res = sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
-            auth_token_id_list_buf.as_mut_slice(),
-            &mut auth_token_id_list_return_len,
+            &mut returned_start,
+            &mut returned_count,
         );
         expect_err(
             res,
@@ -562,7 +562,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             crate::SyscallMiscTestsEntrypoints::internal_return_exact_max
                 .into_u64();
 
-        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_count: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             target,
             &[],
@@ -575,15 +575,16 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
         let mut buffer = [0u8; sdk::transaction::kMaxReturnBufferLen as usize];
         let mut written_len: RuntimeMemoryLength = 0;
-        let mut auth_token_id_list_return_len: RuntimeMemoryLength = 0;
-        let mut auth_token_id_list_buf = [0u8; 1024];
+        let mut returned_start: u32 = 0;
+        let mut returned_count: u32 = 0;
         sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
-            auth_token_id_list_buf.as_mut_slice(),
-            &mut auth_token_id_list_return_len,
+            &mut returned_start,
+            &mut returned_count,
         )
         .unwrap();
+        assert!(returned_count == 0);
         assert!(written_len == sdk::transaction::kMaxReturnBufferLen);
         let mut i: usize = 0;
         while i < buffer.len() {
@@ -621,7 +622,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     fn test_invoke_invalid_flags() {
         let addr = sdk::get_current_address();
-        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: u32::MAX, returned_auth_token_len: u32::MAX, frame_status: UNWRITTEN_FRAME_STATUS };
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: u32::MAX, returned_auth_token_count: u32::MAX, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             &addr,
             &[],
@@ -631,7 +632,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         );
         // outputs should not be written on syscall error
         assert!(outputs.return_buffer_len == u32::MAX);
-        assert!(outputs.returned_auth_token_len == u32::MAX);
+        assert!(outputs.returned_auth_token_count == u32::MAX);
         assert!(outputs.frame_status == UNWRITTEN_FRAME_STATUS);
 
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
@@ -652,7 +653,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         // panics comes back as Ok with frame_status Fault, so matching on
         // Ok/Err alone would pass even when the child's assertion failed --
         // i.e. even when the frame was not read-only and the write succeeded.
-        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_count: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             target,
             &[],
@@ -717,18 +718,23 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
     }
 
-    // ── #38: precedence: no-return-buffer beats misaligned token span ──
+    // ── #38: no return buffer before any subcall ──
+    //
+    // This used to pit the missing buffer against a misaligned returned-token
+    // span. GetReturnedBuffer now reports the returned tokens as an id range,
+    // so there is no span; the name stays so the entrypoint table, and the
+    // exact-gas trace pins hogd holds over it, do not shift.
 
     fn test_get_returned_buffer_no_buffer_beats_misaligned() {
         let mut buffer = [0; 64];
         let mut written_len = 0;
-        let mut token_buf = [0u8; 3]; // len % 4 != 0
-        let mut token_written: RuntimeMemoryLength = 0;
+        let mut returned_start: u32 = 0;
+        let mut returned_count: u32 = 0;
         let res = sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
-            token_buf.as_mut_slice(),
-            &mut token_written,
+            &mut returned_start,
+            &mut returned_count,
         );
         expect_err(
             res,
@@ -749,7 +755,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     fn test_invoke_unowned_token_loses_to_reentrance() {
         let addr = sdk::get_current_address();
         let fabricated_token_id: [u8; 4] = 0xDEADu32.to_le_bytes();
-        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: u32::MAX, returned_auth_token_len: u32::MAX, frame_status: UNWRITTEN_FRAME_STATUS };
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: u32::MAX, returned_auth_token_count: u32::MAX, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             &addr,
             &[],
@@ -761,7 +767,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         // so the token never gets as far as its ownership check.
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeReentrance);
         assert!(outputs.return_buffer_len == u32::MAX);
-        assert!(outputs.returned_auth_token_len == u32::MAX);
+        assert!(outputs.returned_auth_token_count == u32::MAX);
         assert!(outputs.frame_status == UNWRITTEN_FRAME_STATUS);
     }
 
@@ -771,7 +777,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     fn test_invoke_self_is_reentrance() {
         let addr = sdk::get_current_address();
-        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: u32::MAX, returned_auth_token_len: u32::MAX, frame_status: UNWRITTEN_FRAME_STATUS };
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: u32::MAX, returned_auth_token_count: u32::MAX, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             &addr,
             &[],
@@ -809,7 +815,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_bytestring_set_oob_key
                 .into_u64();
-        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_count: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             target,
             &[],
@@ -823,7 +829,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     // ── No-Return-syscall test ────────────────────────────────────────
 
     fn test_invoke_no_return_syscall(target: &ContractAddress) {
-        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_count: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         // Invoke the raw entrypoint 0xFF on a separate contract. Its body
         // returns without calling the Return syscall (see lib.rs).
         let res = sys::raw_Invoke(
@@ -877,7 +883,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_always_panic
                 .into_u64();
-        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_count: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             target,
             &[],
@@ -898,7 +904,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         expect_frame_status(res, &outputs, InvocationFrameStatusCode::Fault);
         assert_eq!(outputs.return_buffer_len, 0, "a fault returns no buffer");
         assert_eq!(
-            outputs.returned_auth_token_len, 0,
+            outputs.returned_auth_token_count, 0,
             "a fault returns no auth tokens"
         );
     }
@@ -984,7 +990,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_misaligned_auth_tokens
                 .into_u64();
-        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_count: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             target,
             &[],
@@ -999,7 +1005,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_revert_with_auth_tokens
                 .into_u64();
-        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_count: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             target,
             &[],
@@ -1014,7 +1020,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_with_empty_auth_tokens
                 .into_u64();
-        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_count: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             target,
             &[],
@@ -1026,13 +1032,13 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
         let mut buffer = [0u8; 1024];
         let mut written_len: RuntimeMemoryLength = 0;
-        let mut auth_token_id_list_buf = [0u8; 1024];
-        let mut auth_token_id_list_result_len: RuntimeMemoryLength = 0;
+        let mut returned_start: u32 = 0;
+        let mut returned_count: u32 = 0;
         let res = sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
-            auth_token_id_list_buf.as_mut_slice(),
-            &mut auth_token_id_list_result_len,
+            &mut returned_start,
+            &mut returned_count,
         );
         assert!(res.is_ok());
         assert_eq!(written_len, 4);
@@ -1043,7 +1049,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_with_auth_token_ids
                 .into_u64();
-        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_len: 0, frame_status: UNWRITTEN_FRAME_STATUS };
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: 0, returned_auth_token_count: 0, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             target,
             &[],
@@ -1073,7 +1079,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     fn test_invoke_misaligned_tokens_beat_depth(target: &ContractAddress) {
         // Three bytes: not a whole number of 4-byte token ids.
         let misaligned: [u8; 3] = [0xad, 0xde, 0x00];
-        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: u32::MAX, returned_auth_token_len: u32::MAX, frame_status: UNWRITTEN_FRAME_STATUS };
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: u32::MAX, returned_auth_token_count: u32::MAX, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             target,
             &[],
@@ -1083,7 +1089,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput);
         assert!(outputs.return_buffer_len == u32::MAX);
-        assert!(outputs.returned_auth_token_len == u32::MAX);
+        assert!(outputs.returned_auth_token_count == u32::MAX);
         assert!(outputs.frame_status == UNWRITTEN_FRAME_STATUS);
     }
 
@@ -1092,7 +1098,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     // room. Without this, the pin would read the same if the span check
     // swallowed every call.
     fn test_invoke_depth_refused(target: &ContractAddress) {
-        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: u32::MAX, returned_auth_token_len: u32::MAX, frame_status: UNWRITTEN_FRAME_STATUS };
+        let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: u32::MAX, returned_auth_token_count: u32::MAX, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             target,
             &[],
@@ -1102,7 +1108,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         );
         expect_err(res, SyscallErrorCode::kSyscallErrorCodeInvokeDepthExceeded);
         assert!(outputs.return_buffer_len == u32::MAX);
-        assert!(outputs.returned_auth_token_len == u32::MAX);
+        assert!(outputs.returned_auth_token_count == u32::MAX);
         assert!(outputs.frame_status == UNWRITTEN_FRAME_STATUS);
     }
 }
