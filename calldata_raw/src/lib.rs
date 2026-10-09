@@ -19,8 +19,7 @@ pub fn calldata(count: u32) {
         // Fresh buffers per iteration: each fetch is independent, matching
         // the pre-existing semantics of one fetch per call.
         let mut buf = sdk::internal::new_scratch();
-        let mut auth_ids = sdk::contract_op::AuthTokenIdBuf::new();
-        fetch_calldata_and_auth_tokens(&mut buf, &mut auth_ids);
+        fetch_calldata_and_auth_tokens(&mut buf);
         let x_len = buf.len();
         if len > 0 {
             assert_eq!(x_len, len);
@@ -35,7 +34,7 @@ pub fn calldata_raw(count: u32) {
     let mut written_len = 0;
     let mut auth_token_count = 0;
     for _ in 0..count {
-        sdk::sys::raw_GetCalldata(buf.as_mut_slice(), &mut written_len, &mut [], &mut auth_token_count)
+        sdk::sys::raw_GetCalldata(buf.as_mut_slice(), &mut written_len, &mut auth_token_count)
             .unwrap();
     }
 }

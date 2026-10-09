@@ -13,9 +13,8 @@ impl ManualRevertTest for ManualRevertTestContract {
         let sender = sdk::get_caller();
         assert_eq!(sender, expected_sender);
         let mut calldata = sdk::internal::new_scratch();
-        let mut auth_handles = AuthHandleBuf::new();
-        sdk::fetch_calldata_and_auth_tokens(&mut calldata, &mut auth_handles);
-        assert!(auth_handles.is_empty());
+        let auth_token_count = sdk::fetch_calldata_and_auth_tokens(&mut calldata);
+        assert_eq!(auth_token_count, 0);
         let mut state = [0u8; 36];
         state[..32].copy_from_slice(sender.as_ref());
         state[32..].copy_from_slice(&marker.to_be_bytes());
