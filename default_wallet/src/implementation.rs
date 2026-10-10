@@ -8,8 +8,12 @@ use sdk::*;
 pub struct DefaultWalletContract;
 
 const MAX_CALLS: usize = 16;
-const MAX_RETURN_DATA_BYTES: usize =
-    sdk::transaction::kMaxReturnBufferLen as usize;
+// The return-buffer limit this wallet is built for. The protocol no longer
+// states a constant (groundhogchain/protocol#214) — the limit is a chain's
+// `kConfigParamMaxReturnBufferLen` — so this compiles in the value the
+// harness configures, which is what hogd's `precompile_default_wallet.cc`
+// mirrors.
+const MAX_RETURN_DATA_BYTES: usize = 1024;
 
 fn cxs_u32_len(value: usize) -> Option<usize> {
     let value = u32::try_from(value).ok()?;

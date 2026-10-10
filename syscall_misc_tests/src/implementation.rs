@@ -25,6 +25,13 @@ unsafe fn direct_syscall(
 
 const K_SYSCALL_RETURN: SyscallWord = sys::SyscallNo::kReturn.0 as SyscallWord;
 
+/// The return-buffer limit the harness's chain configuration runs under —
+/// the default for `kConfigParamMaxReturnBufferLen`. The protocol no longer
+/// states a constant (groundhogchain/protocol#214), so a contract probing
+/// the boundary compiles in the value its harness configures, as
+/// hogd's `precompile_default_wallet.cc` already does.
+const MAX_RETURN_BUFFER_LEN: u32 = 1024;
+
 /// Key derivation shared with the C++ side's make_obs_cap_key (rcq observation
 /// cap tests): 'o','c','k' prefix, index LE at bytes [4, 8).
 fn obs_cap_key(index: u32) -> StorageKeyContractData {
@@ -133,12 +140,12 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     }
 
     fn internal_return_too_long() {
-        let buffer = [0u8; (sdk::transaction::kMaxReturnBufferLen + 1) as usize]; // > kMaxReturnBufferLen (1024)
+        let buffer = [0u8; (MAX_RETURN_BUFFER_LEN + 1) as usize]; // one past the limit
         sys::Return(&buffer, false, &[]);
     }
 
     fn internal_return_exact_max() {
-        let mut buffer = [0u8; sdk::transaction::kMaxReturnBufferLen as usize];
+        let mut buffer = [0u8; MAX_RETURN_BUFFER_LEN as usize];
         let mut i: usize = 0;
         while i < buffer.len() {
             buffer[i] = (i % 251) as u8;
@@ -555,7 +562,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         );
     }
 
-    // ── #34b: Return with exactly kMaxReturnBufferLen bytes → Return ─
+    // ── #34b: Return with exactly the limit in bytes → Return ───────
 
     fn test_return_buffer_exact_max(target: &ContractAddress) {
         let entrypoint =
@@ -571,9 +578,9 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
             &mut outputs,
         );
         expect_frame_status(res, &outputs, InvocationFrameStatusCode::Return);
-        assert!(outputs.return_buffer_len == sdk::transaction::kMaxReturnBufferLen);
+        assert!(outputs.return_buffer_len == MAX_RETURN_BUFFER_LEN);
 
-        let mut buffer = [0u8; sdk::transaction::kMaxReturnBufferLen as usize];
+        let mut buffer = [0u8; MAX_RETURN_BUFFER_LEN as usize];
         let mut written_len: RuntimeMemoryLength = 0;
         // Seeded so the asserts only pass if the syscall wrote both.
         let mut returned_start: u32 = u32::MAX;
@@ -587,7 +594,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         .unwrap();
         assert!(returned_count == 0);
         assert!(returned_start != u32::MAX);
-        assert!(written_len == sdk::transaction::kMaxReturnBufferLen);
+        assert!(written_len == MAX_RETURN_BUFFER_LEN);
         let mut i: usize = 0;
         while i < buffer.len() {
             assert!(buffer[i] == (i % 251) as u8);
