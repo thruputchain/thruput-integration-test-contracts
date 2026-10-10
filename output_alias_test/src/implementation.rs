@@ -125,6 +125,9 @@ impl OutputAliasTest for OutputAliasTestContract {
     // it's span-writable overlap and must fault.
     fn test_calldata_span_writable_overlap() {
         let mut buf = [0xBBu8; 64];
+        // A valid, separate count output, so the overlap below is the only
+        // bad argument.
+        let mut auth_token_count: u32 = 0;
         // Place output_written_len inside the span
         let span_ptr = buf.as_mut_ptr() as u32;
         let span_len: SyscallWord = 64;
@@ -136,7 +139,7 @@ impl OutputAliasTest for OutputAliasTestContract {
                 span_ptr,
                 span_len,
                 written_len_ptr, // overlaps with span
-                0,
+                &mut auth_token_count as *mut u32 as SyscallWord,
                 0,
                 0,
                 0

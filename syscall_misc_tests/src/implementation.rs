@@ -575,8 +575,9 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
         let mut buffer = [0u8; sdk::transaction::kMaxReturnBufferLen as usize];
         let mut written_len: RuntimeMemoryLength = 0;
-        let mut returned_start: u32 = 0;
-        let mut returned_count: u32 = 0;
+        // Seeded so the asserts only pass if the syscall wrote both.
+        let mut returned_start: u32 = u32::MAX;
+        let mut returned_count: u32 = u32::MAX;
         sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
@@ -585,6 +586,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         )
         .unwrap();
         assert!(returned_count == 0);
+        assert!(returned_start != u32::MAX);
         assert!(written_len == sdk::transaction::kMaxReturnBufferLen);
         let mut i: usize = 0;
         while i < buffer.len() {
@@ -1032,8 +1034,9 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
         let mut buffer = [0u8; 1024];
         let mut written_len: RuntimeMemoryLength = 0;
-        let mut returned_start: u32 = 0;
-        let mut returned_count: u32 = 0;
+        // Seeded so the asserts only pass if the syscall wrote both.
+        let mut returned_start: u32 = u32::MAX;
+        let mut returned_count: u32 = u32::MAX;
         let res = sys::raw_GetReturnedBuffer(
             buffer.as_mut_slice(),
             &mut written_len,
@@ -1043,6 +1046,8 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         assert!(res.is_ok());
         assert_eq!(written_len, 4);
         assert_eq!(&buffer[..4], &[42, 42, 42, 42]);
+        assert_eq!(returned_count, 0);
+        assert_ne!(returned_start, u32::MAX);
     }
 
     fn test_return_with_auth_token_ids(target: &ContractAddress) {
