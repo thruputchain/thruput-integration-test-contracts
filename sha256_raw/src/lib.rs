@@ -12,7 +12,7 @@ pub fn sha256_calldata() {
     let mut written_len = 0;
     let mut auth_token_count = 0;
 
-    sdk::sys::raw_GetCalldata(buf.as_mut_slice(), &mut written_len, &mut [], &mut auth_token_count).unwrap();
+    sdk::sys::raw_GetCalldata(buf.as_mut_slice(), &mut written_len, &mut auth_token_count).unwrap();
 
     let mut hash: SHA256Hash = SHA256Hash::default();
 

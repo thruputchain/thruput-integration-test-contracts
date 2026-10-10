@@ -95,7 +95,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
             },
             &mut sdk::sys::CopyableInvokeOutputs {
                 return_buffer_len: 0,
-                returned_auth_token_len: 0,
+                returned_auth_token_count: 0,
                 frame_status: InvocationFrameStatusCode::Return,
             },
         );
@@ -111,7 +111,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         let calldata = cxs::encode(&(*receiver_addr, (0u64, 100u64))).unwrap();
         let mut outputs = sdk::sys::CopyableInvokeOutputs {
             return_buffer_len: 0,
-            returned_auth_token_len: 0,
+            returned_auth_token_count: 0,
             frame_status: InvocationFrameStatusCode::Return,
         };
         let res = sdk::sys::raw_Invoke(

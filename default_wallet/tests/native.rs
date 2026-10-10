@@ -185,10 +185,7 @@ fn init_call(mode: u8) -> default_wallet::WalletInitCall {
 fn initializer_body() {
     use sdk::storage::{Keypath, Value};
     let mut calldata = Vec::new();
-    sdk::contract_op::fetch_calldata_and_auth_tokens(
-        &mut calldata,
-        &mut sdk::AuthHandleBuf::new(),
-    );
+    sdk::contract_op::fetch_calldata_and_auth_tokens(&mut calldata);
     // Writing the caller proves both initialization and the caller identity.
     let mut owner: Value<ContractAddress> = Keypath::default().into();
     owner.set(&sdk::get_caller());

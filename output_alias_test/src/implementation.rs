@@ -120,11 +120,14 @@ impl OutputAliasTest for OutputAliasTestContract {
     }
 
     // Place the output_written_len pointer inside the output span.
-    // GetCalldata: (span_ptr, span_len, written_len_ptr, ...)
+    // GetCalldata: (span_ptr, span_len, written_len_ptr, auth_token_count_ptr)
     // If written_len_ptr falls within [span_ptr, span_ptr+span_len),
     // it's span-writable overlap and must fault.
     fn test_calldata_span_writable_overlap() {
         let mut buf = [0xBBu8; 64];
+        // A valid, separate count output, so the overlap below is the only
+        // bad argument.
+        let mut auth_token_count: u32 = 0;
         // Place output_written_len inside the span
         let span_ptr = buf.as_mut_ptr() as u32;
         let span_len: SyscallWord = 64;
@@ -136,7 +139,7 @@ impl OutputAliasTest for OutputAliasTestContract {
                 span_ptr,
                 span_len,
                 written_len_ptr, // overlaps with span
-                0,
+                &mut auth_token_count as *mut u32 as SyscallWord,
                 0,
                 0,
                 0
@@ -151,6 +154,7 @@ impl OutputAliasTest for OutputAliasTestContract {
     fn test_calldata_no_overlap() {
         let mut buf = [0u8; 64];
         let mut written_len: u32 = 0xDEAD;
+        let mut auth_token_count: u32 = 0xDEAD;
 
         let err_code = unsafe {
             direct_syscall(
@@ -158,7 +162,7 @@ impl OutputAliasTest for OutputAliasTestContract {
                 buf.as_mut_ptr() as SyscallWord,
                 buf.len() as SyscallWord,
                 &mut written_len as *mut u32 as SyscallWord,
-                0,
+                &mut auth_token_count as *mut u32 as SyscallWord,
                 0,
                 0,
                 0
