@@ -1,9 +1,9 @@
 use super::interface::*;
 use sdk::*;
 use sdk::sys::SyscallErrorCode;
-use groundhog_xdr::syscalls::SyscallWord;
+use thruput_xdr::syscalls::SyscallWord;
 
-// `groundhog_syscall::syscall_wrapper` is the single shared syscall-dispatch
+// `thruput_syscall::syscall_wrapper` is the single shared syscall-dispatch
 // chokepoint: the SDK routes its own syscalls through it too, so a guest
 // artifact carries exactly one syscall entry sequence. The thin
 // `direct_syscall` shim keeps the existing call sites (which pass
@@ -24,19 +24,19 @@ unsafe fn direct_syscall(
     arg6: SyscallWord,
     arg7: SyscallWord,
 ) -> i32 {
-    groundhog_syscall::syscall_wrapper(
+    thruput_syscall::syscall_wrapper(
         syscall_no, arg1, arg2, arg3, arg4, arg5, arg6, arg7,
     )
 }
 
 const K_SYSCALL_GET_DEPLOY_ADDRESS: SyscallWord =
-    groundhog_xdr::SyscallNo::kGetDeployAddress.0 as SyscallWord;
+    thruput_xdr::SyscallNo::kGetDeployAddress.0 as SyscallWord;
 const K_SYSCALL_VERIFY_SIGNATURE: SyscallWord =
-    groundhog_xdr::SyscallNo::kVerifySignature.0 as SyscallWord;
+    thruput_xdr::SyscallNo::kVerifySignature.0 as SyscallWord;
 const K_SYSCALL_CHANGE_PUBLIC_KEY_REGISTRATION: SyscallWord =
-    groundhog_xdr::SyscallNo::kChangePublicKeyRegistration.0 as SyscallWord;
+    thruput_xdr::SyscallNo::kChangePublicKeyRegistration.0 as SyscallWord;
 const K_SYSCALL_CONSOLE_LOG: SyscallWord =
-    groundhog_xdr::SyscallNo::kConsoleLog.0 as SyscallWord;
+    thruput_xdr::SyscallNo::kConsoleLog.0 as SyscallWord;
 // An offset that is out of bounds for the contract's linear memory, but is not
 // the all-ones optional-pointer null sentinel.
 const K_OOB_PTR: SyscallWord = SyscallWord::MAX - 1;

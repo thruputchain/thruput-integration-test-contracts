@@ -1,5 +1,5 @@
 use super::interface::*;
-use groundhog_erc20_if::ERC20Client;
+use thruput_erc20_if::ERC20Client;
 use sdk::*;
 
 pub struct DeployAndTransferContract;

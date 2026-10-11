@@ -13,7 +13,7 @@ edition.workspace = true
 
 [dependencies]
 sdk = { workspace = true }
-groundhog-erc20-if = { workspace = true }
+thruput-erc20-if = { workspace = true }
 
 # Optional testing dependencies
 erc20-native-test = { workspace = true, optional = true, features = ["no_check_aborts"] }
@@ -24,7 +24,7 @@ doctest = false
 
 [features]
 entrypoints = []
-dev = ["std", "sdk/dev", "groundhog-erc20-if/dev", "dep:erc20-native-test"]
+dev = ["std", "sdk/dev", "thruput-erc20-if/dev", "dep:erc20-native-test"]
 std = ["sdk/std"]
 logging = ["sdk/logging", "sdk/alloc", "alloc"]
 alloc = []
