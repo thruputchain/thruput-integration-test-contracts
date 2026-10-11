@@ -25,11 +25,12 @@ unsafe fn direct_syscall(
 
 const K_SYSCALL_RETURN: SyscallWord = sys::SyscallNo::kReturn.0 as SyscallWord;
 
-/// The return-buffer limit the harness's chain configuration runs under —
-/// the default for `kConfigParamMaxReturnBufferLen`. The protocol no longer
-/// states a constant (groundhogchain/protocol#214), so a contract probing
-/// the boundary compiles in the value its harness configures, as
-/// hogd's `precompile_default_wallet.cc` already does.
+/// The return-buffer limit this contract is built for. The protocol no longer
+/// states a constant (groundhogchain/protocol#214) — the limit is a chain's
+/// `kConfigParamMaxReturnBufferLen` — and an array's length must be known at
+/// compile time, so the boundary probes below size themselves from this and
+/// assert it against the limit their caller passes in. A drift in the chain's
+/// default fails that assert rather than quietly moving what they test.
 const MAX_RETURN_BUFFER_LEN: u32 = 1024;
 
 /// Key derivation shared with the C++ side's make_obs_cap_key (rcq observation
@@ -530,7 +531,8 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #34: Return with too-large buffer → fault ───────────────────
 
-    fn test_return_buffer_too_long(target: &ContractAddress) {
+    fn test_return_buffer_too_long(target: &ContractAddress, chain_limit: u32) {
+        assert!(chain_limit == MAX_RETURN_BUFFER_LEN);
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_too_long
                 .into_u64();
@@ -564,7 +566,8 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
 
     // ── #34b: Return with exactly the limit in bytes → Return ───────
 
-    fn test_return_buffer_exact_max(target: &ContractAddress) {
+    fn test_return_buffer_exact_max(target: &ContractAddress, chain_limit: u32) {
+        assert!(chain_limit == MAX_RETURN_BUFFER_LEN);
         let entrypoint =
             crate::SyscallMiscTestsEntrypoints::internal_return_exact_max
                 .into_u64();

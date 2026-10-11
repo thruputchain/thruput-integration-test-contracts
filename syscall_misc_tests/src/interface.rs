@@ -49,8 +49,12 @@ pub trait SyscallMiscTests {
     fn test_deploy_contract_not_available();
 
     // Additional behavioral tests
-    fn test_return_buffer_too_long(target: &ContractAddress);
-    fn test_return_buffer_exact_max(target: &ContractAddress);
+    // `chain_limit` is the caller's `kConfigParamMaxReturnBufferLen`. These
+    // two size buffers from a constant, since an array's length must be known
+    // at compile time, so they assert the two agree rather than silently
+    // probing the wrong boundary if the chain's default moves.
+    fn test_return_buffer_too_long(target: &ContractAddress, chain_limit: u32);
+    fn test_return_buffer_exact_max(target: &ContractAddress, chain_limit: u32);
 
     // Additional documented error conditions
     fn test_deploy_contract_already_deployed(contract_hash: &SHA256Hash);
