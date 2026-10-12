@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 sdk = { workspace = true, features = ["alloc"] }
-groundhog-xdr = { workspace = true }
+thruput-xdr = { workspace = true }
 
 [lib]
 crate-type = ["rlib"]

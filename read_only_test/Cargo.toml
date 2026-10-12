@@ -5,9 +5,9 @@ edition = "2021"
 
 [dependencies]
 sdk = { workspace = true, features = ["alloc"] }
-groundhog-xdr = { workspace = true, features = ["xdrs"]}
-groundhog-syscall = { workspace = true }
-groundhog-erc20-if = { workspace = true }
+thruput-xdr = { workspace = true, features = ["xdrs"]}
+thruput-syscall = { workspace = true }
+thruput-erc20-if = { workspace = true }
 
 # Optional
 bottle-test-if = { workspace = true, optional = true }

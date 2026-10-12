@@ -4,7 +4,7 @@ use sdk::crypto::verify_signature_ed25519;
 use sdk::storage::{Deletable, Map, Value};
 use sdk::*;
 
-use groundhog_erc20_if::ERC20Client;
+use thruput_erc20_if::ERC20Client;
 
 use sdk::WriteXDR;
 

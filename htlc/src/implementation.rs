@@ -3,7 +3,7 @@ use sdk::*;
 
 use sdk::storage::{Deletable, Map, Value};
 
-use groundhog_erc20_if::ERC20Client;
+use thruput_erc20_if::ERC20Client;
 
 // An HTLC can be in 3 states:
 // 1. Created: The HTLC has been created and can be claimed.

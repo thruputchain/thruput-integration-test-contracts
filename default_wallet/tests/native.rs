@@ -1,8 +1,8 @@
 use default_wallet::{
     DefaultWallet, DefaultWalletContract, WalletCall, WalletError,
 };
-use groundhog_domain_separator::sha2::pubkey_account_address;
-use groundhog_xdr::auth_claim::PubkeyAccountPreimage;
+use thruput_domain_separator::sha2::pubkey_account_address;
+use thruput_xdr::auth_claim::PubkeyAccountPreimage;
 use sdk::{AuthClaim, ContractAddress, Ed25519PublicKey, Exn, PublicKey};
 
 fn pubkey_claim(pubkey_byte: u8, nonce: u64) -> AuthClaim {
@@ -146,7 +146,7 @@ fn deploy_commits_exact_transfer_and_callable_contract() {
 
     env.transact(|tx| {
         tx.call(&wallet).run(|| {
-            let token = groundhog_erc20_if::ERC20Client::new(
+            let token = thruput_erc20_if::ERC20Client::new(
                 &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
             );
             assert_eq!(token.get_balance_of(&wallet), 877);
@@ -231,7 +231,7 @@ fn deploy_initializes_atomically_as_the_wallet_with_optional_funding() {
             tx.call(&deployed).run(|| {
                 let owner: Value<ContractAddress> = Keypath::default().into();
                 assert_eq!(owner.get(), wallet);
-                let token = groundhog_erc20_if::ERC20Client::new(
+                let token = thruput_erc20_if::ERC20Client::new(
                     &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
                 );
                 assert_eq!(token.get_balance_of(&wallet), 1_000 - amount);
@@ -283,7 +283,7 @@ fn initializer_abort_and_fault_roll_back_funding_deployment_and_storage() {
             tx.call(&target).run(|| {
                 let owner: Value<ContractAddress> = Keypath::default().into();
                 assert_eq!(owner.try_get().none_if_missing(), None);
-                let token = groundhog_erc20_if::ERC20Client::new(
+                let token = thruput_erc20_if::ERC20Client::new(
                     &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
                 );
                 assert_eq!(token.get_balance_of(&wallet), 1_000);
@@ -447,8 +447,8 @@ fn deploy_rethrows_funding_error() {
         })
     });
     assert_eq!(
-        result.assert_abort_as::<groundhog_erc20_if::ERC20Error>(),
-        groundhog_erc20_if::ERC20Error::NegativeAmount
+        result.assert_abort_as::<thruput_erc20_if::ERC20Error>(),
+        thruput_erc20_if::ERC20Error::NegativeAmount
     );
 }
 
@@ -499,7 +499,7 @@ fn deploy_rethrows_initializer_error() {
     // Funding rolled back with it.
     env.transact(|tx| {
         tx.call(&wallet).run(|| {
-            let token = groundhog_erc20_if::ERC20Client::new(
+            let token = thruput_erc20_if::ERC20Client::new(
                 &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
             );
             assert_eq!(token.get_balance_of(&wallet), 1_000);

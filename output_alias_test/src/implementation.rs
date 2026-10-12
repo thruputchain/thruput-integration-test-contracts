@@ -1,8 +1,8 @@
 use super::interface::*;
 use sdk::*;
-use groundhog_xdr::syscalls::SyscallWord;
+use thruput_xdr::syscalls::SyscallWord;
 
-// `groundhog_syscall::syscall_wrapper` is the single shared syscall-dispatch
+// `thruput_syscall::syscall_wrapper` is the single shared syscall-dispatch
 // chokepoint: the SDK routes its own syscalls through it too, so a guest
 // artifact carries exactly one syscall entry sequence. The thin
 // `direct_syscall` shim keeps the existing call sites (which pass
@@ -19,7 +19,7 @@ unsafe fn direct_syscall(
     arg6: SyscallWord,
     arg7: SyscallWord,
 ) -> i32 {
-    groundhog_syscall::syscall_wrapper(
+    thruput_syscall::syscall_wrapper(
         syscall_no, arg1, arg2, arg3, arg4, arg5, arg6, arg7,
     )
 }

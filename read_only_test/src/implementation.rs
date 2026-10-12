@@ -3,9 +3,9 @@ use sdk::*;
 use sdk::xdr::cxs;
 use sdk::sys::SyscallErrorCode;
 use sdk::transaction::InvocationFrameStatusCode;
-use groundhog_xdr::syscalls::SyscallWord;
+use thruput_xdr::syscalls::SyscallWord;
 
-// `groundhog_syscall::syscall_wrapper` is the single shared syscall-dispatch
+// `thruput_syscall::syscall_wrapper` is the single shared syscall-dispatch
 // chokepoint: the SDK routes its own syscalls through it too, so a guest
 // artifact carries exactly one syscall entry sequence. The thin
 // `direct_syscall` shim keeps the existing call sites (which pass
@@ -22,13 +22,13 @@ unsafe fn direct_syscall(
     arg6: SyscallWord,
     arg7: SyscallWord,
 ) -> i32 {
-    groundhog_syscall::syscall_wrapper(
+    thruput_syscall::syscall_wrapper(
         syscall_no, arg1, arg2, arg3, arg4, arg5, arg6, arg7,
     )
 }
 
 const K_SYSCALL_BYTESTRING_SET: SyscallWord =
-    groundhog_xdr::SyscallNo::kBytestringSet.0 as SyscallWord;
+    thruput_xdr::SyscallNo::kBytestringSet.0 as SyscallWord;
 
 pub struct ReadOnlyTestContract;
 
@@ -49,7 +49,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
 
     fn read_only_log_event(expect_error: bool) {
         let data = b"test event";
-        let res = groundhog_xdr::syscalls::raw_LogEvent(None, None, None, data);
+        let res = thruput_xdr::syscalls::raw_LogEvent(None, None, None, data);
         sdk::debug_log!("log_event res: {:?}", res);
         if expect_error {
             assert!(res.err().unwrap().is_code(
@@ -68,7 +68,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
 
         sdk::sys_result::bytestring::bytestring_set(&key, storage_value)
             .unwrap();
-        groundhog_xdr::syscalls::raw_LogEvent(
+        thruput_xdr::syscalls::raw_LogEvent(
             Some(&topic0),
             None,
             None,
@@ -79,9 +79,9 @@ impl ReadOnlyTest for ReadOnlyTestContract {
 
     fn read_only_native_get_balance(target_addr: &ContractAddress) {
         let flag =
-            groundhog_xdr::invoke_flag::InvokeFlag::ReadOnly.0.cast_unsigned();
+            thruput_xdr::invoke_flag::InvokeFlag::ReadOnly.0.cast_unsigned();
         let entrypoint =
-            groundhog_erc20_if::ERC20Entrypoints::get_balance_of.into_u64();
+            thruput_erc20_if::ERC20Entrypoints::get_balance_of.into_u64();
         let calldata = cxs::encode(target_addr).unwrap();
         let res = sdk::sys::raw_Invoke(
             &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
@@ -104,9 +104,9 @@ impl ReadOnlyTest for ReadOnlyTestContract {
 
     fn read_only_native_transfer(receiver_addr: &ContractAddress) {
         let flag =
-            groundhog_xdr::invoke_flag::InvokeFlag::ReadOnly.0.cast_unsigned();
+            thruput_xdr::invoke_flag::InvokeFlag::ReadOnly.0.cast_unsigned();
         let entrypoint =
-            groundhog_erc20_if::ERC20Entrypoints::transfer.into_u64();
+            thruput_erc20_if::ERC20Entrypoints::transfer.into_u64();
         // CXS-encode the arguments: (ContractAddress, (u64, u64))
         let calldata = cxs::encode(&(*receiver_addr, (0u64, 100u64))).unwrap();
         let mut outputs = sdk::sys::CopyableInvokeOutputs {
@@ -189,8 +189,8 @@ impl ReadOnlyTest for ReadOnlyTestContract {
     fn read_only_aliasing_before_read_only_check_inner()
     {
         let mut buf : [u8;64] = [0xAB;64];
-        let key_ptr = buf.as_mut_ptr() as groundhog_xdr::syscalls::SyscallWord;
-        let bytestring_ptr = (buf.as_mut_ptr() as groundhog_xdr::syscalls::SyscallWord) + 16;
+        let key_ptr = buf.as_mut_ptr() as thruput_xdr::syscalls::SyscallWord;
+        let bytestring_ptr = (buf.as_mut_ptr() as thruput_xdr::syscalls::SyscallWord) + 16;
         let flags = 0;
         let err_code = unsafe {
             direct_syscall(
@@ -204,7 +204,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
                 0
             )
         };
-        assert_eq!(err_code, groundhog_xdr::syscall_error::SyscallErrorCode::kSyscallErrorCodeFault.0);
+        assert_eq!(err_code, thruput_xdr::syscall_error::SyscallErrorCode::kSyscallErrorCodeFault.0);
         assert_eq!(buf, [0xAB;64]);
 
         // The kFault above only demonstrates an *ordering* if this frame is

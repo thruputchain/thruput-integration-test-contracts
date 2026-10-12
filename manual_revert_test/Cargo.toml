@@ -11,7 +11,7 @@ test = false
 [dependencies]
 sdk = { workspace = true, features = ["logging"] }
 thiserror = { version = "2.0.10", default-features = false }
-groundhog-xdr = { workspace = true }
+thruput-xdr = { workspace = true }
 
 [features]
 default = ["guest", "xdrs"]

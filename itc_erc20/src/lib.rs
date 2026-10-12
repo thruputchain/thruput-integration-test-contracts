@@ -2,7 +2,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-pub use groundhog_erc20_if as interface;
+pub use thruput_erc20_if as interface;
 
 pub use interface::ERC20Client;
 

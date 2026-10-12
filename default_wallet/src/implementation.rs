@@ -1,7 +1,7 @@
 use super::interface::*;
 use alloc::vec::Vec;
-use groundhog_domain_separator::syscall::pubkey_account_address;
-use groundhog_erc20_if::ERC20Client;
+use thruput_domain_separator::syscall::pubkey_account_address;
+use thruput_erc20_if::ERC20Client;
 use sdk::sys::{self, SyscallErrorCode};
 use sdk::*;
 

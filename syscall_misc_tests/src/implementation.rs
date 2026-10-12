@@ -2,9 +2,9 @@ use crate::SyscallMiscTests;
 use sdk::sys::{self, SyscallErrorCode};
 use sdk::transaction::InvocationFrameStatusCode;
 use sdk::*;
-use groundhog_xdr::syscalls::SyscallWord;
+use thruput_xdr::syscalls::SyscallWord;
 
-// `groundhog_syscall::syscall_wrapper` is the single shared syscall-dispatch
+// `thruput_syscall::syscall_wrapper` is the single shared syscall-dispatch
 // chokepoint: the SDK routes its own syscalls through it too, so a guest
 // artifact carries exactly one syscall entry sequence. The thin `direct_syscall` shim keeps the existing call sites
 // (which pass `SyscallWord`-typed args) unchanged.
@@ -20,7 +20,7 @@ unsafe fn direct_syscall(
     a6: SyscallWord,
     a7: SyscallWord,
 ) -> i32 {
-    groundhog_syscall::syscall_wrapper(no, a1, a2, a3, a4, a5, a6, a7)
+    thruput_syscall::syscall_wrapper(no, a1, a2, a3, a4, a5, a6, a7)
 }
 
 const K_SYSCALL_RETURN: SyscallWord = sys::SyscallNo::kReturn.0 as SyscallWord;
@@ -479,7 +479,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         // Call the syscall dispatch shim directly to pass an invalid statistic
         // value (9999) without triggering UB from transmuting an invalid enum.
         // GetTransactionStatistics is syscall #22. Routes through the shared
-        // `direct_syscall` shim (groundhog_syscall::syscall_wrapper) so the rv32
+        // `direct_syscall` shim (thruput_syscall::syscall_wrapper) so the rv32
         // ELF resolves `syscall` the same way every other call site does.
         let mut result: u64 = 0;
         let err_code = unsafe {

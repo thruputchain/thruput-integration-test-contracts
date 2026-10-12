@@ -25,7 +25,7 @@ fn test_read_only_bytestring_set_inner(
 
     let mut outputs = core::mem::MaybeUninit::uninit();
 
-    let flag = groundhog_xdr::invoke_flag::InvokeFlag::ReadOnly.0.cast_unsigned();
+    let flag = thruput_xdr::invoke_flag::InvokeFlag::ReadOnly.0.cast_unsigned();
     let calldata = cxs::encode(&true).unwrap();
 
     let entrypoint_id =

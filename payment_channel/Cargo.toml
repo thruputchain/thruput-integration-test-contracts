@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 sdk = { workspace = true, features = ["alloc"] }
-groundhog-erc20-if = { workspace = true }
+thruput-erc20-if = { workspace = true }
 
 [lib]
 crate-type = ["rlib"]
