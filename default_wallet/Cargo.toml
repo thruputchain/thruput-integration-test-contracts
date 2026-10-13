@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 thruput-domain-separator = { workspace = true, features = ["syscall"] }
-sdk = { workspace = true, features = ["alloc"] }
+thruput-sdk = { workspace = true, features = ["alloc"] }
 thruput-erc20-if = { workspace = true }
 
 [lib]
@@ -15,9 +15,9 @@ test = false
 
 [features]
 entrypoints = []
-dev = ["sdk/dev", "sdk/std"]
-std = ["sdk/std"]
-logging = ["sdk/logging"]
+dev = ["thruput-sdk/dev", "thruput-sdk/std"]
+std = ["thruput-sdk/std"]
+logging = ["thruput-sdk/logging"]
 
 [dev-dependencies]
 default_wallet = { path = ".", features = ["dev"] }

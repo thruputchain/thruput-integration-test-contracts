@@ -2,7 +2,7 @@ use crate::Client;
 
 #[test]
 fn test_tuple_return() {
-    sdk::client_test(
+    thruput_sdk::client_test(
         |env| env.register_mock(<crate::TupleReturnContract as crate::TupleReturn>::__mock),
         client_test,
     )

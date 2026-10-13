@@ -5,7 +5,7 @@ use std::vec;
 
 #[test]
 fn test_sha256_wrapper() {
-    sdk::client_test(
+    thruput_sdk::client_test(
         |env| env.register_mock(<Sha256WrapperContract as Sha256Wrapper>::__mock),
         client_test,
     )
@@ -20,13 +20,13 @@ fn client_test(client: &Client) {
     hasher.update(&data);
     let expect_bytes = hasher.finalize();
     let expect =
-        sdk::SHA256Hash::from(<[u8; 32]>::try_from(&expect_bytes[..]).unwrap());
+        thruput_sdk::SHA256Hash::from(<[u8; 32]>::try_from(&expect_bytes[..]).unwrap());
     assert_eq!(hash, expect);
 }
 
 #[test]
 fn test_gas_limit_does_not_propagate() {
-    sdk::client_test(
+    thruput_sdk::client_test(
         |env| env.register_mock(<Sha256WrapperContract as Sha256Wrapper>::__mock),
         gas_limit_does_not_propagate,
     )
@@ -38,7 +38,7 @@ fn gas_limit_does_not_propagate(client: &Client) {
     // Call with tiny gas limit — should fail with OOG
     let result = client.with_gas_limit(1).try_sha256(&data);
     assert!(
-        matches!(result, Err(sdk::CallError::Fault(_))),
+        matches!(result, Err(thruput_sdk::CallError::Fault(_))),
         "Expected OOG fault with gas_limit=1, got: {:?}",
         result
     );
@@ -53,6 +53,6 @@ fn gas_limit_does_not_propagate(client: &Client) {
     hasher.update(&data);
     let expect_bytes = hasher.finalize();
     let expect =
-        sdk::SHA256Hash::from(<[u8; 32]>::try_from(&expect_bytes[..]).unwrap());
+        thruput_sdk::SHA256Hash::from(<[u8; 32]>::try_from(&expect_bytes[..]).unwrap());
     assert_eq!(hash, expect);
 }

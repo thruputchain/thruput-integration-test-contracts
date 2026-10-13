@@ -1,4 +1,4 @@
-use sdk::*;
+use thruput_sdk::*;
 
 #[contract(client = "CallerClient")]
 pub trait FibonacciCaller {

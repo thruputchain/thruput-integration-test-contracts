@@ -30,8 +30,8 @@ mod rv32_no_return_entry {
 
     #[used]
     #[unsafe(link_section = "groundhog_rv32_entrypoints")]
-    static NO_RETURN_ENTRY: sdk::__rv32::Entrypoint =
-        sdk::__rv32::Entrypoint {
+    static NO_RETURN_ENTRY: thruput_sdk::__rv32::Entrypoint =
+        thruput_sdk::__rv32::Entrypoint {
             method_id: 0xFF,
             wrapper: noop_no_return_syscall,
         };

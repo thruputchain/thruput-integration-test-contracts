@@ -15,4 +15,4 @@ pub use implementation::{SimpleWalletContract, WalletError};
 
 pub use interface::SimpleWallet;
 
-sdk::declare_mock_contract!();
+thruput_sdk::declare_mock_contract!();

@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sdk = { workspace = true }
+thruput-sdk = { workspace = true }
 
 [lib]
 crate-type = ["rlib"]
@@ -14,8 +14,8 @@ doctest = false
 [features]
 entrypoints = []
 std = []
-dev = ["sdk/dev", "std"]
-logging = ["sdk/logging"]
+dev = ["thruput-sdk/dev", "std"]
+logging = ["thruput-sdk/logging"]
 
 [dev-dependencies]
 authclaim_test = { path = ".", features = ["dev"] }

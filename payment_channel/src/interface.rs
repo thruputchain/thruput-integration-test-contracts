@@ -1,4 +1,4 @@
-use sdk::*;
+use thruput_sdk::*;
 
 // Payment Channel Contract Interface
 //

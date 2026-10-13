@@ -1,10 +1,10 @@
-use sdk::Named;
+use thruput_sdk::Named;
 
-static FIBONACCI_NONCE: sdk::SHA256Hash = sdk::sha256_static!("FIBONACCI_TEST_NONCE");
-static CALLER_NONCE: sdk::SHA256Hash = sdk::sha256_static!("FIBONACCI_CALLER_TEST_NONCE");
+static FIBONACCI_NONCE: thruput_sdk::SHA256Hash = thruput_sdk::sha256_static!("FIBONACCI_TEST_NONCE");
+static CALLER_NONCE: thruput_sdk::SHA256Hash = thruput_sdk::sha256_static!("FIBONACCI_CALLER_TEST_NONCE");
 
-fn setup_env() -> (sdk::TestEnvironmentHandle, sdk::SHA256Hash, sdk::SHA256Hash) {
-    let env = sdk::TestEnvironment::no_cost();
+fn setup_env() -> (thruput_sdk::TestEnvironmentHandle, thruput_sdk::SHA256Hash, thruput_sdk::SHA256Hash) {
+    let env = thruput_sdk::TestEnvironment::no_cost();
 
     let fibonacci_contract = env.register_mock(<fibonacci::FibonacciContract as fibonacci::Fibonacci>::__mock);
     let fibonacci_hash = fibonacci_contract.as_hash().clone();
@@ -23,11 +23,11 @@ fn try_call_inner_out_of_gas() {
     let (env, fibonacci_hash, caller_hash) = setup_env();
 
     env.transact(|tx| {
-        tx.call(&sdk::ContractAddress::named("test")).run(move || {
+        tx.call(&thruput_sdk::ContractAddress::named("test")).run(move || {
             let fibonacci_addr =
-                sdk::deploy_contract(&FIBONACCI_NONCE, &fibonacci_hash);
+                thruput_sdk::deploy_contract(&FIBONACCI_NONCE, &fibonacci_hash);
             let caller_addr =
-                sdk::deploy_contract(&CALLER_NONCE, &caller_hash);
+                thruput_sdk::deploy_contract(&CALLER_NONCE, &caller_hash);
 
             let client = fibonacci_call::Client::new(&caller_addr);
             client.initialize(&fibonacci_addr);
@@ -47,10 +47,10 @@ fn call_inner_out_of_gas_aborts_cleanly() {
     let (env, fibonacci_hash, caller_hash) = setup_env();
 
     let result = env.transact(|tx| {
-        tx.call(&sdk::ContractAddress::named("test")).run(move || {
+        tx.call(&thruput_sdk::ContractAddress::named("test")).run(move || {
             let fibonacci_addr =
-                sdk::deploy_contract(&FIBONACCI_NONCE, &fibonacci_hash);
-            let caller_addr = sdk::deploy_contract(&CALLER_NONCE, &caller_hash);
+                thruput_sdk::deploy_contract(&FIBONACCI_NONCE, &fibonacci_hash);
+            let caller_addr = thruput_sdk::deploy_contract(&CALLER_NONCE, &caller_hash);
 
             let client = fibonacci_call::Client::new(&caller_addr);
             client.initialize(&fibonacci_addr);

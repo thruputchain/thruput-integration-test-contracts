@@ -11,4 +11,4 @@ mod interface;
 pub use implementation::GenesisRootContract;
 pub use interface::{AccountAllocation, Client, Distribution, GenesisRoot};
 
-sdk::declare_mock_contract!();
+thruput_sdk::declare_mock_contract!();

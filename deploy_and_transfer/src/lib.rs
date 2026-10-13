@@ -11,4 +11,4 @@ pub use implementation::DeployAndTransferContract;
 pub use interface::Client;
 pub use interface::DeployAndTransfer;
 
-sdk::declare_mock_contract!();
+thruput_sdk::declare_mock_contract!();

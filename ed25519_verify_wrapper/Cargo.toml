@@ -6,7 +6,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sdk = { workspace = true, features = ["alloc"] }
+thruput-sdk = { workspace = true, features = ["alloc"] }
 
 [lib]
 crate-type = ["rlib"]
@@ -14,8 +14,8 @@ doctest = false
 
 [features]
 entrypoints = []
-dev = ["sdk/dev", "std"]
-std = ["sdk/std"]
+dev = ["thruput-sdk/dev", "std"]
+std = ["thruput-sdk/std"]
 
 [dev-dependencies]
 ed25519_verify_wrapper = { path = ".", features = ["dev"] }

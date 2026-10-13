@@ -1,11 +1,11 @@
 //! An implementation of Fibonacci
 
 use crate::FibonacciCaller;
-use sdk::*;
+use thruput_sdk::*;
 
 #[storage]
 pub struct FibonacciContractCaller {
-    address: sdk::storage::Value<ContractAddress>,
+    address: thruput_sdk::storage::Value<ContractAddress>,
 }
 
 #[contract]

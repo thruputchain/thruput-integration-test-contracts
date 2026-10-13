@@ -25,12 +25,12 @@ mod rv32_entry {
     extern "C" fn hash_and_return() {
         let hash = sha2::Sha256::digest(b"hello");
         assert_eq!(hash.as_ref(), super::EXPECT);
-        sdk::sys::raw_Return(hash.as_ref(), false, &[])
+        thruput_sdk::sys::raw_Return(hash.as_ref(), false, &[])
     }
 
     #[used]
     #[unsafe(link_section = "groundhog_rv32_entrypoints")]
-    static HASH_ENTRY: sdk::__rv32::Entrypoint = sdk::__rv32::Entrypoint {
+    static HASH_ENTRY: thruput_sdk::__rv32::Entrypoint = thruput_sdk::__rv32::Entrypoint {
         method_id: u64::MAX,
         wrapper: hash_and_return,
     };

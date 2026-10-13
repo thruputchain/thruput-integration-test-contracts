@@ -3,9 +3,9 @@
 use crate::interface::TxsRoundtrip;
 use alloc::format;
 use alloc::vec::Vec;
-use sdk::*;
-use sdk::__xdrs::txs;
-use sdk::{ReadXDR, WriteXDR};
+use thruput_sdk::*;
+use thruput_sdk::__xdrs::txs;
+use thruput_sdk::{ReadXDR, WriteXDR};
 
 pub struct TxsRoundtripContract;
 
@@ -53,7 +53,7 @@ impl_roundtrip_methods! {
     roundtrip_storage_delta_vec: crate::roundtrip::StorageDeltaVec,
     roundtrip_i32: i32,
     roundtrip_u32: u32,
-    roundtrip_library_exn_xdr: sdk::exn::LibraryExn,
+    roundtrip_library_exn_xdr: thruput_sdk::exn::LibraryExn,
     roundtrip_opaque_vector: Vec<u8>,
     roundtrip_opaque_slice: &[u8],
 }

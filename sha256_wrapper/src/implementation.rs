@@ -1,7 +1,7 @@
 //! An implementation of Fibonacci
 
 use crate::Sha256Wrapper;
-use sdk::*;
+use thruput_sdk::*;
 
 pub struct Sha256WrapperContract;
 
@@ -11,7 +11,7 @@ pub struct Sha256WrapperContract;
 #[contract]
 impl Sha256Wrapper for Sha256WrapperContract {
     fn sha256(data: &[u8]) -> SHA256Hash {
-        sdk::crypto::sha256(data)
+        thruput_sdk::crypto::sha256(data)
     }
 
     fn sha256_repeated(n: u32, data: &[u8]) {

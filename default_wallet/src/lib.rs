@@ -13,4 +13,4 @@ pub use interface::{
     Client, DefaultWallet, WalletBytes, WalletCall, WalletError, WalletInitCall,
 };
 
-sdk::declare_mock_contract!();
+thruput_sdk::declare_mock_contract!();

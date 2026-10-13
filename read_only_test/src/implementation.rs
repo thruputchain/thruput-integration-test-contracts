@@ -1,8 +1,8 @@
 use crate::interface::*;
-use sdk::*;
-use sdk::xdr::cxs;
-use sdk::sys::SyscallErrorCode;
-use sdk::transaction::InvocationFrameStatusCode;
+use thruput_sdk::*;
+use thruput_sdk::xdr::cxs;
+use thruput_sdk::sys::SyscallErrorCode;
+use thruput_sdk::transaction::InvocationFrameStatusCode;
 use thruput_xdr::syscalls::SyscallWord;
 
 // `thruput_syscall::syscall_wrapper` is the single shared syscall-dispatch
@@ -36,8 +36,8 @@ pub struct ReadOnlyTestContract;
 impl ReadOnlyTest for ReadOnlyTestContract {
     fn read_only_bytestring_set(expect_error: bool) {
         let key: StorageKeyContractData = static_key!("test");
-        let res = sdk::sys_result::bytestring::bytestring_set(&key, b"test");
-        sdk::debug_log!("res: {:?}", res);
+        let res = thruput_sdk::sys_result::bytestring::bytestring_set(&key, b"test");
+        thruput_sdk::debug_log!("res: {:?}", res);
         if expect_error {
             assert!(res.err().unwrap().is_code(
                 SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput
@@ -50,7 +50,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
     fn read_only_log_event(expect_error: bool) {
         let data = b"test event";
         let res = thruput_xdr::syscalls::raw_LogEvent(None, None, None, data);
-        sdk::debug_log!("log_event res: {:?}", res);
+        thruput_sdk::debug_log!("log_event res: {:?}", res);
         if expect_error {
             assert!(res.err().unwrap().is_code(
                 SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput
@@ -66,7 +66,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         let topic0 = [0x5au8; 32];
         let event_data = b"rv32 parity event";
 
-        sdk::sys_result::bytestring::bytestring_set(&key, storage_value)
+        thruput_sdk::sys_result::bytestring::bytestring_set(&key, storage_value)
             .unwrap();
         thruput_xdr::syscalls::raw_LogEvent(
             Some(&topic0),
@@ -83,17 +83,17 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         let entrypoint =
             thruput_erc20_if::ERC20Entrypoints::get_balance_of.into_u64();
         let calldata = cxs::encode(target_addr).unwrap();
-        let res = sdk::sys::raw_Invoke(
-            &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
+        let res = thruput_sdk::sys::raw_Invoke(
+            &thruput_sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
             &calldata,
             &[],
-            &sdk::sys::CopyableInvokeInputs {
+            &thruput_sdk::sys::CopyableInvokeInputs {
                 entrypoint_id: entrypoint,
                 gas_limit: u64::MAX,
                 flags: flag,
                 reserved: 0,
             },
-            &mut sdk::sys::CopyableInvokeOutputs {
+            &mut thruput_sdk::sys::CopyableInvokeOutputs {
                 return_buffer_len: 0,
                 returned_auth_token_count: 0,
                 frame_status: InvocationFrameStatusCode::Return,
@@ -109,16 +109,16 @@ impl ReadOnlyTest for ReadOnlyTestContract {
             thruput_erc20_if::ERC20Entrypoints::transfer.into_u64();
         // CXS-encode the arguments: (ContractAddress, (u64, u64))
         let calldata = cxs::encode(&(*receiver_addr, (0u64, 100u64))).unwrap();
-        let mut outputs = sdk::sys::CopyableInvokeOutputs {
+        let mut outputs = thruput_sdk::sys::CopyableInvokeOutputs {
             return_buffer_len: 0,
             returned_auth_token_count: 0,
             frame_status: InvocationFrameStatusCode::Return,
         };
-        let res = sdk::sys::raw_Invoke(
-            &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
+        let res = thruput_sdk::sys::raw_Invoke(
+            &thruput_sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
             &calldata,
             &[],
-            &sdk::sys::CopyableInvokeInputs {
+            &thruput_sdk::sys::CopyableInvokeInputs {
                 entrypoint_id: entrypoint,
                 gas_limit: u64::MAX,
                 flags: flag,
@@ -156,7 +156,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         let nonce = SHA256Hash::default();
         let mut deployed_address = ContractAddress::from([0xABu8; 32]);
 
-        let res = sdk::sys::raw_DeployContract(
+        let res = thruput_sdk::sys::raw_DeployContract(
             &nonce, contract_hash, &mut deployed_address,
         );
 
@@ -211,7 +211,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         // genuinely read-only: check that the same syscall, called with
         // non-aliased arguments, is rejected by the read-only guard.
         let key: StorageKeyContractData = static_key!("test");
-        let res = sdk::sys_result::bytestring::bytestring_set(&key, b"test");
+        let res = thruput_sdk::sys_result::bytestring::bytestring_set(&key, b"test");
         assert!(res.err().unwrap().is_code(
             SyscallErrorCode::kSyscallErrorCodeInvalidSyscallInput
         ), "frame was not read-only, so the fault above proves no ordering");

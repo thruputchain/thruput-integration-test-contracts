@@ -6,11 +6,11 @@
 #![allow(clippy::useless_conversion)]
 
 use crate::interface::*;
-use sdk::*;
+use thruput_sdk::*;
 
 #[cfg(feature = "checked")]
 // use checked nnint operation to fail before commit
-use sdk::non_negative_int_strict_inc as non_negative_int_inc;
+use thruput_sdk::non_negative_int_strict_inc as non_negative_int_inc;
 
 // Compute keys for storing things
 
@@ -71,7 +71,7 @@ fn add_to_allowance(
         .unwrap_or_else(|_| throw(ERC20Error::TooLarge))
 }
 
-#[sdk::storage]
+#[thruput_sdk::storage]
 pub struct Token;
 
 #[contract]

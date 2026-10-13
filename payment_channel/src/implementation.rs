@@ -1,12 +1,12 @@
 use super::interface::*;
 use alloc::vec::Vec;
-use sdk::crypto::verify_signature_ed25519;
-use sdk::storage::{Deletable, Map, Value};
-use sdk::*;
+use thruput_sdk::crypto::verify_signature_ed25519;
+use thruput_sdk::storage::{Deletable, Map, Value};
+use thruput_sdk::*;
 
 use thruput_erc20_if::ERC20Client;
 
-use sdk::WriteXDR;
+use thruput_sdk::WriteXDR;
 
 // Payment Channel Contract
 //
@@ -22,7 +22,7 @@ use sdk::WriteXDR;
 // The nonce in submitted state must be > 0 (nonce 0 means no state submitted yet)
 
 #[derive(WriteXDR, ReadXDR)]
-#[xdrs(crate = "::sdk::__xdrs")]
+#[xdrs(crate = "::thruput_sdk::__xdrs")]
 struct Channel {
     // Party A (channel opener)
     party_a_pubkey: Ed25519PublicKey,
@@ -77,7 +77,7 @@ pub struct PaymentChannelContract {
 
 fn get_block_height() -> i64 {
     let mut height: BlockHeight = 0.into();
-    sdk::sys::raw_GetBlockHeight(&mut height).unwrap();
+    thruput_sdk::sys::raw_GetBlockHeight(&mut height).unwrap();
     height.into_inner()
 }
 
@@ -107,7 +107,7 @@ impl PaymentChannel for PaymentChannelContract {
         assert!(dispute_period > 0, "Dispute period must be set");
 
         // Get caller as party_a_dest
-        let party_a_dest = sdk::get_caller();
+        let party_a_dest = thruput_sdk::get_caller();
 
         // Generate deterministic channel_id from inputs
         // This avoids contention when multiple channels are opened in the same block
@@ -118,7 +118,7 @@ impl PaymentChannel for PaymentChannelContract {
             hasher_input.extend_from_slice(party_b_pubkey.as_ref());
             hasher_input.extend_from_slice(token.as_ref());
             hasher_input.extend_from_slice(&salt.to_le_bytes());
-            let hash = sdk::crypto::sha256(&hasher_input);
+            let hash = thruput_sdk::crypto::sha256(&hasher_input);
             // Take first 8 bytes as u64
             u64::from_le_bytes([
                 hash[0], hash[1], hash[2], hash[3], hash[4], hash[5], hash[6], hash[7],
@@ -147,7 +147,7 @@ impl PaymentChannel for PaymentChannelContract {
 
         // Transfer tokens from caller to this contract
         let token_client = channel.token_client();
-        let self_address = sdk::get_current_address();
+        let self_address = thruput_sdk::get_current_address();
         token_client
             .transfer_from(&party_a_dest, &self_address, amount);
 
@@ -174,9 +174,9 @@ impl PaymentChannel for PaymentChannelContract {
             .expect("join would overflow channel total");
 
         // Transfer tokens from caller (party B) to this contract
-        let caller = sdk::get_caller();
+        let caller = thruput_sdk::get_caller();
         let token_client = channel.token_client();
-        let self_address = sdk::get_current_address();
+        let self_address = thruput_sdk::get_current_address();
         token_client
             .transfer_from(&caller, &self_address, amount);
 
@@ -205,7 +205,7 @@ impl PaymentChannel for PaymentChannelContract {
         // total_deposit() on every close/dispute and lock the channel. Doing
         // this before transfer_from means a rejected top-up commits no token
         // side effect.
-        let caller = sdk::get_caller();
+        let caller = thruput_sdk::get_caller();
         let is_party_a = if caller == channel.party_a_dest {
             true
         } else if caller == channel.party_b_dest {
@@ -223,7 +223,7 @@ impl PaymentChannel for PaymentChannelContract {
 
         // Transfer tokens from caller to this contract
         let token_client = channel.token_client();
-        let self_address = sdk::get_current_address();
+        let self_address = thruput_sdk::get_current_address();
         token_client
             .transfer_from(&caller, &self_address, amount);
 

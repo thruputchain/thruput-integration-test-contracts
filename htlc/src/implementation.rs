@@ -1,7 +1,7 @@
 use crate::HTLC;
-use sdk::*;
+use thruput_sdk::*;
 
-use sdk::storage::{Deletable, Map, Value};
+use thruput_sdk::storage::{Deletable, Map, Value};
 
 use thruput_erc20_if::ERC20Client;
 
@@ -13,7 +13,7 @@ use thruput_erc20_if::ERC20Client;
 // It is the user's responsibility to not reuse htlc hashes (otherwise funds can be immediately stolen).
 // Uses delete exclusive to ensure claims and refunds happen once and only once.
 #[derive(ReadXDR, WriteXDR)]
-#[xdrs(crate = "::sdk::__xdrs")]
+#[xdrs(crate = "::thruput_sdk::__xdrs")]
 struct HTLCEntry {
     sender: ContractAddress,
     receiver: ContractAddress,
@@ -35,7 +35,7 @@ struct HTLCContract {
 
 fn get_block_height() -> BlockHeight {
     let mut height : BlockHeight = 0.into();
-    sdk::sys::raw_GetBlockHeight(&mut height).unwrap();
+    thruput_sdk::sys::raw_GetBlockHeight(&mut height).unwrap();
     height
 }
 
@@ -58,7 +58,7 @@ impl HTLC for HTLCContract {
         }
 
         let htlc = HTLCEntry {
-            sender: sdk::get_caller(),
+            sender: thruput_sdk::get_caller(),
             receiver: *receiver,
             token: *token,
             amount,
@@ -66,7 +66,7 @@ impl HTLC for HTLCContract {
         };
 
         let token_client = htlc.token_client();
-        let self_address = sdk::get_current_address();
+        let self_address = thruput_sdk::get_current_address();
         token_client.transfer_from(&htlc.sender, &self_address, htlc.amount);
 
         self.htlcs.at_mut_exclusive(hash).set(&htlc);
@@ -82,7 +82,7 @@ impl HTLC for HTLCContract {
             panic!("HTLC expired");
         }
 
-        if sdk::crypto::sha256(preimage.as_ref()) != *hash {
+        if thruput_sdk::crypto::sha256(preimage.as_ref()) != *hash {
             panic!("Invalid preimage");
         }
 

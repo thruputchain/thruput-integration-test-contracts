@@ -1,7 +1,7 @@
 use crate::SyscallMiscTests;
-use sdk::sys::{self, SyscallErrorCode};
-use sdk::transaction::InvocationFrameStatusCode;
-use sdk::*;
+use thruput_sdk::sys::{self, SyscallErrorCode};
+use thruput_sdk::transaction::InvocationFrameStatusCode;
+use thruput_sdk::*;
 use thruput_xdr::syscalls::SyscallWord;
 
 // `thruput_syscall::syscall_wrapper` is the single shared syscall-dispatch
@@ -633,7 +633,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     // ── #36: Invoke with garbage flags → kInvalidSyscallInput ───────
 
     fn test_invoke_invalid_flags() {
-        let addr = sdk::get_current_address();
+        let addr = thruput_sdk::get_current_address();
         let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: u32::MAX, returned_auth_token_count: u32::MAX, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             &addr,
@@ -765,7 +765,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     // not track the method name -- measure after renaming, don't predict.
 
     fn test_invoke_unowned_token_loses_to_reentrance() {
-        let addr = sdk::get_current_address();
+        let addr = thruput_sdk::get_current_address();
         let fabricated_token_id: [u8; 4] = 0xDEADu32.to_le_bytes();
         let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: u32::MAX, returned_auth_token_count: u32::MAX, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
@@ -788,7 +788,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
     // fallback execution at an undeployed address).
 
     fn test_invoke_self_is_reentrance() {
-        let addr = sdk::get_current_address();
+        let addr = thruput_sdk::get_current_address();
         let mut outputs = sys::CopyableInvokeOutputs { return_buffer_len: u32::MAX, returned_auth_token_count: u32::MAX, frame_status: UNWRITTEN_FRAME_STATUS };
         let res = sys::raw_Invoke(
             &addr,
@@ -865,9 +865,9 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         // its own reasons, so pin the payload: it must decode as the SDK's
         // typed UnknownMethod, which is the whole point of 0.21.0 replacing
         // the bare trap.
-        let err = sdk::call::try_call_raw_with::<(), (), _>(
+        let err = thruput_sdk::call::try_call_raw_with::<(), (), _>(
             target,
-            sdk::contract::ContractEntrypointID::from_u64(0xFF),
+            thruput_sdk::contract::ContractEntrypointID::from_u64(0xFF),
             u64::MAX,
             &(),
             0,
@@ -875,7 +875,7 @@ impl SyscallMiscTests for SyscallMiscTestsContract {
         )
         .expect_err("an entrypoint that never returns must abort the call");
         match err {
-            sdk::call::RawCallError::Exception(decoded) => {
+            thruput_sdk::call::RawCallError::Exception(decoded) => {
                 assert!(
                     decoded == Some(LibraryExn::UnknownMethod),
                     "abort payload must be LibraryExn::UnknownMethod"

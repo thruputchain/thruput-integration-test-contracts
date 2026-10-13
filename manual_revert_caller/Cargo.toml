@@ -9,7 +9,7 @@ doctest = false
 test = false
 
 [dependencies]
-sdk = { workspace = true, features = ["alloc"] }
+thruput-sdk = { workspace = true, features = ["alloc"] }
 manual_revert_test = { path = "../manual_revert_test" }
 
 [dev-dependencies]
@@ -18,9 +18,9 @@ manual_revert_caller = { path = ".", features = ["dev"] }
 [features]
 entrypoints = []
 guest = []
-dev = ["sdk/dev", "manual_revert_test/dev"]
-std = ["sdk/std", "manual_revert_test/std"]
-logging = ["sdk/logging", "manual_revert_test/logging"]
+dev = ["thruput-sdk/dev", "manual_revert_test/dev"]
+std = ["thruput-sdk/std", "manual_revert_test/std"]
+logging = ["thruput-sdk/logging", "manual_revert_test/logging"]
 
 [[bin]]
 name = "manual_revert_caller"

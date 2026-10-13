@@ -1,8 +1,8 @@
 use crate::interface::*;
 use alloc::format;
 use manual_revert_test::Client as ManualRevertTestClient;
-use sdk::*;
-use sdk::storage::Value;
+use thruput_sdk::*;
+use thruput_sdk::storage::Value;
 
 //
 // Implementation of ManualRevertCaller contract that tests cross-contract revert propagation.
