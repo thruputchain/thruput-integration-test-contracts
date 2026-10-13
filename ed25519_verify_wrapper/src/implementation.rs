@@ -1,7 +1,7 @@
 //! An implementation of Ed25519VerifyWrapper
 
 use crate::interface::Ed25519VerifyWrapper;
-use sdk::*;
+use thruput_sdk::*;
 
 #[derive(Default)]
 pub struct Ed25519VerifyWrapperContract;
@@ -16,7 +16,7 @@ impl Ed25519VerifyWrapper for Ed25519VerifyWrapperContract {
         signature: &Ed25519Signature,
         public_key: &Ed25519PublicKey,
     ) -> bool {
-        sdk::crypto::verify_signature_ed25519(public_key, signature, message)
+        thruput_sdk::crypto::verify_signature_ed25519(public_key, signature, message)
     }
 
     fn ed25519_verify_repeated(

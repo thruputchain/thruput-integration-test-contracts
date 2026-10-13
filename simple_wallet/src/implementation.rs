@@ -9,8 +9,8 @@
 extern crate alloc;
 
 use super::interface::*;
-use sdk::crypto::verify_signature_ed25519;
-use sdk::*;
+use thruput_sdk::crypto::verify_signature_ed25519;
+use thruput_sdk::*;
 
 #[contract_exception]
 pub enum WalletError {
@@ -20,7 +20,7 @@ pub enum WalletError {
 
 #[storage]
 pub struct SimpleWalletContract {
-    owner: sdk::storage::Value<Ed25519PublicKey>,
+    owner: thruput_sdk::storage::Value<Ed25519PublicKey>,
 }
 
 #[contract]
@@ -35,7 +35,7 @@ impl SimpleWallet for SimpleWalletContract {
         invocation_bytes: &[u8],
     ) {
         if !verify_signature_ed25519(&self.owner.get(), signature, invocation_bytes) {
-            sdk::throw(WalletError::InvalidSignature);
+            thruput_sdk::throw(WalletError::InvalidSignature);
         }
 
         let (addr, entrypoint, gas_limit, calldata): (
@@ -43,13 +43,13 @@ impl SimpleWallet for SimpleWalletContract {
             ContractEntrypointID,
             u64,
             &[u8],
-        ) = sdk::__xdrs::txs::decode(invocation_bytes).unwrap();
+        ) = thruput_sdk::__xdrs::txs::decode(invocation_bytes).unwrap();
 
         let auth_handles = AuthHandleBuf::new();
 
-        let mut return_buf = sdk::call::ReturnBuf::new();
+        let mut return_buf = thruput_sdk::call::ReturnBuf::new();
         let mut returned_auth_handles = AuthHandleBuf::new();
-        let _ = sdk::call::contract_call(
+        let _ = thruput_sdk::call::contract_call(
             &addr,
             entrypoint,
             gas_limit,

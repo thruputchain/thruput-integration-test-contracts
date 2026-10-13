@@ -1,5 +1,5 @@
 use crate::{Client, ReturnFaultTest};
-use sdk::*;
+use thruput_sdk::*;
 
 pub struct ReturnFaultTestContract;
 
@@ -29,11 +29,11 @@ impl ReturnFaultTest for ReturnFaultTestContract {
         // This function is expected to fail, so returning success is a test
         // failure: if ConsoleLog accepts the out-of-bounds slice, bail out
         // (the inner frame returns normally and run_test will catch it).
-        if sdk::sys::raw_ConsoleLog(slice).is_ok() {
+        if thruput_sdk::sys::raw_ConsoleLog(slice).is_ok() {
             return;
         }
 
         // this should fail, because slice is out of bounds
-        sdk::sys::raw_Return(slice, false, &[]);
+        thruput_sdk::sys::raw_Return(slice, false, &[]);
     }
 }

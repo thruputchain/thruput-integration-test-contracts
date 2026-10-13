@@ -5,7 +5,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sdk = { workspace = true, features = ["alloc"] }
+thruput-sdk = { workspace = true, features = ["alloc"] }
 
 [lib]
 crate-type = ["rlib"]
@@ -14,9 +14,9 @@ doctest = false
 [features]
 default = []
 entrypoints = []
-dev = ["sdk/dev"]
-std = ["sdk/std"]
-logging = ["sdk/logging", "sdk/alloc"]
+dev = ["thruput-sdk/dev"]
+std = ["thruput-sdk/std"]
+logging = ["thruput-sdk/logging", "thruput-sdk/alloc"]
 
 [dev-dependencies]
 tuple_return = { path = ".", features = ["dev"] }

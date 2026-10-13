@@ -4,7 +4,7 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-sdk = { workspace = true, features = ["alloc"] }
+thruput-sdk = { workspace = true, features = ["alloc"] }
 
 [lib]
 crate-type = ["rlib"]
@@ -18,7 +18,7 @@ required-features = ["entrypoints"]
 
 [features]
 entrypoints = []
-dev = ["sdk/dev"]
+dev = ["thruput-sdk/dev"]
 
 [dev-dependencies]
 calldata_raw = { path = ".", features = ["dev"] }

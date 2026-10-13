@@ -1,5 +1,5 @@
 use super::interface::*;
-use sdk::*;
+use thruput_sdk::*;
 use thruput_xdr::syscalls::SyscallWord;
 
 // `thruput_syscall::syscall_wrapper` is the single shared syscall-dispatch
@@ -25,9 +25,9 @@ unsafe fn direct_syscall(
 }
 
 const K_SYSCALL_NONNEGATIVE_INT_GET: SyscallWord =
-    sdk::sys::SyscallNo::kNonnegativeIntGet.0 as SyscallWord;
-const K_SYSCALL_GET_CALLDATA: SyscallWord = sdk::sys::SyscallNo::kGetCalldata.0 as SyscallWord;
-const K_SYSCALL_LOG_EVENT: SyscallWord = sdk::sys::SyscallNo::kLogEvent.0 as SyscallWord;
+    thruput_sdk::sys::SyscallNo::kNonnegativeIntGet.0 as SyscallWord;
+const K_SYSCALL_GET_CALLDATA: SyscallWord = thruput_sdk::sys::SyscallNo::kGetCalldata.0 as SyscallWord;
+const K_SYSCALL_LOG_EVENT: SyscallWord = thruput_sdk::sys::SyscallNo::kLogEvent.0 as SyscallWord;
 
 const K_FAULT: i32 = 1; // SyscallErrorCode::kSyscallErrorCodeFault
 

@@ -1,7 +1,7 @@
 use bottle_test_if::*;
-use sdk::*;
-use sdk::xdr::cxs;
-use sdk::storage::Value;
+use thruput_sdk::*;
+use thruput_sdk::xdr::cxs;
+use thruput_sdk::storage::Value;
 
 #[derive(Debug)]
 #[storage]

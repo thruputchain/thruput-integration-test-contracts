@@ -2,8 +2,8 @@ use super::interface::*;
 use alloc::vec::Vec;
 use thruput_domain_separator::syscall::pubkey_account_address;
 use thruput_erc20_if::ERC20Client;
-use sdk::sys::{self, SyscallErrorCode};
-use sdk::*;
+use thruput_sdk::sys::{self, SyscallErrorCode};
+use thruput_sdk::*;
 
 pub struct DefaultWalletContract;
 
@@ -40,10 +40,10 @@ fn require_root_invocation() {
 }
 
 fn require_pubkey_signature_auth() {
-    match sdk::get_auth_claim() {
+    match thruput_sdk::get_auth_claim() {
         Ok(AuthClaim::kPubkeySignature { pubkey_preimage })
             if pubkey_account_address(&pubkey_preimage)
-                == sdk::get_current_address() => {}
+                == thruput_sdk::get_current_address() => {}
         _ => throw(WalletError::InvalidAuthClaim),
     }
 }
@@ -61,7 +61,7 @@ fn invoke(
 ) -> Vec<u8> {
     let mut return_buf = Vec::new();
     let mut returned_auth_handles = AuthHandleBuf::new();
-    match sdk::call::contract_call(
+    match thruput_sdk::call::contract_call(
         target,
         entrypoint,
         gas_limit,
@@ -71,8 +71,8 @@ fn invoke(
         &mut return_buf,
         &mut returned_auth_handles,
     ) {
-        Ok(sdk::call::CallOutcome::Return) => return_buf,
-        Ok(sdk::call::CallOutcome::Abort) => {
+        Ok(thruput_sdk::call::CallOutcome::Return) => return_buf,
+        Ok(thruput_sdk::call::CallOutcome::Abort) => {
             match RawExceptionRef::parse(&return_buf) {
                 Ok(exn) => exn.re_throw(),
                 Err(_) => throw(WalletError::CallAborted),
@@ -131,9 +131,9 @@ impl DefaultWallet for DefaultWalletContract {
     ) -> ContractAddress {
         require_root_pubkey_auth();
         if amount != 0 {
-            let target = sdk::get_deploy_address(nonce, contract_hash);
+            let target = thruput_sdk::get_deploy_address(nonce, contract_hash);
             let token = ERC20Client::new(
-                &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
+                &thruput_sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
             );
             match token.try_transfer(&target, amount) {
                 Ok(()) => {}
@@ -141,7 +141,7 @@ impl DefaultWallet for DefaultWalletContract {
                 Err(_) => throw(WalletError::CallFaulted),
             }
         }
-        let deployed = sdk::deploy_contract(nonce, contract_hash);
+        let deployed = thruput_sdk::deploy_contract(nonce, contract_hash);
         if let Some(init) = initializer {
             invoke(
                 &deployed,

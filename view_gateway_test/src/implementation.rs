@@ -1,6 +1,6 @@
 use super::interface::ViewGatewayTest;
 use alloc::vec::Vec;
-use sdk::*;
+use thruput_sdk::*;
 
 pub struct ViewGatewayTestContract;
 

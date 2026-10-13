@@ -6,7 +6,7 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-sdk = { workspace = true, features = ["alloc"] }
+thruput-sdk = { workspace = true, features = ["alloc"] }
 
 # Optional
 bottle-test-if = { workspace = true, optional = true }
@@ -17,7 +17,7 @@ doctest = false
 
 [features]
 entrypoints = []
-dev = ["sdk/dev"]
+dev = ["thruput-sdk/dev"]
 bottle-test = ["dep:bottle-test-if"]
 
 [dev-dependencies]

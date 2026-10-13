@@ -6,7 +6,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sdk = { workspace = true }
+thruput-sdk = { workspace = true }
 
 [lib]
 crate-type = ["rlib"]
@@ -17,8 +17,8 @@ test = false
 default = ["guest"]
 entrypoints = []
 guest = []
-dev = ["guest", "sdk/dev"]
-logging = ["sdk/logging"]
+dev = ["guest", "thruput-sdk/dev"]
+logging = ["thruput-sdk/logging"]
 
 [dev-dependencies]
 delegate_call_test = { path = ".", features = ["dev"] } 

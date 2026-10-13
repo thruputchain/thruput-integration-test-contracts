@@ -4,7 +4,7 @@ extern crate alloc;
 
 use alloc::vec;
 use alloc::vec::Vec;
-use sdk::*;
+use thruput_sdk::*;
 
 pub fn sha256_calldata() {
     let len = get_calldata_len();
@@ -12,11 +12,11 @@ pub fn sha256_calldata() {
     let mut written_len = 0;
     let mut auth_token_count = 0;
 
-    sdk::sys::raw_GetCalldata(buf.as_mut_slice(), &mut written_len, &mut auth_token_count).unwrap();
+    thruput_sdk::sys::raw_GetCalldata(buf.as_mut_slice(), &mut written_len, &mut auth_token_count).unwrap();
 
     let mut hash: SHA256Hash = SHA256Hash::default();
 
-    sdk::sys::raw_SHA256(buf.as_slice(), &mut hash).unwrap();
+    thruput_sdk::sys::raw_SHA256(buf.as_slice(), &mut hash).unwrap();
 }
 
 // Raw entrypoint, registered without the `#[contract]` macro.
@@ -33,11 +33,11 @@ pub fn sha256_calldata() {
 // this entrypoint used to do.
 #[cfg(target_arch = "riscv32")]
 mod rv32_entries {
-    use sdk::__rv32::Entrypoint;
+    use thruput_sdk::__rv32::Entrypoint;
 
     extern "C" fn sha256_calldata_raw() {
         super::sha256_calldata();
-        sdk::sys::raw_Return(&[], false, &[])
+        thruput_sdk::sys::raw_Return(&[], false, &[])
     }
 
     #[used]

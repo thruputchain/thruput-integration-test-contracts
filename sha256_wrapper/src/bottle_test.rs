@@ -1,8 +1,8 @@
 use crate::Client;
 use alloc::vec;
 use bottle_test_if::*;
-use sdk::*;
-use sdk::storage::Value;
+use thruput_sdk::*;
+use thruput_sdk::storage::Value;
 use sha2::{Digest, Sha256};
 
 #[derive(Debug)]

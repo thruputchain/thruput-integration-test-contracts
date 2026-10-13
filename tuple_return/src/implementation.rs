@@ -2,7 +2,7 @@
 
 use super::interface::TupleReturn;
 use alloc::vec;
-use sdk::*;
+use thruput_sdk::*;
 
 pub struct TupleReturnContract;
 

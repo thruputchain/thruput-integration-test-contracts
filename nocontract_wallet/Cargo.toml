@@ -9,12 +9,12 @@ doctest = false
 test = false
 
 [dependencies]
-sdk = { workspace = true }
+thruput-sdk = { workspace = true }
 
 [features]
 default = []
 entrypoints = []
-dev = ["sdk/dev"]
+dev = ["thruput-sdk/dev"]
 guest = []
-std = ["sdk/std"]
-logging = ["sdk/logging", "std"]
+std = ["thruput-sdk/std"]
+logging = ["thruput-sdk/logging", "std"]

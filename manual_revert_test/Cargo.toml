@@ -9,7 +9,7 @@ doctest = false
 test = false
 
 [dependencies]
-sdk = { workspace = true, features = ["logging"] }
+thruput-sdk = { workspace = true, features = ["logging"] }
 thiserror = { version = "2.0.10", default-features = false }
 thruput-xdr = { workspace = true }
 
@@ -19,9 +19,9 @@ entrypoints = []
 guest = []
 alloc = []
 xdrs = []
-dev = ["guest", "sdk/dev", "std"]
-std = ["sdk/std"]
-logging = ["sdk/logging"]
+dev = ["guest", "thruput-sdk/dev", "std"]
+std = ["thruput-sdk/std"]
+logging = ["thruput-sdk/logging"]
 
 [dev-dependencies]
 manual_revert_test = { path = ".", features = ["dev"] }

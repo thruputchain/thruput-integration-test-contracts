@@ -4,7 +4,7 @@ version = "0.2.0"
 edition = "2021"
 
 [dependencies]
-sdk = { workspace = true, features = ["alloc"] }
+thruput-sdk = { workspace = true, features = ["alloc"] }
 thruput-xdr = { workspace = true }
 
 [lib]
@@ -13,8 +13,8 @@ doctest = false
 
 [features]
 entrypoints = []
-dev = ["sdk/dev"]
-std = ["sdk/std"]
+dev = ["thruput-sdk/dev"]
+std = ["thruput-sdk/std"]
 
 [[bin]]
 name = "view_gateway_test"

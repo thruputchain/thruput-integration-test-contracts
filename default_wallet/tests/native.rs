@@ -3,7 +3,7 @@ use default_wallet::{
 };
 use thruput_domain_separator::sha2::pubkey_account_address;
 use thruput_xdr::auth_claim::PubkeyAccountPreimage;
-use sdk::{AuthClaim, ContractAddress, Ed25519PublicKey, Exn, PublicKey};
+use thruput_sdk::{AuthClaim, ContractAddress, Ed25519PublicKey, Exn, PublicKey};
 
 fn pubkey_claim(pubkey_byte: u8, nonce: u64) -> AuthClaim {
     let pubkey = PublicKey::Ed25519 {
@@ -23,22 +23,22 @@ fn pubkey_claim_address(auth_claim: &AuthClaim) -> ContractAddress {
     }
 }
 
-fn assert_wallet_error(result: &sdk::TransactResult, expected: WalletError) {
+fn assert_wallet_error(result: &thruput_sdk::TransactResult, expected: WalletError) {
     result.assert_abort();
 
-    let mut reader = sdk::__xdrs::cxs::buf_reader::BufReader::new(
+    let mut reader = thruput_sdk::__xdrs::cxs::buf_reader::BufReader::new(
         result.frame().abort_buffer(),
     );
-    let selector: u64 = sdk::ReadXDR::read_xdr(&mut reader).unwrap();
+    let selector: u64 = thruput_sdk::ReadXDR::read_xdr(&mut reader).unwrap();
     assert_eq!(selector, WalletError::SELECTOR);
 
-    let actual: WalletError = sdk::ReadXDR::read_xdr(&mut reader).unwrap();
+    let actual: WalletError = thruput_sdk::ReadXDR::read_xdr(&mut reader).unwrap();
     assert_eq!(actual, expected);
 }
 
 #[test]
 fn execute_accepts_matching_pubkey_auth_claim() {
-    let env = sdk::TestEnvironment::no_cost();
+    let env = thruput_sdk::TestEnvironment::no_cost();
     let claim = pubkey_claim(17, 7);
     let wallet_address = pubkey_claim_address(&claim);
 
@@ -53,7 +53,7 @@ fn execute_accepts_matching_pubkey_auth_claim() {
 
 #[test]
 fn execute_rejects_pubkey_auth_claim_for_different_address() {
-    let env = sdk::TestEnvironment::no_cost();
+    let env = thruput_sdk::TestEnvironment::no_cost();
     let claim = pubkey_claim(17, 7);
     let mut wrong_address_bytes = *pubkey_claim_address(&claim);
     wrong_address_bytes[0] ^= 0xFF;
@@ -70,7 +70,7 @@ fn execute_rejects_pubkey_auth_claim_for_different_address() {
 
 #[test]
 fn execute_rejects_default_source_address_auth_claim() {
-    let env = sdk::TestEnvironment::no_cost();
+    let env = thruput_sdk::TestEnvironment::no_cost();
 
     let result = env.transact(|tx| {
         tx.call(&ContractAddress::new([1u8; 32])).run(|| {
@@ -83,7 +83,7 @@ fn execute_rejects_default_source_address_auth_claim() {
 
 #[test]
 fn deploy_rejects_wrong_auth_before_funding() {
-    let env = sdk::TestEnvironment::no_cost();
+    let env = thruput_sdk::TestEnvironment::no_cost();
     let claim = pubkey_claim(17, 7);
     let result = env.transaction().with_auth_claim(claim).transact(|tx| {
         tx.call(&ContractAddress::new([1u8; 32])).run(|| {
@@ -100,7 +100,7 @@ fn deploy_rejects_wrong_auth_before_funding() {
 
 #[test]
 fn deploy_rejects_source_address_auth() {
-    let env = sdk::TestEnvironment::no_cost();
+    let env = thruput_sdk::TestEnvironment::no_cost();
     let result = env.transact(|tx| {
         tx.call(&ContractAddress::new([1u8; 32])).run(|| {
             <DefaultWalletContract as DefaultWallet>::deploy(
@@ -118,21 +118,21 @@ fn deploy_rejects_source_address_auth() {
 fn deploy_commits_exact_transfer_and_callable_contract() {
     // Zero storage costs isolate the requested transfer from collateral charges.
     // The hogd parity suite separately exercises the real cost model.
-    let env = sdk::TestEnvironment::no_cost();
+    let env = thruput_sdk::TestEnvironment::no_cost();
     let claim = pubkey_claim(17, 7);
     let wallet = pubkey_claim_address(&claim);
     env.setup_grant_storage_tokens(&wallet, 1_000);
     let marker = 42u64.to_be_bytes().into();
     let contract = env.register_mock(|contract| {
         contract.register_method(marker, || {
-            sdk::sys::raw_Return(&[42], false, &[])
+            thruput_sdk::sys::raw_Return(&[42], false, &[])
         });
     });
     let hash = *contract.as_hash();
     let nonce = [31; 32].into();
     let result = env.transaction().with_auth_claim(claim).transact(|tx| {
         tx.call(&wallet).run(|| {
-            let expected = sdk::get_deploy_address(&nonce, &hash);
+            let expected = thruput_sdk::get_deploy_address(&nonce, &hash);
             let deployed = <DefaultWalletContract as DefaultWallet>::deploy(
                 &nonce, &hash, 123, None,
             );
@@ -147,7 +147,7 @@ fn deploy_commits_exact_transfer_and_callable_contract() {
     env.transact(|tx| {
         tx.call(&wallet).run(|| {
             let token = thruput_erc20_if::ERC20Client::new(
-                &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
+                &thruput_sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
             );
             assert_eq!(token.get_balance_of(&wallet), 877);
             assert_eq!(token.get_balance_of(&deployed), 123);
@@ -155,19 +155,19 @@ fn deploy_commits_exact_transfer_and_callable_contract() {
             // Invoke the deployed code through the runtime, rather than merely
             // checking that deploy returned the predicted address.
             let mut returned = Vec::new();
-            let mut returned_auth = sdk::AuthHandleBuf::new();
-            let outcome = sdk::call::contract_call(
+            let mut returned_auth = thruput_sdk::AuthHandleBuf::new();
+            let outcome = thruput_sdk::call::contract_call(
                 &deployed,
                 marker,
                 u64::MAX,
                 &[],
-                &sdk::AuthHandleBuf::new(),
+                &thruput_sdk::AuthHandleBuf::new(),
                 0,
                 &mut returned,
                 &mut returned_auth,
             )
             .unwrap();
-            assert_eq!(outcome, sdk::call::CallOutcome::Return);
+            assert_eq!(outcome, thruput_sdk::call::CallOutcome::Return);
             assert_eq!(returned, [42]);
         })
     })
@@ -183,15 +183,15 @@ fn init_call(mode: u8) -> default_wallet::WalletInitCall {
 }
 
 fn initializer_body() {
-    use sdk::storage::{Keypath, Value};
+    use thruput_sdk::storage::{Keypath, Value};
     let mut calldata = Vec::new();
-    sdk::contract_op::fetch_calldata_and_auth_tokens(&mut calldata);
+    thruput_sdk::contract_op::fetch_calldata_and_auth_tokens(&mut calldata);
     // Writing the caller proves both initialization and the caller identity.
     let mut owner: Value<ContractAddress> = Keypath::default().into();
-    owner.set(&sdk::get_caller());
+    owner.set(&thruput_sdk::get_caller());
     match calldata.as_slice() {
-        [0] => sdk::sys::raw_Return(&[0xff, 0x42], false, &[]),
-        [1] => sdk::contract_abort(&[0xff]),
+        [0] => thruput_sdk::sys::raw_Return(&[0xff, 0x42], false, &[]),
+        [1] => thruput_sdk::contract_abort(&[0xff]),
         [2] => panic!("initializer fault after write"),
         _ => panic!("unexpected initializer calldata"),
     }
@@ -199,9 +199,9 @@ fn initializer_body() {
 
 #[test]
 fn deploy_initializes_atomically_as_the_wallet_with_optional_funding() {
-    use sdk::storage::{Keypath, Value};
+    use thruput_sdk::storage::{Keypath, Value};
     for amount in [0, 123] {
-        let env = sdk::TestEnvironment::no_cost();
+        let env = thruput_sdk::TestEnvironment::no_cost();
         let claim = pubkey_claim(17, 7);
         let wallet = pubkey_claim_address(&claim);
         env.setup_grant_storage_tokens(&wallet, 1_000);
@@ -212,7 +212,7 @@ fn deploy_initializes_atomically_as_the_wallet_with_optional_funding() {
         let nonce = [32; 32].into();
         let result = env.transaction().with_auth_claim(claim).transact(|tx| {
             tx.call(&wallet).run(|| {
-                let predicted = sdk::get_deploy_address(&nonce, &hash);
+                let predicted = thruput_sdk::get_deploy_address(&nonce, &hash);
                 let deployed = <DefaultWalletContract as DefaultWallet>::deploy(
                     &nonce,
                     &hash,
@@ -232,7 +232,7 @@ fn deploy_initializes_atomically_as_the_wallet_with_optional_funding() {
                 let owner: Value<ContractAddress> = Keypath::default().into();
                 assert_eq!(owner.get(), wallet);
                 let token = thruput_erc20_if::ERC20Client::new(
-                    &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
+                    &thruput_sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
                 );
                 assert_eq!(token.get_balance_of(&wallet), 1_000 - amount);
                 assert_eq!(token.get_balance_of(&deployed), amount);
@@ -244,12 +244,12 @@ fn deploy_initializes_atomically_as_the_wallet_with_optional_funding() {
 
 #[test]
 fn initializer_abort_and_fault_roll_back_funding_deployment_and_storage() {
-    use sdk::storage::{Keypath, Value};
-    use sdk::NoneIfMissing;
+    use thruput_sdk::storage::{Keypath, Value};
+    use thruput_sdk::NoneIfMissing;
     for (mode, expected) in
         [(1, WalletError::CallAborted), (2, WalletError::CallFaulted)]
     {
-        let env = sdk::TestEnvironment::no_cost();
+        let env = thruput_sdk::TestEnvironment::no_cost();
         let claim = pubkey_claim(17, 7);
         let wallet = pubkey_claim_address(&claim);
         env.setup_grant_storage_tokens(&wallet, 1_000);
@@ -260,7 +260,7 @@ fn initializer_abort_and_fault_roll_back_funding_deployment_and_storage() {
         let nonce = [33; 32].into();
         let address_result = env.transact(|tx| {
             tx.call(&wallet)
-                .run(|| sdk::get_deploy_address(&nonce, &hash))
+                .run(|| thruput_sdk::get_deploy_address(&nonce, &hash))
         });
         address_result.assert_success();
         let target = address_result.assert_return_as::<ContractAddress>();
@@ -284,7 +284,7 @@ fn initializer_abort_and_fault_roll_back_funding_deployment_and_storage() {
                 let owner: Value<ContractAddress> = Keypath::default().into();
                 assert_eq!(owner.try_get().none_if_missing(), None);
                 let token = thruput_erc20_if::ERC20Client::new(
-                    &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
+                    &thruput_sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
                 );
                 assert_eq!(token.get_balance_of(&wallet), 1_000);
                 assert_eq!(token.get_balance_of(&target), 0);
@@ -308,14 +308,14 @@ fn initializer_abort_and_fault_roll_back_funding_deployment_and_storage() {
     }
 }
 
-#[sdk::contract_exception]
+#[thruput_sdk::contract_exception]
 #[derive(Copy, Clone)]
 pub enum AdderError {
     Overflow = 1,
 }
 
 /// A minimal contract for the wallet to call.
-#[sdk::contract(throws = AdderError)]
+#[thruput_sdk::contract(throws = AdderError)]
 pub trait Adder {
     fn add(a: u32, b: u32) -> u32;
     fn store_sum(a: u32, b: u32) -> u32;
@@ -323,10 +323,10 @@ pub trait Adder {
 
 pub struct AdderContract;
 
-#[sdk::contract]
+#[thruput_sdk::contract]
 impl Adder for AdderContract {
     fn add(a: u32, b: u32) -> u32 {
-        use sdk::OrThrow;
+        use thruput_sdk::OrThrow;
         a.checked_add(b).or_throw(AdderError::Overflow)
     }
 
@@ -337,8 +337,8 @@ impl Adder for AdderContract {
     }
 }
 
-fn stored_sum() -> sdk::storage::Value<u32> {
-    sdk::storage::Keypath::default().into()
+fn stored_sum() -> thruput_sdk::storage::Value<u32> {
+    thruput_sdk::storage::Keypath::default().into()
 }
 
 fn adder_call(
@@ -351,7 +351,7 @@ fn adder_call(
         target: *target,
         entrypoint: entrypoint.into(),
         gas_limit: u64::MAX,
-        calldata: sdk::encode_xdr(&(a, b))
+        calldata: thruput_sdk::encode_xdr(&(a, b))
             .unwrap()
             .as_slice()
             .try_into()
@@ -362,7 +362,7 @@ fn adder_call(
 #[test]
 fn execute_calls_deployed_contract_and_returns_each_result() {
     const ADDER: ContractAddress = ContractAddress::new([0xAD; 32]);
-    let env = sdk::TestEnvironment::no_cost();
+    let env = thruput_sdk::TestEnvironment::no_cost();
     let adder = env.register_mock(|contract| {
         <AdderContract as Adder>::__mock(contract);
     });
@@ -383,8 +383,8 @@ fn execute_calls_deployed_contract_and_returns_each_result() {
     let returns = result.assert_return_as::<Vec<default_wallet::WalletBytes>>();
     let returns: Vec<&[u8]> = returns.iter().map(|r| r.as_slice()).collect();
     let expected = [
-        sdk::encode_xdr(&5u32).unwrap(),
-        sdk::encode_xdr(&42u32).unwrap(),
+        thruput_sdk::encode_xdr(&5u32).unwrap(),
+        thruput_sdk::encode_xdr(&42u32).unwrap(),
     ];
     assert_eq!(returns, [expected[0].as_slice(), expected[1].as_slice()]);
 }
@@ -392,7 +392,7 @@ fn execute_calls_deployed_contract_and_returns_each_result() {
 #[test]
 fn execute_rethrows_callee_error() {
     const ADDER: ContractAddress = ContractAddress::new([0xAD; 32]);
-    let env = sdk::TestEnvironment::no_cost();
+    let env = thruput_sdk::TestEnvironment::no_cost();
     let adder = env.register_mock(|contract| {
         <AdderContract as Adder>::__mock(contract);
     });
@@ -432,7 +432,7 @@ fn execute_rethrows_callee_error() {
 
 #[test]
 fn deploy_rethrows_funding_error() {
-    let env = sdk::TestEnvironment::no_cost();
+    let env = thruput_sdk::TestEnvironment::no_cost();
     let claim = pubkey_claim(17, 7);
     let wallet = pubkey_claim_address(&claim);
     env.setup_grant_storage_tokens(&wallet, 1_000);
@@ -454,7 +454,7 @@ fn deploy_rethrows_funding_error() {
 
 #[test]
 fn deploy_rethrows_initializer_error() {
-    let env = sdk::TestEnvironment::no_cost();
+    let env = thruput_sdk::TestEnvironment::no_cost();
     let claim = pubkey_claim(17, 7);
     let wallet = pubkey_claim_address(&claim);
     env.setup_grant_storage_tokens(&wallet, 1_000);
@@ -500,7 +500,7 @@ fn deploy_rethrows_initializer_error() {
     env.transact(|tx| {
         tx.call(&wallet).run(|| {
             let token = thruput_erc20_if::ERC20Client::new(
-                &sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
+                &thruput_sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
             );
             assert_eq!(token.get_balance_of(&wallet), 1_000);
         })

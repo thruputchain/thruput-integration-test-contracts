@@ -1,5 +1,5 @@
 use alloc::vec::Vec;
-use sdk::*;
+use thruput_sdk::*;
 
 /// Fund an existing address without deploying or initializing a contract.
 #[contract_type]

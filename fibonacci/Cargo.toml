@@ -6,7 +6,7 @@ version = "0.2.0"
 edition = "2021"
 
 [dependencies]
-sdk = { workspace = true }
+thruput-sdk = { workspace = true }
 
 # Optional
 bottle-test-if = { workspace = true, optional = true }
@@ -22,9 +22,9 @@ required-features = ["entrypoints"]
 
 [features]
 entrypoints = []
-dev = ["sdk/dev"]
-std = ["sdk/std"]
-logging = ["sdk/logging", "sdk/alloc"]
+dev = ["thruput-sdk/dev"]
+std = ["thruput-sdk/std"]
+logging = ["thruput-sdk/logging", "thruput-sdk/alloc"]
 bottle-test = ["dep:bottle-test-if"]
 alloc = []
 

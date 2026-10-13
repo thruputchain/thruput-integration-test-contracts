@@ -1,10 +1,10 @@
 use crate::{ReadOnlyTestContract, ReadOnlyTest};
-use sdk::*;
-use sdk::xdr::cxs;
+use thruput_sdk::*;
+use thruput_sdk::xdr::cxs;
 
 #[test]
 fn test_read_only_bytestring_set() {
-    let env = sdk::TestEnvironment::no_cost();
+    let env = thruput_sdk::TestEnvironment::no_cost();
 
     let test_contract = env.register_mock(<ReadOnlyTestContract as ReadOnlyTest>::__mock);
     let contract_hash = test_contract.as_hash().clone();
@@ -18,7 +18,7 @@ fn test_read_only_bytestring_set() {
 }
 
 fn test_read_only_bytestring_set_inner(
-    contract_hash: &sdk::types::SHA256Hash,
+    contract_hash: &thruput_sdk::types::SHA256Hash,
 ) {
     let nonce = SHA256Hash::from([7; 32]);
     let deployed_addr = deploy_contract(&nonce, contract_hash);
@@ -31,11 +31,11 @@ fn test_read_only_bytestring_set_inner(
     let entrypoint_id =
         crate::ReadOnlyTestEntrypoints::read_only_bytestring_set.into_u64();
 
-    sdk::sys::uninit_Invoke(
+    thruput_sdk::sys::uninit_Invoke(
         &deployed_addr,
         &calldata,
         &[], // auth
-        &sdk::sys::CopyableInvokeInputs {
+        &thruput_sdk::sys::CopyableInvokeInputs {
             entrypoint_id,
             gas_limit: u64::MAX, // gas limit
             flags: flag,

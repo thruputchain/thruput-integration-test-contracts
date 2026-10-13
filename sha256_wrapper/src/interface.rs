@@ -1,4 +1,4 @@
-use sdk::*;
+use thruput_sdk::*;
 
 #[contract(client = Client)]
 pub trait Sha256Wrapper {

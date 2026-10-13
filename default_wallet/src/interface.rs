@@ -1,5 +1,5 @@
 use alloc::vec::Vec;
-use sdk::*;
+use thruput_sdk::*;
 
 pub type WalletBytes = BytesM;
 

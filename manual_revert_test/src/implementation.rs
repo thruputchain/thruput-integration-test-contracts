@@ -1,5 +1,5 @@
 use crate::interface::*;
-use sdk::*;
+use thruput_sdk::*;
 
 struct ManualRevertTestContract;
 
@@ -10,10 +10,10 @@ impl ManualRevertTest for ManualRevertTestContract {
         marker: u32,
         mode: u32,
     ) -> [u8; 1024] {
-        let sender = sdk::get_caller();
+        let sender = thruput_sdk::get_caller();
         assert_eq!(sender, expected_sender);
-        let mut calldata = sdk::internal::new_scratch();
-        let auth_token_count = sdk::fetch_calldata_and_auth_tokens(&mut calldata);
+        let mut calldata = thruput_sdk::internal::new_scratch();
+        let auth_token_count = thruput_sdk::fetch_calldata_and_auth_tokens(&mut calldata);
         assert_eq!(auth_token_count, 0);
         let mut state = [0u8; 36];
         state[..32].copy_from_slice(sender.as_ref());
@@ -23,7 +23,7 @@ impl ManualRevertTest for ManualRevertTestContract {
             throw(ManualRevertTestError::BasicRevert);
         }
         if mode == 2 {
-            sdk::trap();
+            thruput_sdk::trap();
         }
         [0xAB; 1024]
     }

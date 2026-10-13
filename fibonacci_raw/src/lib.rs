@@ -1,7 +1,7 @@
 #![no_std]
 
 #[allow(unused_imports)]
-use sdk::*;
+use thruput_sdk::*;
 
 pub fn fibonacci_slow(count: u32) -> u32 {
     if count == 0 {
@@ -27,10 +27,10 @@ pub fn fibonacci_slow(count: u32) -> u32 {
 // return these entrypoints used to do.
 #[cfg(target_arch = "riscv32")]
 mod rv32_entries {
-    use sdk::__rv32::Entrypoint;
+    use thruput_sdk::__rv32::Entrypoint;
 
     fn done() -> ! {
-        sdk::sys::raw_Return(&[], false, &[])
+        thruput_sdk::sys::raw_Return(&[], false, &[])
     }
 
     macro_rules! raw_entrypoint {

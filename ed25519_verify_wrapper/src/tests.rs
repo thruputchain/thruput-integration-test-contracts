@@ -1,12 +1,12 @@
 use crate::{Client, Ed25519VerifyWrapper, Ed25519VerifyWrapperContract};
 use ed25519_dalek::{Signer, SigningKey};
 use getrandom::{rand_core::UnwrapErr, SysRng};
-use sdk::*;
+use thruput_sdk::*;
 use std::vec;
 
 #[test]
 fn test_ed25519_verify_wrapper() {
-    sdk::client_test(
+    thruput_sdk::client_test(
         |env| env.register_mock(<Ed25519VerifyWrapperContract as Ed25519VerifyWrapper>::__mock),
         test,
     );

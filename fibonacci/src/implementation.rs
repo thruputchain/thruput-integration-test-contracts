@@ -1,7 +1,7 @@
 //! An implementation of Fibonacci
 
 use super::interface::Fibonacci;
-use sdk::*;
+use thruput_sdk::*;
 
 #[derive(Default)]
 pub struct FibonacciContract;
@@ -35,11 +35,11 @@ impl Fibonacci for FibonacciContract {
     fn burn_gas() {
         let mut buf = [0u8; 32];
         loop {
-            buf = sdk::crypto::sha256(&buf).into_inner();
+            buf = thruput_sdk::crypto::sha256(&buf).into_inner();
         }
     }
 
     fn change_nonce_config(required_weight: u32) {
-        sdk::set_address_required_weight(required_weight).unwrap();
+        thruput_sdk::set_address_required_weight(required_weight).unwrap();
     }
 }

@@ -1,7 +1,7 @@
 //! An implementation of Fibonacci
 
 use super::interface::CalldataWrapper;
-use sdk::*;
+use thruput_sdk::*;
 
 use alloc::vec::Vec;
 

@@ -1,6 +1,6 @@
 use super::interface::*;
-use sdk::*;
-use sdk::sys::SyscallErrorCode;
+use thruput_sdk::*;
+use thruput_sdk::sys::SyscallErrorCode;
 use thruput_xdr::syscalls::SyscallWord;
 
 pub struct NoSyscallTestContract;

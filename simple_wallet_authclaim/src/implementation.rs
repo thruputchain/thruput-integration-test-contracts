@@ -1,6 +1,6 @@
 use super::interface::*;
-use sdk::transaction::InvocationFrameStatusCode;
-use sdk::*;
+use thruput_sdk::transaction::InvocationFrameStatusCode;
+use thruput_sdk::*;
 
 pub struct SimpleWalletAuthClaimContract;
 
@@ -10,14 +10,14 @@ impl SimpleWalletAuthClaim for SimpleWalletAuthClaimContract {
         let pk = PublicKey::Ed25519 {
             ed25519: *owner,
         };
-        sdk::add_address_public_key(0, pk, 1).unwrap();
-        sdk::set_address_required_weight(1).unwrap();
+        thruput_sdk::add_address_public_key(0, pk, 1).unwrap();
+        thruput_sdk::set_address_required_weight(1).unwrap();
     }
 
     fn do_action(
         invocation_bytes: &[u8],
     ) {
-        let auth_claim = sdk::get_auth_claim().unwrap();
+        let auth_claim = thruput_sdk::get_auth_claim().unwrap();
 
         match auth_claim {
             AuthClaim::kSourceAddressAuthData { source_address_claim } => {
@@ -30,7 +30,7 @@ impl SimpleWalletAuthClaim for SimpleWalletAuthClaimContract {
             }
         }
 
-        let res = sdk::__xdrs::txs::decode(invocation_bytes);
+        let res = thruput_sdk::__xdrs::txs::decode(invocation_bytes);
         let (addr, entrypoint, gas_limit, calldata): (
             ContractAddress,
             ContractEntrypointID,
@@ -40,7 +40,7 @@ impl SimpleWalletAuthClaim for SimpleWalletAuthClaimContract {
 
         let method_id = u64::from_be_bytes(entrypoint.into_inner());
 
-        let mut outputs = sdk::sys::CopyableInvokeOutputs {
+        let mut outputs = thruput_sdk::sys::CopyableInvokeOutputs {
             return_buffer_len: 0,
             returned_auth_token_count: 0,
             // Placeholder; overwritten by the syscall on Ok(). Using Fault
@@ -48,11 +48,11 @@ impl SimpleWalletAuthClaim for SimpleWalletAuthClaimContract {
             // unwritten — the non-Return check below then traps.
             frame_status: InvocationFrameStatusCode::Fault,
         };
-        sdk::sys::raw_Invoke(
+        thruput_sdk::sys::raw_Invoke(
             &addr,
             calldata,
             &[],
-            &sdk::sys::CopyableInvokeInputs {
+            &thruput_sdk::sys::CopyableInvokeInputs {
                 entrypoint_id: method_id,
                 gas_limit,
                 flags: 0, // TODO(geoff): invoke flags go here

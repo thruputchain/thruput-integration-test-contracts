@@ -6,7 +6,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sdk = { workspace = true }
+thruput-sdk = { workspace = true }
 fibonacci = { path = "../fibonacci" }
 
 [lib]
@@ -16,9 +16,9 @@ test = false
 
 [features]
 entrypoints = []
-dev = ["sdk/dev", "fibonacci/dev"]
-std = ["sdk/std", "fibonacci/std"]
-logging = ["sdk/logging"]
+dev = ["thruput-sdk/dev", "fibonacci/dev"]
+std = ["thruput-sdk/std", "fibonacci/std"]
+logging = ["thruput-sdk/logging"]
 
 [dev-dependencies]
 fibonacci_call = { path = ".", features = ["dev"] }

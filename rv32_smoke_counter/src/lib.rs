@@ -1,9 +1,9 @@
 #![cfg_attr(not(feature = "dev"), no_std)]
 
-sdk::declare_mock_contract!();
+thruput_sdk::declare_mock_contract!();
 
-use sdk::storage::NNInt;
-use sdk::*;
+use thruput_sdk::storage::NNInt;
+use thruput_sdk::*;
 
 #[contract_exception]
 pub enum Error {
@@ -11,7 +11,7 @@ pub enum Error {
 }
 
 #[derive(Debug)]
-#[sdk::storage]
+#[thruput_sdk::storage]
 pub struct Counter {
     value: NNInt,
 }

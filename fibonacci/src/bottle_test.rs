@@ -1,7 +1,7 @@
 use crate::Client;
 use bottle_test_if::*;
-use sdk::*;
-use sdk::storage::Value;
+use thruput_sdk::*;
+use thruput_sdk::storage::Value;
 
 #[derive(Debug)]
 #[storage]

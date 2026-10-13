@@ -5,7 +5,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sdk = { workspace = true }
+thruput-sdk = { workspace = true }
 thruput-xdr = { workspace = true, features = ["xdrs", "syscalls"] }
 thruput-syscall = { workspace = true }
 
@@ -15,9 +15,9 @@ doctest = false
 
 [features]
 entrypoints = []
-dev = ["sdk/dev", "std"]
-std = ["sdk/std"]
-logging = ["sdk/logging"]
+dev = ["thruput-sdk/dev", "std"]
+std = ["thruput-sdk/std"]
+logging = ["thruput-sdk/logging"]
 
 [dev-dependencies]
 nnint_output_fault_test = { path = ".", features = ["dev"] }

@@ -5,7 +5,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sdk = { workspace = true, features = ["alloc"] }
+thruput-sdk = { workspace = true, features = ["alloc"] }
 xdrs = { workspace = true, features = ["derive", "alloc", "int128"] }
 
 [lib]
@@ -16,9 +16,9 @@ doctest = false
 entrypoints = []
 default = ["xdrs"]
 xdrs = []
-dev = ["sdk/dev"]
-std = ["sdk/std"]
-logging = ["sdk/logging"]
+dev = ["thruput-sdk/dev"]
+std = ["thruput-sdk/std"]
+logging = ["thruput-sdk/logging"]
 
 [dev-dependencies]
 txs_roundtrip = { path = ".", features = ["dev"] }

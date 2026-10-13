@@ -4,7 +4,7 @@ extern crate alloc;
 
 use alloc::vec;
 use alloc::vec::Vec;
-use sdk::{fetch_calldata_and_auth_tokens, get_calldata_len};
+use thruput_sdk::{fetch_calldata_and_auth_tokens, get_calldata_len};
 
 pub fn calldata_len(count: u32) {
     for _ in 0..count {
@@ -18,7 +18,7 @@ pub fn calldata(count: u32) {
     for _ in 0..count {
         // Fresh buffers per iteration: each fetch is independent, matching
         // the pre-existing semantics of one fetch per call.
-        let mut buf = sdk::internal::new_scratch();
+        let mut buf = thruput_sdk::internal::new_scratch();
         fetch_calldata_and_auth_tokens(&mut buf);
         let x_len = buf.len();
         if len > 0 {
@@ -34,7 +34,7 @@ pub fn calldata_raw(count: u32) {
     let mut written_len = 0;
     let mut auth_token_count = 0;
     for _ in 0..count {
-        sdk::sys::raw_GetCalldata(buf.as_mut_slice(), &mut written_len, &mut auth_token_count)
+        thruput_sdk::sys::raw_GetCalldata(buf.as_mut_slice(), &mut written_len, &mut auth_token_count)
             .unwrap();
     }
 }
@@ -53,10 +53,10 @@ pub fn calldata_raw(count: u32) {
 // bare return these entrypoints used to do.
 #[cfg(target_arch = "riscv32")]
 mod rv32_entries {
-    use sdk::__rv32::Entrypoint;
+    use thruput_sdk::__rv32::Entrypoint;
 
     fn done() -> ! {
-        sdk::sys::raw_Return(&[], false, &[])
+        thruput_sdk::sys::raw_Return(&[], false, &[])
     }
 
     macro_rules! raw_entrypoint {

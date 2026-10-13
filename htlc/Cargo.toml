@@ -6,7 +6,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sdk = { workspace = true }
+thruput-sdk = { workspace = true }
 thruput-erc20-if = { workspace = true }
 
 [lib]
@@ -15,9 +15,9 @@ doctest = false
 
 [features]
 entrypoints = []
-dev = ["sdk/dev", "std"]
-std = ["sdk/std"]
-logging = ["sdk/logging"]
+dev = ["thruput-sdk/dev", "std"]
+std = ["thruput-sdk/std"]
+logging = ["thruput-sdk/logging"]
 
 [dev-dependencies]
 htlc = { path = ".", features = ["dev"] }
