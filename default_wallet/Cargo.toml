@@ -23,6 +23,7 @@ logging = ["thruput-sdk/logging"]
 default_wallet = { path = ".", features = ["dev"] }
 thruput-domain-separator = { workspace = true, features = ["sha2", "syscall-mock"] }
 thruput-xdr = { workspace = true }
+sha2 = { workspace = true }
 
 [[bin]]
 name = "default_wallet"

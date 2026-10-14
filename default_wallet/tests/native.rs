@@ -2,16 +2,59 @@ use default_wallet::{
     DefaultWallet, DefaultWalletContract, WalletCall, WalletError,
 };
 use thruput_domain_separator::sha2::pubkey_account_address;
+use thruput_sdk::{
+    AuthClaim, ContractAddress, Ed25519PublicKey, Exn, PublicKey,
+};
 use thruput_xdr::auth_claim::PubkeyAccountPreimage;
-use thruput_sdk::{AuthClaim, ContractAddress, Ed25519PublicKey, Exn, PublicKey};
+use thruput_xdr::types::{MlDsa65PublicKey, PublicKeyHash};
 
-fn pubkey_claim(pubkey_byte: u8, nonce: u64) -> AuthClaim {
-    let pubkey = PublicKey::Ed25519 {
-        ed25519: Ed25519PublicKey::from([pubkey_byte; 32]),
+fn ed25519_key(byte: u8) -> PublicKey {
+    PublicKey::Ed25519 {
+        ed25519: Ed25519PublicKey::from([byte; 32]),
+    }
+}
+
+fn mldsa65_key(byte: u8) -> PublicKey {
+    PublicKey::MlDsa65 {
+        mldsa65: MlDsa65PublicKey::from([byte; 1952]),
+    }
+}
+
+/// `sha256(cxs(DomainSeparator("PublicKey")) || cxs(PublicKey))`, spelled out
+/// from the protocol definition rather than through an SDK helper, so these
+/// tests also pin the hash the claim must carry.
+fn public_key_hash(pubkey: &PublicKey) -> PublicKeyHash {
+    use sha2::Digest;
+    let separator = thruput_xdr::preimage::DomainSeparator {
+        ext: thruput_xdr::types::ExtensionPoint::_0,
+        domain_separator: b"PublicKey".as_slice().try_into().unwrap(),
     };
-    let pubkey_preimage = PubkeyAccountPreimage { pubkey, nonce };
+    let mut hasher = sha2::Sha256::new();
+    hasher.update(thruput_sdk::__xdrs::cxs::encode(&separator).unwrap());
+    hasher.update(thruput_sdk::__xdrs::cxs::encode(pubkey).unwrap());
+    PublicKeyHash::from(<[u8; 32]>::from(hasher.finalize()))
+}
+
+fn claim_for_key(pubkey: &PublicKey, nonce: u64) -> AuthClaim {
+    let pubkey_preimage = PubkeyAccountPreimage {
+        pubkey_hash: public_key_hash(pubkey),
+        nonce,
+    };
 
     AuthClaim::kPubkeySignature { pubkey_preimage }
+}
+
+fn pubkey_claim(pubkey_byte: u8, nonce: u64) -> AuthClaim {
+    claim_for_key(&ed25519_key(pubkey_byte), nonce)
+}
+
+/// One claim per supported signature scheme, for tests that must hold for
+/// every pubkey account whatever its key.
+fn claims_for_each_scheme() -> [(&'static str, AuthClaim); 2] {
+    [
+        ("Ed25519", claim_for_key(&ed25519_key(17), 7)),
+        ("ML-DSA-65", claim_for_key(&mldsa65_key(17), 7)),
+    ]
 }
 
 fn pubkey_claim_address(auth_claim: &AuthClaim) -> ContractAddress {
@@ -514,6 +557,202 @@ fn deploy_rethrows_initializer_error() {
     env.advance_block();
     env.transact(|tx| {
         tx.call(&deployed).run(|| assert_eq!(stored_sum().get(), 5))
+    })
+    .assert_success();
+}
+
+// --- Pubkey accounts of every scheme ----------------------------------------
+//
+// The claim names the account's key by its `PublicKeyHash`, so the wallet
+// re-derives its address from the claim alone, whatever the scheme. The tests
+// below hold for Ed25519 and ML-DSA-65 accounts alike.
+
+#[test]
+fn contract_facing_auth_claim_is_48_bytes() {
+    // Tag, 4 bytes of padding, then the 40-byte preimage: the same for every
+    // scheme, since the preimage carries a key hash rather than the key.
+    assert_eq!(core::mem::size_of::<AuthClaim>(), 48);
+    assert_eq!(core::mem::size_of::<PubkeyAccountPreimage>(), 40);
+}
+
+#[test]
+fn pubkey_account_address_commits_to_scheme_key_and_nonce() {
+    let ed25519 = pubkey_claim_address(&claim_for_key(&ed25519_key(17), 7));
+    let mldsa65 = pubkey_claim_address(&claim_for_key(&mldsa65_key(17), 7));
+    let other_key = pubkey_claim_address(&claim_for_key(&ed25519_key(18), 7));
+    let other_nonce =
+        pubkey_claim_address(&claim_for_key(&ed25519_key(17), 8));
+    let addresses = [ed25519, mldsa65, other_key, other_nonce];
+    for (i, a) in addresses.iter().enumerate() {
+        for b in &addresses[i + 1..] {
+            assert_ne!(a, b);
+        }
+    }
+
+    // A key of one scheme and a key of another with the same leading bytes
+    // still hash apart: the hash covers the scheme tag.
+    let mut mldsa_bytes = [0u8; 1952];
+    mldsa_bytes[..32].copy_from_slice(&[17; 32]);
+    let lookalike = PublicKey::MlDsa65 {
+        mldsa65: MlDsa65PublicKey::from(mldsa_bytes),
+    };
+    assert_ne!(
+        public_key_hash(&lookalike),
+        public_key_hash(&ed25519_key(17))
+    );
+}
+
+#[test]
+fn get_auth_claim_returns_the_pubkey_claim_for_each_scheme() {
+    for (scheme, claim) in claims_for_each_scheme() {
+        let env = thruput_sdk::TestEnvironment::no_cost();
+        let wallet = pubkey_claim_address(&claim);
+        let expected = claim.clone();
+        env.transaction()
+            .with_auth_claim(claim)
+            .transact(|tx| {
+                tx.call(&wallet).run(|| {
+                    let actual = thruput_sdk::get_auth_claim().unwrap();
+                    assert_eq!(actual, expected, "{scheme}");
+                    // The address derives from the claim alone.
+                    assert_eq!(
+                        pubkey_claim_address(&actual),
+                        thruput_sdk::get_current_address(),
+                        "{scheme}"
+                    );
+                })
+            })
+            .assert_success();
+    }
+}
+
+#[test]
+fn execute_calls_contract_for_each_scheme() {
+    const ADDER: ContractAddress = ContractAddress::new([0xAD; 32]);
+    for (scheme, claim) in claims_for_each_scheme() {
+        let env = thruput_sdk::TestEnvironment::no_cost();
+        let adder = env.register_mock(|contract| {
+            <AdderContract as Adder>::__mock(contract);
+        });
+        adder.deploy_contract_to(&ADDER);
+
+        let wallet = pubkey_claim_address(&claim);
+        let result = env.transaction().with_auth_claim(claim).transact(|tx| {
+            tx.call(&wallet).run(|| {
+                <DefaultWalletContract as DefaultWallet>::execute(vec![
+                    adder_call(&ADDER, AdderEntrypoints::store_sum, 2, 3),
+                ])
+            })
+        });
+
+        result.assert_success();
+        let returns =
+            result.assert_return_as::<Vec<default_wallet::WalletBytes>>();
+        assert_eq!(returns.len(), 1, "{scheme}");
+        assert_eq!(
+            returns[0].as_slice(),
+            thruput_sdk::encode_xdr(&5u32).unwrap().as_slice(),
+            "{scheme}"
+        );
+        env.advance_block();
+        env.transact(|tx| {
+            tx.call(&ADDER).run(|| assert_eq!(stored_sum().get(), 5))
+        })
+        .assert_success();
+    }
+}
+
+#[test]
+fn execute_transfers_hog_for_each_scheme() {
+    use thruput_erc20_if::{ERC20Client, ERC20Entrypoints};
+    let token = thruput_sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN;
+    let receiver = ContractAddress::new([0xBE; 32]);
+    for (scheme, claim) in claims_for_each_scheme() {
+        let env = thruput_sdk::TestEnvironment::no_cost();
+        let wallet = pubkey_claim_address(&claim);
+        env.setup_grant_storage_tokens(&wallet, 1_000);
+
+        let transfer = WalletCall {
+            target: token,
+            entrypoint: ERC20Entrypoints::transfer.into(),
+            gas_limit: u64::MAX,
+            calldata: thruput_sdk::encode_xdr(&(receiver, 250i128))
+                .unwrap()
+                .as_slice()
+                .try_into()
+                .unwrap(),
+        };
+        env.transaction()
+            .with_auth_claim(claim)
+            .transact(|tx| {
+                tx.call(&wallet).run(|| {
+                    <DefaultWalletContract as DefaultWallet>::execute(vec![
+                        transfer,
+                    ])
+                })
+            })
+            .assert_success();
+        env.advance_block();
+
+        env.transact(|tx| {
+            tx.call(&wallet).run(|| {
+                let token = ERC20Client::new(&token);
+                assert_eq!(token.get_balance_of(&wallet), 750, "{scheme}");
+                assert_eq!(token.get_balance_of(&receiver), 250, "{scheme}");
+            })
+        })
+        .assert_success();
+    }
+}
+
+#[test]
+fn execute_rejects_claim_for_another_key_scheme_or_nonce() {
+    let env = thruput_sdk::TestEnvironment::no_cost();
+    let wallet = pubkey_claim_address(&claim_for_key(&ed25519_key(17), 7));
+    for claim in [
+        claim_for_key(&mldsa65_key(17), 7), // same key bytes, other scheme
+        claim_for_key(&ed25519_key(18), 7), // other key
+        claim_for_key(&ed25519_key(17), 8), // other nonce
+    ] {
+        let result = env.transaction().with_auth_claim(claim).transact(|tx| {
+            tx.call(&wallet).run(|| {
+                <DefaultWalletContract as DefaultWallet>::execute(Vec::new())
+            })
+        });
+        assert_wallet_error(&result, WalletError::InvalidAuthClaim);
+    }
+}
+
+#[test]
+fn deploy_commits_for_mldsa65_account() {
+    let env = thruput_sdk::TestEnvironment::no_cost();
+    let claim = claim_for_key(&mldsa65_key(17), 7);
+    let wallet = pubkey_claim_address(&claim);
+    env.setup_grant_storage_tokens(&wallet, 1_000);
+    let contract = env.register_mock(|contract| {
+        contract.register_method(init_call(0).entrypoint, initializer_body);
+    });
+    let hash = *contract.as_hash();
+    let nonce = [36; 32].into();
+    let result = env.transaction().with_auth_claim(claim).transact(|tx| {
+        tx.call(&wallet).run(|| {
+            <DefaultWalletContract as DefaultWallet>::deploy(
+                &nonce,
+                &hash,
+                123,
+                Some(init_call(0)),
+            )
+        })
+    });
+    result.assert_success();
+    let deployed = result.assert_return_as::<ContractAddress>();
+    env.advance_block();
+    env.transact(|tx| {
+        tx.call(&deployed).run(|| {
+            use thruput_sdk::storage::{Keypath, Value};
+            let owner: Value<ContractAddress> = Keypath::default().into();
+            assert_eq!(owner.get(), wallet);
+        })
     })
     .assert_success();
 }
