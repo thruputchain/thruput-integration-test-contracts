@@ -39,6 +39,10 @@ fn require_root_invocation() {
     }
 }
 
+// The claim's preimage names the account key by its `PublicKeyHash`, which
+// commits to the scheme, so the address re-derives from the claim alone for
+// every scheme (Ed25519, ML-DSA-65). The wallet never sees the key itself:
+// admission checks it against that hash and verifies the signature.
 fn require_pubkey_signature_auth() {
     match thruput_sdk::get_auth_claim() {
         Ok(AuthClaim::kPubkeySignature { pubkey_preimage })

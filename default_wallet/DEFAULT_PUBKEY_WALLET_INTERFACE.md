@@ -106,7 +106,19 @@ The transaction auth claim must be `kPubkeySignature`, and its `PubkeyAccountPre
 
 ```text
 root invoked address == derive_pubkey_wallet_address(auth_claim.pubkey_preimage)
+
+derive_pubkey_wallet_address(p) =
+    sha256(cxs(DomainSeparator("PubkeyAccount")) || cxs(p))
+p = PubkeyAccountPreimage { pubkey_hash, nonce }
+pubkey_hash = sha256(cxs(DomainSeparator("PublicKey")) || cxs(PublicKey))
 ```
+
+The preimage names the key by its hash, which covers the scheme, so the
+derivation is the same for every scheme (Ed25519, ML-DSA-65) and the
+contract-facing `AuthClaim` is 48 bytes whatever the key. The wallet never sees
+the key itself and must not depend on its scheme: the key travels outside the
+signed transaction as `SignedTransaction::pubkey_claim_key`, and admission
+checks that its hash matches the claim before verifying the signature.
 
 The protocol verifies the signature before execution. The wallet should either verify that the auth claim is for itself or rely on this as an admission invariant if the protocol guarantees it.
 
