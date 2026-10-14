@@ -756,3 +756,65 @@ fn deploy_commits_for_mldsa65_account() {
     })
     .assert_success();
 }
+
+/// Shared cross-language vectors: thruput-protocol
+/// `test_vectors/pubkey_auth.json` (keys `ed25519_devnode_bootstrap_0` and
+/// `mldsa65_seed_00..1f`, `constants.default_wallet_execute_entrypoint`).
+#[test]
+fn pubkey_account_addresses_match_shared_vectors() {
+    use hex_literal::hex;
+    let ed25519 = PublicKey::Ed25519 {
+        ed25519: Ed25519PublicKey::from(hex!(
+            "591ff2bdaaf5a0cbfd31f7b0f88c1ddee39fd9e106ba46303bde718459960633"
+        )),
+    };
+    let ed25519_hash = public_key_hash(&ed25519);
+    assert_eq!(
+        *ed25519_hash,
+        hex!(
+            "3f825d4436e9bb68496070788b81cf7758677e05491e66e3d8f7c7b19be389fc"
+        )
+    );
+    // The ML-DSA-65 key is long, so this one starts from its hash.
+    let mldsa65_hash = PublicKeyHash::from(hex!(
+        "e857fe91e152c1cfbe66baf0d4dee823d0f0cc26e5086eff71328c5580abd2cf"
+    ));
+    for (pubkey_hash, nonce, address) in [
+        (
+            ed25519_hash,
+            0,
+            hex!(
+                "d966d44f249321ec9c222390588c20701efd827734fd9e4b1f94a4a70700c22c"
+            ),
+        ),
+        (
+            ed25519_hash,
+            1,
+            hex!(
+                "cd9345bd5dce1c49fbe5d44cf5e9bb60d57737af0a091ba4e7efcfebc351963b"
+            ),
+        ),
+        (
+            mldsa65_hash,
+            0,
+            hex!(
+                "61385e57ff74edd5fd79891a3c25e9c8c4dcb2b734a69efd818bea34b87d31e3"
+            ),
+        ),
+        (
+            mldsa65_hash,
+            1,
+            hex!(
+                "9d3650371106be8524b579d6294690018204fa3d4864c2dd6f791408210bdb97"
+            ),
+        ),
+    ] {
+        let preimage = PubkeyAccountPreimage { pubkey_hash, nonce };
+        assert_eq!(*pubkey_account_address(&preimage), address);
+    }
+
+    // The vectors' transactions call the wallet's `execute`.
+    let execute: thruput_sdk::ContractEntrypointID =
+        default_wallet::DefaultWalletEntrypoints::execute.into();
+    assert_eq!(execute, hex!("c3edb11fdd6d5d58").into());
+}
