@@ -16,7 +16,7 @@ fn ed25519_key(byte: u8) -> PublicKey {
 
 fn mldsa65_key(byte: u8) -> PublicKey {
     PublicKey::MlDsa65 {
-        mldsa65: MlDsa65PublicKey::from([byte; 1952]),
+        mldsa65: MlDsa65PublicKey::from([byte; 1952]).into(),
     }
 }
 
@@ -594,7 +594,7 @@ fn pubkey_account_address_commits_to_scheme_key_and_nonce() {
     let mut mldsa_bytes = [0u8; 1952];
     mldsa_bytes[..32].copy_from_slice(&[17; 32]);
     let lookalike = PublicKey::MlDsa65 {
-        mldsa65: MlDsa65PublicKey::from(mldsa_bytes),
+        mldsa65: MlDsa65PublicKey::from(mldsa_bytes).into(),
     };
     assert_ne!(
         public_key_hash(&lookalike),
