@@ -1,3 +1,4 @@
+use crate::checks::check_sha256;
 use crate::{Client, Sha256Wrapper, Sha256WrapperContract};
 use sha2::{Digest, Sha256};
 
@@ -7,21 +8,8 @@ use std::vec;
 fn test_sha256_wrapper() {
     thruput_sdk::client_test(
         |env| env.register_mock(<Sha256WrapperContract as Sha256Wrapper>::__mock),
-        client_test,
+        check_sha256,
     )
-}
-
-fn client_test(client: &Client) {
-    let data = vec![1, 2, 3, 4, 5];
-    let hash = client.sha256(&data);
-
-    // Compute expected hash using sha2 crate
-    let mut hasher = Sha256::new();
-    hasher.update(&data);
-    let expect_bytes = hasher.finalize();
-    let expect =
-        thruput_sdk::SHA256Hash::from(<[u8; 32]>::try_from(&expect_bytes[..]).unwrap());
-    assert_eq!(hash, expect);
 }
 
 #[test]

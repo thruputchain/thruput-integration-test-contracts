@@ -1,7 +1,7 @@
 use crate::{CalldataWrapperContract, CalldataWrapper};
 use crate::Client;
+use crate::checks::check_echo;
 use thruput_sdk::*;
-use std::vec;
 
 #[test]
 fn test_calldata_wrapper() {
@@ -27,10 +27,5 @@ fn test_calldata_wrapper_inner(
     let nonce = SHA256Hash::from([7; 32]);
     let deployed_addr = deploy_contract(&nonce, contract_hash);
 
-    let client = Client::new(&deployed_addr);
-
-    let data = vec![1, 2, 3, 4, 5];
-    let echo = client.echo(&data);
-
-    assert_eq!(echo, data);
+    check_echo(&Client::new(&deployed_addr));
 }

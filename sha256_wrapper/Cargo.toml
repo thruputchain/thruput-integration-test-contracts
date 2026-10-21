@@ -9,7 +9,6 @@ edition = "2021"
 thruput-sdk = { workspace = true, features = ["alloc"] }
 
 # Optional
-bottle-test-if = { workspace = true, optional = true }
 sha2 = { workspace = true, optional = true }
 
 [lib]
@@ -18,8 +17,9 @@ doctest = false
 
 [features]
 entrypoints = []
-dev = ["thruput-sdk/dev"]
-bottle-test = ["dep:bottle-test-if", "dep:sha2"]
+# `dep:sha2` for `checks`, which the rv32 integration test calls too, and
+# so cannot take sha2 from the dev-dependencies.
+dev = ["thruput-sdk/dev", "dep:sha2"]
 logging = ["thruput-sdk/logging"]
 
 [dev-dependencies]

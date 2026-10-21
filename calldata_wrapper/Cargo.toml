@@ -8,9 +8,6 @@ edition.workspace = true
 [dependencies]
 thruput-sdk = { workspace = true, features = ["alloc"] }
 
-# Optional
-bottle-test-if = { workspace = true, optional = true }
-
 [lib]
 crate-type = ["rlib"]
 doctest = false
@@ -18,7 +15,6 @@ doctest = false
 [features]
 entrypoints = []
 dev = ["thruput-sdk/dev"]
-bottle-test = ["dep:bottle-test-if"]
 
 [dev-dependencies]
 calldata_wrapper = { path = ".", features = ["dev"] }
