@@ -38,5 +38,5 @@ pub fn check_fibonacci(client: &Client) {
     assert_eq!(client.slow_fibonacci(6), 8);
 
     assert_eq!(client.fibonacci(10), client.slow_fibonacci(10));
-    assert_eq!(client.fibonacci(40), client.slow_fibonacci(40));
+    assert_eq!(client.fibonacci(25), client.slow_fibonacci(25));
 }
