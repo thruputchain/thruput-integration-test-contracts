@@ -22,7 +22,7 @@ impl GenesisRoot for GenesisRootContract {
         thruput_sdk::sys::raw_GetBlockHeight(&mut block_height).unwrap();
         assert!(block_height.into_inner() <= 1);
 
-        let token_address = thruput_sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN;
+        let token_address = thruput_sdk::types::genesis_addresses::ADDRESS_NATIVE_TOKEN;
         let token = ERC20Client::new(&token_address);
         token.mint(&token_address, token_funding);
         token.mint(&GENESIS_ROOT_ADDRESS, root_funding);
