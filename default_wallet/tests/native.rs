@@ -190,7 +190,7 @@ fn deploy_commits_exact_transfer_and_callable_contract() {
     env.transact(|tx| {
         tx.call(&wallet).run(|| {
             let token = thruput_erc20_if::ERC20Client::new(
-                &thruput_sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
+                &thruput_sdk::types::genesis_addresses::ADDRESS_NATIVE_TOKEN,
             );
             assert_eq!(token.get_balance_of(&wallet), 877);
             assert_eq!(token.get_balance_of(&deployed), 123);
@@ -275,7 +275,7 @@ fn deploy_initializes_atomically_as_the_wallet_with_optional_funding() {
                 let owner: Value<ContractAddress> = Keypath::default().into();
                 assert_eq!(owner.get(), wallet);
                 let token = thruput_erc20_if::ERC20Client::new(
-                    &thruput_sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
+                    &thruput_sdk::types::genesis_addresses::ADDRESS_NATIVE_TOKEN,
                 );
                 assert_eq!(token.get_balance_of(&wallet), 1_000 - amount);
                 assert_eq!(token.get_balance_of(&deployed), amount);
@@ -327,7 +327,7 @@ fn initializer_abort_and_fault_roll_back_funding_deployment_and_storage() {
                 let owner: Value<ContractAddress> = Keypath::default().into();
                 assert_eq!(owner.try_get().none_if_missing(), None);
                 let token = thruput_erc20_if::ERC20Client::new(
-                    &thruput_sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
+                    &thruput_sdk::types::genesis_addresses::ADDRESS_NATIVE_TOKEN,
                 );
                 assert_eq!(token.get_balance_of(&wallet), 1_000);
                 assert_eq!(token.get_balance_of(&target), 0);
@@ -543,7 +543,7 @@ fn deploy_rethrows_initializer_error() {
     env.transact(|tx| {
         tx.call(&wallet).run(|| {
             let token = thruput_erc20_if::ERC20Client::new(
-                &thruput_sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
+                &thruput_sdk::types::genesis_addresses::ADDRESS_NATIVE_TOKEN,
             );
             assert_eq!(token.get_balance_of(&wallet), 1_000);
         })
@@ -665,7 +665,7 @@ fn execute_calls_contract_for_each_scheme() {
 #[test]
 fn execute_transfers_hog_for_each_scheme() {
     use thruput_erc20_if::{ERC20Client, ERC20Entrypoints};
-    let token = thruput_sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN;
+    let token = thruput_sdk::types::genesis_addresses::ADDRESS_NATIVE_TOKEN;
     let receiver = ContractAddress::new([0xBE; 32]);
     for (scheme, claim) in claims_for_each_scheme() {
         let env = thruput_sdk::TestEnvironment::no_cost();

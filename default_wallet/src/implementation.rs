@@ -137,7 +137,7 @@ impl DefaultWallet for DefaultWalletContract {
         if amount != 0 {
             let target = thruput_sdk::get_deploy_address(nonce, contract_hash);
             let token = ERC20Client::new(
-                &thruput_sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
+                &thruput_sdk::types::genesis_addresses::ADDRESS_NATIVE_TOKEN,
             );
             match token.try_transfer(&target, amount) {
                 Ok(()) => {}

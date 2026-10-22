@@ -93,7 +93,7 @@ impl DevWallet for DevWalletContract {
         require_root_source_address_auth();
         let deployed_address = thruput_sdk::get_deploy_address(nonce, contract_hash);
         let token_client =
-            ERC20Client::new(&thruput_sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN);
+            ERC20Client::new(&thruput_sdk::types::genesis_addresses::ADDRESS_NATIVE_TOKEN);
         token_client.transfer(&deployed_address, DEPLOY_STORAGE_TOKENS);
         thruput_sdk::deploy_contract(nonce, contract_hash)
     }

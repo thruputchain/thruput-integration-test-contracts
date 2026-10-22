@@ -84,7 +84,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
             thruput_erc20_if::ERC20Entrypoints::get_balance_of.into_u64();
         let calldata = cxs::encode(target_addr).unwrap();
         let res = thruput_sdk::sys::raw_Invoke(
-            &thruput_sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
+            &thruput_sdk::types::genesis_addresses::ADDRESS_NATIVE_TOKEN,
             &calldata,
             &[],
             &thruput_sdk::sys::CopyableInvokeInputs {
@@ -115,7 +115,7 @@ impl ReadOnlyTest for ReadOnlyTestContract {
             frame_status: InvocationFrameStatusCode::Return,
         };
         let res = thruput_sdk::sys::raw_Invoke(
-            &thruput_sdk::precompiles::ADDRESS_PRECOMPILED_HOG_TOKEN,
+            &thruput_sdk::types::genesis_addresses::ADDRESS_NATIVE_TOKEN,
             &calldata,
             &[],
             &thruput_sdk::sys::CopyableInvokeInputs {
