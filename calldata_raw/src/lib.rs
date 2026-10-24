@@ -42,7 +42,7 @@ pub fn calldata_raw(count: u32) {
 // Raw entrypoints, registered without the `#[contract]` macro.
 //
 // rv32 dispatches guest-side: the macro normally emits one `Entrypoint`
-// record per method into the `groundhog_rv32_entrypoints` section, which the
+// record per method into the `thruput_rv32_entrypoints` section, which the
 // SDK's `_start` dispatcher scans. Hand-writing the records registers these
 // benchmark entrypoints outside the macro's calldata/Return glue, which is
 // the whole point of this contract — it measures the raw syscalls, not the
@@ -67,7 +67,7 @@ mod rv32_entries {
             }
 
             #[used]
-            #[unsafe(link_section = "groundhog_rv32_entrypoints")]
+            #[unsafe(link_section = "thruput_rv32_entrypoints")]
             static $static_name: Entrypoint = Entrypoint {
                 method_id: $method_id,
                 wrapper: $wrapper,

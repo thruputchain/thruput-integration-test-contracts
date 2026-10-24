@@ -22,7 +22,7 @@ pub fn sha256_calldata() {
 // Raw entrypoint, registered without the `#[contract]` macro.
 //
 // rv32 dispatches guest-side: the macro normally emits one `Entrypoint`
-// record per method into the `groundhog_rv32_entrypoints` section, which the
+// record per method into the `thruput_rv32_entrypoints` section, which the
 // SDK's `_start` dispatcher scans. Hand-writing the record registers this
 // benchmark entrypoint outside the macro's calldata/Return glue, which is
 // the point of this contract — it measures the raw syscalls, not the wrapper
@@ -41,7 +41,7 @@ mod rv32_entries {
     }
 
     #[used]
-    #[unsafe(link_section = "groundhog_rv32_entrypoints")]
+    #[unsafe(link_section = "thruput_rv32_entrypoints")]
     static SHA256_CALLDATA: Entrypoint = Entrypoint {
         method_id: 0x0,
         wrapper: sha256_calldata_raw,
