@@ -18,7 +18,7 @@ pub use interface::Client;
 // syscall (see test_invoke_no_return_syscall).
 //
 // rv32 dispatches guest-side: the #[contract] macro normally emits one
-// `Entrypoint` record per method into the `groundhog_rv32_entrypoints`
+// `Entrypoint` record per method into the `thruput_rv32_entrypoints`
 // section, which the SDK's `_start` dispatcher scans. Hand-writing a record
 // registers a raw entrypoint outside the macro's calldata/Return glue. The
 // dispatcher falls through to its unknown-method arm when a wrapper returns,
@@ -29,7 +29,7 @@ mod rv32_no_return_entry {
     extern "C" fn noop_no_return_syscall() {}
 
     #[used]
-    #[unsafe(link_section = "groundhog_rv32_entrypoints")]
+    #[unsafe(link_section = "thruput_rv32_entrypoints")]
     static NO_RETURN_ENTRY: thruput_sdk::__rv32::Entrypoint =
         thruput_sdk::__rv32::Entrypoint {
             method_id: 0xFF,

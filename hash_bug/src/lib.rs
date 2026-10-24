@@ -29,7 +29,7 @@ mod rv32_entry {
     }
 
     #[used]
-    #[unsafe(link_section = "groundhog_rv32_entrypoints")]
+    #[unsafe(link_section = "thruput_rv32_entrypoints")]
     static HASH_ENTRY: thruput_sdk::__rv32::Entrypoint = thruput_sdk::__rv32::Entrypoint {
         method_id: u64::MAX,
         wrapper: hash_and_return,
