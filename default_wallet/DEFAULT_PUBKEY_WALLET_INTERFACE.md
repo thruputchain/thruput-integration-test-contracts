@@ -81,9 +81,9 @@ one transaction.
 - Must be the transaction root invocation.
 - Must be authorized by `kPubkeySignature` for this wallet address.
 - Uses the wallet address as deployer.
-- An amount greater than zero transfers exactly that many raw HOG units to the
-  predicted address before deployment. Zero skips the token call entirely; the
-  target must already have any required collateral.
+- An amount greater than zero transfers exactly that many raw native-token
+  units to the predicted address before deployment. Zero skips the token call
+  entirely; the target must already have any required collateral.
 - The amount is caller-selected funding, not a storage-cost estimate. It must
   cover deployment and any initial state created by the initializer.
 - An optional initializer is an ordinary method call on the newly deployed
