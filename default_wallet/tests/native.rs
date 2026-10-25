@@ -663,7 +663,7 @@ fn execute_calls_contract_for_each_scheme() {
 }
 
 #[test]
-fn execute_transfers_hog_for_each_scheme() {
+fn execute_transfers_native_tokens_for_each_scheme() {
     use thruput_erc20_if::{ERC20Client, ERC20Entrypoints};
     let token = thruput_sdk::types::genesis_addresses::ADDRESS_NATIVE_TOKEN;
     let receiver = ContractAddress::new([0xBE; 32]);

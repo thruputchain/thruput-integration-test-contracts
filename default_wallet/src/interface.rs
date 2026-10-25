@@ -35,7 +35,8 @@ pub enum WalletError {
 pub trait DefaultWallet {
     fn execute(calls: Vec<WalletCall>) -> Vec<WalletBytes>;
     /// Fund, deploy and optionally initialize a contract in one transaction.
-    /// Zero amount skips funding; otherwise transfer exactly the requested HOG.
+    /// Zero amount skips funding; otherwise transfer exactly the requested
+    /// native tokens.
     /// The initializer's target is the new contract and its caller is this wallet.
     /// Its return value is discarded. Any failure rolls all three steps back.
     fn deploy(
