@@ -3,7 +3,7 @@ name = "commit-lock-conflict"
 version = "0.1.0"
 description = "Minimal reproduction: a transaction that is dropped for a conflict still makes another's commit-locked calls fail"
 edition.workspace = true
-license = "Apache-2.0"
+license.workspace = true
 publish = false
 
 [lib]
