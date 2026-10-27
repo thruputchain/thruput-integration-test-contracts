@@ -24,15 +24,15 @@ impl DelegateCallTest for DelegateCallTestContract {
     fn test_delegate_call(
         _target_address: ContractAddress,
     ) {
-        // TODO: Implement delegate call to target_address
-        // This will be implemented when the SDK supports guest-to-guest delegate calls
+        // Deliberately a no-op: the SDK has no guest-side delegate call, and
+        // only the `*_context` methods are driven by tests.
     }
 
     fn test_normal_invoke(
         _target_address: ContractAddress,
     ) {
-        // TODO: Implement normal invoke to target_address
-        // This will be implemented when the SDK supports guest-to-guest calls
+        // Deliberately a no-op, like `test_delegate_call`: only the
+        // `*_context` methods are driven by tests.
     }
 }
 

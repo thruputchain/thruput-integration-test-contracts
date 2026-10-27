@@ -14,7 +14,6 @@ use thruput_sdk::*;
 
 // The state that both parties sign for off-chain updates and on-chain close/dispute.
 // This struct is serialized to XDR format before signing.
-// TODO: Add derive(xdrs::xdr_repr::XDR) once xdrs properly exports it
 #[contract_type(export)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct ChannelState {

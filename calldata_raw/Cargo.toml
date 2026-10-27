@@ -2,6 +2,8 @@
 name = "calldata_raw"
 version.workspace = true
 edition.workspace = true
+license = "Apache-2.0"
+publish = false
 
 [dependencies]
 thruput-sdk = { workspace = true, features = ["alloc"] }

@@ -25,8 +25,8 @@ unsafe fn direct_syscall(
 
 const K_SYSCALL_RETURN: SyscallWord = sys::SyscallNo::kReturn.0 as SyscallWord;
 
-/// The return-buffer limit this contract is built for. The protocol no longer
-/// states a constant (groundhogchain/protocol#214) — the limit is a chain's
+/// The return-buffer limit this contract is built for. The protocol does not
+/// fix a constant — the limit is a chain's
 /// `kConfigParamMaxReturnBufferLen` — and an array's length must be known at
 /// compile time, so the boundary probes below size themselves from this and
 /// assert it against the limit their caller passes in. A drift in the chain's

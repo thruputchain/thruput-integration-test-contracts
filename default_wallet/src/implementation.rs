@@ -8,8 +8,8 @@ use thruput_sdk::*;
 pub struct DefaultWalletContract;
 
 const MAX_CALLS: usize = 16;
-// The return-buffer limit this wallet is built for. The protocol no longer
-// states a constant (groundhogchain/protocol#214) — the limit is a chain's
+// The return-buffer limit this wallet is built for. The protocol does not
+// fix a constant — the limit is a chain's
 // `kConfigParamMaxReturnBufferLen` — so this compiles in the value the
 // harness configures, which is what hogd's `precompile_default_wallet.cc`
 // mirrors.

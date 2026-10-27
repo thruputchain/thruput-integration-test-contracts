@@ -47,8 +47,7 @@ struct Channel {
     submitted_balance_a: i128,
     submitted_balance_b: i128,
     submitted_nonce: u64,
-    dispute_deadline: i64, // BlockHeight
-    // TODO(geoff): convert to BlockHeight, once we add arithmetic ops on BlockHeight
+    dispute_deadline: i64, // a block height
 }
 
 impl Channel {

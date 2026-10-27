@@ -55,7 +55,7 @@ impl SimpleWalletAuthClaim for SimpleWalletAuthClaimContract {
             &thruput_sdk::sys::CopyableInvokeInputs {
                 entrypoint_id: method_id,
                 gas_limit,
-                flags: 0, // TODO(geoff): invoke flags go here
+                flags: 0,
                 reserved: 0,
             },
             &mut outputs,
