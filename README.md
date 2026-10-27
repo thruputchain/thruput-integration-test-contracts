@@ -52,7 +52,7 @@ A few small crates keep the whole contract in `src/lib.rs`. The `*_raw`
 crates call syscalls directly instead of through the SDK's wrappers.
 
 A `disabled` file in a crate tells the SDK's rv32 build loop to skip that
-crate. The file says why. The node may still build the crate.
+crate. Some markers include a reason. The node may still build the crate.
 
 `xdr/roundtrip.x` holds XDR definitions that the node generates code from
 for its round-trip tests.
