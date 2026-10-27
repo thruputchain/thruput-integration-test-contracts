@@ -2,6 +2,8 @@
 name = "payment_channel"
 version = "0.1.0"
 edition = "2021"
+license.workspace = true
+publish = false
 
 [dependencies]
 thruput-sdk = { workspace = true, features = ["alloc"] }

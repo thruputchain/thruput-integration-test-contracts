@@ -2,6 +2,8 @@
 name = "rv32_smoke_counter"
 version = "0.2.0"
 edition = "2024"
+license.workspace = true
+publish = false
 
 [features]
 entrypoints = []

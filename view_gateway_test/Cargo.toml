@@ -2,6 +2,8 @@
 name = "view_gateway_test"
 version = "0.2.0"
 edition = "2021"
+license.workspace = true
+publish = false
 
 [dependencies]
 thruput-sdk = { workspace = true, features = ["alloc"] }

@@ -2,6 +2,8 @@
 name = "sha256_raw"
 version = "0.1.0"
 edition = "2021"
+license.workspace = true
+publish = false
 
 [dependencies]
 thruput-sdk = { workspace = true, features = ["alloc"] }
