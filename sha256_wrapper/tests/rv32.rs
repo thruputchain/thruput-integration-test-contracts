@@ -1,8 +1,7 @@
 //! The checks in `src/checks.rs`, run against the rv32 build of
 //! `sha256_wrapper` rather than the host mock.
 //!
-//! Requires the lowered `sha256_wrapper` artifact: `scripts/dev.sh
-//! build-integration-rv32` writes it.
+//! Requires the lowered `calldata_wrapper` artifact. See README for building it.
 
 use sha256_wrapper::checks::check_sha256;
 use thruput_sdk::*;

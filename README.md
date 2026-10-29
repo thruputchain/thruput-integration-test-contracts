@@ -63,8 +63,8 @@ From a thruput-sdk-rs checkout:
 
 ```sh
 git submodule update --init integration_test/contracts
-./scripts/dev.sh test-itc                     # native tests, all crates
-(cd integration_test && cargo test -p default_wallet)   # one crate
+cargo gnaw run itc:test         # rv32 builds, then tests, all crates
+cargo gnaw test default_wallet  # native tests, one crate
 ```
 
 Building the rv32 artifacts needs the `thruput` CLI; see the SDK's README.
