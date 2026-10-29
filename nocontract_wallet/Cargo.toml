@@ -20,3 +20,9 @@ dev = ["thruput-sdk/dev"]
 guest = []
 std = ["thruput-sdk/std"]
 logging = ["thruput-sdk/logging", "std"]
+
+# An interface and client library, deliberately not a guest contract: built
+# as one, its artifact had no entrypoints and could not be invoked. Tests use
+# its host build and Client.
+[package.metadata.gnaw]
+kind = "library"

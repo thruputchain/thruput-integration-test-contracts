@@ -28,3 +28,6 @@ output_alias_test = { path = ".", features = ["dev"] }
 name = "output_alias_test"
 path = "src/main.rs"
 required-features = ["entrypoints"]
+
+[package.metadata.gnaw]
+kind = "disabled"

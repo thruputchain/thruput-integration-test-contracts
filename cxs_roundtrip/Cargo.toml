@@ -26,3 +26,6 @@ cxs_roundtrip = { path = ".", features = ["dev"] }
 name = "cxs_roundtrip"
 path = "src/main.rs"
 required-features = ["entrypoints"]
+
+[package.metadata.gnaw]
+kind = "disabled"

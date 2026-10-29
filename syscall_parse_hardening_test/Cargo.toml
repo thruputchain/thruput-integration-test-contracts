@@ -28,3 +28,6 @@ syscall_parse_hardening_test = { path = ".", features = ["dev"] }
 name = "syscall_parse_hardening_test"
 path = "src/main.rs"
 required-features = ["entrypoints"]
+
+[package.metadata.gnaw]
+kind = "disabled"

@@ -32,3 +32,6 @@ manual_revert_test = { path = ".", features = ["dev"] }
 name = "manual_revert_test"
 path = "src/main.rs"
 required-features = ["entrypoints"]
+
+[package.metadata.gnaw]
+kind = "disabled"
