@@ -5,6 +5,7 @@ struct Foo {
 };
 
 // CXS encodes these as raw little-endian bytes, unlike integers.
+// #[rust(no_eq)]
 struct Floats {
     float f;
     double d;
