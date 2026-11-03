@@ -4,6 +4,12 @@ struct Foo {
     unsigned int a;
 };
 
+// CXS encodes these as raw little-endian bytes, unlike integers.
+struct Floats {
+    float f;
+    double d;
+};
+
 
 // test cases from xdrtest.x
 enum senum {

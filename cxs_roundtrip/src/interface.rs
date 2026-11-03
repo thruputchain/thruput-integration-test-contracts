@@ -19,4 +19,5 @@ pub trait CxsRoundtrip {
     fn roundtrip_library_exn_xdr(data: &[u8]) -> Vec<u8>; // 13
     fn roundtrip_opaque_vector(data: &[u8]) -> Vec<u8>; // 14
     fn roundtrip_opaque_slice(data: &[u8]) -> Vec<u8>; // 15
+    fn roundtrip_floats(data: &[u8]) -> Vec<u8>; // 16
 }
