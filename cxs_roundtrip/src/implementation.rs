@@ -56,5 +56,6 @@ impl_roundtrip_methods! {
     roundtrip_library_exn_xdr: thruput_sdk::exn::LibraryExn,
     roundtrip_opaque_vector: Vec<u8>,
     roundtrip_opaque_slice: &[u8],
+    roundtrip_floats: crate::roundtrip::Floats,
 }
 
