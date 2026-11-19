@@ -57,23 +57,26 @@ fn require_root_pubkey_auth() {
     require_pubkey_signature_auth();
 }
 
+/// Call `target`, forwarding `auth_handles`, and return its return data.
+/// The ids of the tokens it returned land in `returned_auth_handles`.
 fn invoke(
     target: &ContractAddress,
     entrypoint: ContractEntrypointID,
     gas_limit: u64,
     calldata: &[u8],
+    auth_handles: &AuthHandleBuf,
+    returned_auth_handles: &mut AuthHandleBuf,
 ) -> Vec<u8> {
     let mut return_buf = Vec::new();
-    let mut returned_auth_handles = AuthHandleBuf::new();
     match thruput_sdk::call::contract_call(
         target,
         entrypoint,
         gas_limit,
         calldata,
-        &AuthHandleBuf::new(),
+        auth_handles,
         0,
         &mut return_buf,
-        &mut returned_auth_handles,
+        returned_auth_handles,
     ) {
         Ok(thruput_sdk::call::CallOutcome::Return) => return_buf,
         Ok(thruput_sdk::call::CallOutcome::Abort) => {
@@ -86,45 +89,156 @@ fn invoke(
     }
 }
 
+fn require_call_count(call_count: usize) {
+    if call_count == 0 {
+        throw(WalletError::EmptyCallList);
+    }
+    if call_count > MAX_CALLS {
+        throw(WalletError::TooManyCalls);
+    }
+}
+
+/// The batch's return value as it accumulates, held to the return-buffer
+/// limit after every call so an oversized batch stops at the call that
+/// crosses it.
+struct BatchReturns {
+    returns: Vec<WalletBytes>,
+    encoded_len: usize,
+}
+
+impl BatchReturns {
+    fn new(call_count: usize) -> Self {
+        Self {
+            returns: Vec::with_capacity(call_count),
+            encoded_len: cxs_u32_len(call_count)
+                .unwrap_or_else(|| throw(WalletError::ReturnDataTooLarge)),
+        }
+    }
+
+    fn push(&mut self, return_buf: &[u8]) {
+        self.encoded_len = self
+            .encoded_len
+            .checked_add(
+                encoded_return_item_len(return_buf.len()).unwrap_or_else(
+                    || throw(WalletError::ReturnDataTooLarge),
+                ),
+            )
+            .unwrap_or_else(|| throw(WalletError::ReturnDataTooLarge));
+        if self.encoded_len > MAX_RETURN_DATA_BYTES {
+            throw(WalletError::ReturnDataTooLarge);
+        }
+        self.returns.push(
+            WalletBytes::try_from(return_buf)
+                .unwrap_or_else(|_| throw(WalletError::ReturnDataTooLarge)),
+        );
+    }
+}
+
+/// The auth tokens a batch holds, by where each came from.
+struct BatchTokens {
+    minted: Vec<u32>,
+    /// Per completed call, the ids of the tokens it returned.
+    returned: Vec<AuthHandleBuf>,
+    /// Every id forwarded so far. A successful call takes the tokens it was
+    /// forwarded and a failed one ends the batch, so none can go out twice.
+    forwarded: Vec<u32>,
+}
+
+impl BatchTokens {
+    /// Resolve `token` to the id of a token the wallet still holds, and mark
+    /// it forwarded.
+    fn take(&mut self, token: &WalletTokenRef) -> u32 {
+        let index = token.index as usize;
+        let handle = match token.source {
+            WalletTokenSource::Minted if token.call == 0 => {
+                self.minted.get(index)
+            }
+            WalletTokenSource::Minted => None,
+            // Only completed calls have an entry, so a reference to the
+            // current or a later call finds nothing.
+            WalletTokenSource::Returned => self
+                .returned
+                .get(token.call as usize)
+                .and_then(|returned| returned.get(index)),
+        };
+        let handle = *handle
+            .unwrap_or_else(|| throw(WalletError::InvalidTokenRef));
+        if self.forwarded.contains(&handle) {
+            throw(WalletError::TokenAlreadyForwarded);
+        }
+        self.forwarded.push(handle);
+        handle
+    }
+}
+
 #[contract]
 impl DefaultWallet for DefaultWalletContract {
     fn execute(calls: Vec<WalletCall>) -> Vec<WalletBytes> {
         require_root_pubkey_auth();
+        require_call_count(calls.len());
 
-        if calls.is_empty() {
-            throw(WalletError::EmptyCallList);
-        }
-        if calls.len() > MAX_CALLS {
-            throw(WalletError::TooManyCalls);
-        }
-
-        let mut returns = Vec::with_capacity(calls.len());
-        let mut encoded_return_data_len = cxs_u32_len(calls.len())
-            .unwrap_or_else(|| throw(WalletError::ReturnDataTooLarge));
+        let mut returns = BatchReturns::new(calls.len());
         for call in calls.iter() {
             let return_buf = invoke(
                 &call.target,
                 call.entrypoint,
                 call.gas_limit,
                 call.calldata.as_slice(),
+                &AuthHandleBuf::new(),
+                &mut AuthHandleBuf::new(),
             );
-            encoded_return_data_len = encoded_return_data_len
-                .checked_add(
-                    encoded_return_item_len(return_buf.len()).unwrap_or_else(
-                        || throw(WalletError::ReturnDataTooLarge),
-                    ),
-                )
-                .unwrap_or_else(|| throw(WalletError::ReturnDataTooLarge));
-            if encoded_return_data_len > MAX_RETURN_DATA_BYTES {
-                throw(WalletError::ReturnDataTooLarge);
-            }
-            returns.push(
-                WalletBytes::try_from(return_buf.as_slice())
-                    .unwrap_or_else(|_| throw(WalletError::ReturnDataTooLarge)),
-            );
+            returns.push(&return_buf);
         }
 
-        returns
+        returns.returns
+    }
+
+    fn execute_with_tokens(
+        mints: VecM<WalletBytes, MAX_MINTS>,
+        calls: Vec<WalletTokenCall>,
+    ) -> Vec<WalletBytes> {
+        require_root_pubkey_auth();
+        require_call_count(calls.len());
+
+        // Minted before any call runs, so no callee's behavior can change
+        // which token a `Minted` reference names. The tokens are forwarded
+        // within this transaction, so they need not outlive the block.
+        let expiry = thruput_sdk::block::get_block_height();
+        let mut tokens = BatchTokens {
+            minted: mints
+                .iter()
+                .map(|node| {
+                    thruput_sdk::signer::mint_opaque_auth_token(
+                        expiry.clone(),
+                        node.as_slice(),
+                    )
+                    .handle()
+                })
+                .collect(),
+            returned: Vec::with_capacity(calls.len()),
+            forwarded: Vec::new(),
+        };
+
+        let mut returns = BatchReturns::new(calls.len());
+        for call in calls.iter() {
+            let mut auth_handles = AuthHandleBuf::new();
+            for token in call.tokens.iter() {
+                auth_handles.push(tokens.take(token));
+            }
+            let mut returned_auth_handles = AuthHandleBuf::new();
+            let return_buf = invoke(
+                &call.target,
+                call.entrypoint,
+                call.gas_limit,
+                call.calldata.as_slice(),
+                &auth_handles,
+                &mut returned_auth_handles,
+            );
+            tokens.returned.push(returned_auth_handles);
+            returns.push(&return_buf);
+        }
+
+        returns.returns
     }
 
     fn deploy(
@@ -152,6 +266,8 @@ impl DefaultWallet for DefaultWalletContract {
                 init.entrypoint,
                 init.gas_limit,
                 init.calldata.as_slice(),
+                &AuthHandleBuf::new(),
+                &mut AuthHandleBuf::new(),
             );
         }
         deployed

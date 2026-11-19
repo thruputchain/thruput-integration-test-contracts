@@ -18,6 +18,10 @@ No deploy step. No `create_wallet` flow. No app-specific wallet setup.
 #[contract(client = DefaultWalletClient, throws = WalletError)]
 pub trait DefaultWallet {
     fn execute(calls: Vec<WalletCall>) -> Vec<Bytes>;
+    fn execute_with_tokens(
+        mints: VecM<Bytes, 16>,
+        calls: Vec<WalletTokenCall>,
+    ) -> Vec<Bytes>;
     fn deploy(
         nonce: SHA256Hash,
         contract_hash: SHA256Hash,
@@ -32,6 +36,28 @@ pub struct WalletCall {
     pub entrypoint: ContractEntrypointID,
     pub gas_limit: u64,
     pub calldata: Bytes,
+}
+
+#[contract_type]
+pub struct WalletTokenCall {
+    pub target: ContractAddress,
+    pub entrypoint: ContractEntrypointID,
+    pub gas_limit: u64,
+    pub calldata: Bytes,
+    pub tokens: VecM<WalletTokenRef, 64>,
+}
+
+#[contract_type]
+pub struct WalletTokenRef {
+    pub source: WalletTokenSource,
+    pub call: u32,
+    pub index: u32,
+}
+
+#[contract_type]
+pub enum WalletTokenSource {
+    Minted = 0,
+    Returned = 1,
 }
 
 #[contract_type]
@@ -50,6 +76,8 @@ pub enum WalletError {
     CallAborted = 5,
     CallFaulted = 6,
     ReturnDataTooLarge = 7,
+    InvalidTokenRef = 8,
+    TokenAlreadyForwarded = 9,
 }
 ```
 
@@ -72,6 +100,43 @@ Single-call usage is `execute([call])`. Multicall usage is `execute([call_a, cal
 Return values are ordered the same way: `execute([call_a, call_b, call_c]) -> [return_a, return_b, return_c]`.
 
 Do not include partial-success or allow-failure behavior in v1 unless there is a concrete app requirement.
+
+### `execute_with_tokens(mints, calls)`
+
+`execute`, with auth tokens. The wallet mints `mints` as itself, then runs
+`calls` in order, forwarding to each call the tokens it references. Everything
+`execute` says about authorization, ordering, return data and failure holds
+here too.
+
+- Each mint is an XDR-encoded `AuthTokenNode`: its consumer, payload and child
+  nodes. The wallet mints all of them before the first call, valid for the
+  current block only.
+- The minter of a minted token is the wallet address, which is the account
+  that signed the transaction. A consumer that trusts a token's minter, as
+  `ERC20Permit::transfer_from_signed` does, is therefore trusting that
+  signature. This is how an account hands a contract a one-shot grant in the
+  same transaction that uses it.
+- `tokens` lists what a call forwards, in the order the target's `Signed`
+  arguments take them.
+- A reference names a token by where it came from, never by its runtime id:
+  - `Minted`: `index` is a position in `mints`; `call` must be zero.
+  - `Returned`: `call` is the position in `calls` of an earlier call, and
+    `index` a position among the tokens that call returned.
+
+  A callee decides how many tokens it returns, so runtime ids after a call are
+  not something a signer can know. These references do not depend on them: one
+  call returning more or fewer tokens than expected cannot change which token
+  another reference names.
+- A reference that names no token aborts with `InvalidTokenRef`. A token can be
+  forwarded once; a second reference to it aborts with `TokenAlreadyForwarded`.
+  References are checked call by call, immediately before the call that
+  carries them.
+- At most 16 mints, and at most 64 tokens forwarded by one call. Both bounds
+  are part of the argument types, so a longer list fails argument decoding.
+  A mint the runtime refuses, such as a malformed node, aborts with the
+  `MintAuthToken` syscall error.
+- Tokens still held when the batch ends are dropped. The wallet returns none:
+  it is the transaction root.
 
 ### `deploy(nonce, contract_hash, amount, initializer)`
 
@@ -163,7 +228,10 @@ This should be handled as an address-lifecycle or protocol feature, separate fro
 - `execute` allows up to 16 child calls.
 - Aggregate raw child return data is capped at the protocol return-buffer limit.
 - Each `WalletCall` carries an explicit child-call gas limit.
-- Forwarded auth tokens are not supported in v1.
+- `execute` and the `deploy` initializer forward no auth tokens;
+  `execute_with_tokens` is the entrypoint that does.
+- `execute_with_tokens` is a separate entrypoint, so `execute` and
+  `WalletCall` keep their encoding and existing callers are unaffected.
 
 ## Implementation Notes
 
