@@ -89,51 +89,6 @@ fn invoke(
     }
 }
 
-fn require_call_count(call_count: usize) {
-    if call_count == 0 {
-        throw(WalletError::EmptyCallList);
-    }
-    if call_count > MAX_CALLS {
-        throw(WalletError::TooManyCalls);
-    }
-}
-
-/// The batch's return value as it accumulates, held to the return-buffer
-/// limit after every call so an oversized batch stops at the call that
-/// crosses it.
-struct BatchReturns {
-    returns: Vec<WalletBytes>,
-    encoded_len: usize,
-}
-
-impl BatchReturns {
-    fn new(call_count: usize) -> Self {
-        Self {
-            returns: Vec::with_capacity(call_count),
-            encoded_len: cxs_u32_len(call_count)
-                .unwrap_or_else(|| throw(WalletError::ReturnDataTooLarge)),
-        }
-    }
-
-    fn push(&mut self, return_buf: &[u8]) {
-        self.encoded_len = self
-            .encoded_len
-            .checked_add(
-                encoded_return_item_len(return_buf.len()).unwrap_or_else(
-                    || throw(WalletError::ReturnDataTooLarge),
-                ),
-            )
-            .unwrap_or_else(|| throw(WalletError::ReturnDataTooLarge));
-        if self.encoded_len > MAX_RETURN_DATA_BYTES {
-            throw(WalletError::ReturnDataTooLarge);
-        }
-        self.returns.push(
-            WalletBytes::try_from(return_buf)
-                .unwrap_or_else(|_| throw(WalletError::ReturnDataTooLarge)),
-        );
-    }
-}
-
 /// The auth tokens a batch holds, by where each came from.
 struct BatchTokens {
     minted: Vec<u32>,
@@ -173,32 +128,18 @@ impl BatchTokens {
 
 #[contract]
 impl DefaultWallet for DefaultWalletContract {
-    fn execute(calls: Vec<WalletCall>) -> Vec<WalletBytes> {
-        require_root_pubkey_auth();
-        require_call_count(calls.len());
-
-        let mut returns = BatchReturns::new(calls.len());
-        for call in calls.iter() {
-            let return_buf = invoke(
-                &call.target,
-                call.entrypoint,
-                call.gas_limit,
-                call.calldata.as_slice(),
-                &AuthHandleBuf::new(),
-                &mut AuthHandleBuf::new(),
-            );
-            returns.push(&return_buf);
-        }
-
-        returns.returns
-    }
-
-    fn execute_with_tokens(
+    fn execute(
         mints: VecM<WalletBytes, MAX_MINTS>,
-        calls: Vec<WalletTokenCall>,
+        calls: Vec<WalletCall>,
     ) -> Vec<WalletBytes> {
         require_root_pubkey_auth();
-        require_call_count(calls.len());
+
+        if calls.is_empty() {
+            throw(WalletError::EmptyCallList);
+        }
+        if calls.len() > MAX_CALLS {
+            throw(WalletError::TooManyCalls);
+        }
 
         // Minted before any call runs, so no callee's behavior can change
         // which token a `Minted` reference names. The tokens are forwarded
@@ -219,7 +160,9 @@ impl DefaultWallet for DefaultWalletContract {
             forwarded: Vec::new(),
         };
 
-        let mut returns = BatchReturns::new(calls.len());
+        let mut returns = Vec::with_capacity(calls.len());
+        let mut encoded_return_data_len = cxs_u32_len(calls.len())
+            .unwrap_or_else(|| throw(WalletError::ReturnDataTooLarge));
         for call in calls.iter() {
             let mut auth_handles = AuthHandleBuf::new();
             for token in call.tokens.iter() {
@@ -235,10 +178,23 @@ impl DefaultWallet for DefaultWalletContract {
                 &mut returned_auth_handles,
             );
             tokens.returned.push(returned_auth_handles);
-            returns.push(&return_buf);
+            encoded_return_data_len = encoded_return_data_len
+                .checked_add(
+                    encoded_return_item_len(return_buf.len()).unwrap_or_else(
+                        || throw(WalletError::ReturnDataTooLarge),
+                    ),
+                )
+                .unwrap_or_else(|| throw(WalletError::ReturnDataTooLarge));
+            if encoded_return_data_len > MAX_RETURN_DATA_BYTES {
+                throw(WalletError::ReturnDataTooLarge);
+            }
+            returns.push(
+                WalletBytes::try_from(return_buf.as_slice())
+                    .unwrap_or_else(|_| throw(WalletError::ReturnDataTooLarge)),
+            );
         }
 
-        returns.returns
+        returns
     }
 
     fn deploy(

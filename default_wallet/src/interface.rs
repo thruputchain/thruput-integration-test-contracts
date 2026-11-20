@@ -3,7 +3,7 @@ use thruput_sdk::*;
 
 pub type WalletBytes = BytesM;
 
-/// The most tokens `execute_with_tokens` mints.
+/// The most tokens `execute` mints.
 pub const MAX_MINTS: u32 = 16;
 /// The most tokens one call forwards: the default of the chain's
 /// `kConfigParamMaxAuthTokens`, which bounds what an invocation accepts.
@@ -15,13 +15,16 @@ pub struct WalletCall {
     pub entrypoint: ContractEntrypointID,
     pub gas_limit: u64,
     pub calldata: WalletBytes,
+    /// The auth tokens to forward, in the order the target's `Signed`
+    /// arguments take them.
+    pub tokens: VecM<WalletTokenRef, MAX_CALL_TOKENS>,
 }
 
 /// Where a forwarded auth token comes from.
 #[contract_type]
 #[derive(Copy, Clone)]
 pub enum WalletTokenSource {
-    /// One of the tokens `execute_with_tokens` minted from its `mints`.
+    /// One of the tokens `execute` minted from its `mints`.
     Minted = 0,
     /// One of the tokens an earlier call in the same batch returned.
     Returned = 1,
@@ -40,18 +43,6 @@ pub struct WalletTokenRef {
     /// For `Minted`, the index in `mints`. For `Returned`, the token's
     /// position among the tokens that call returned.
     pub index: u32,
-}
-
-/// A [`WalletCall`] that also forwards auth tokens to its target.
-#[contract_type]
-pub struct WalletTokenCall {
-    pub target: ContractAddress,
-    pub entrypoint: ContractEntrypointID,
-    pub gas_limit: u64,
-    pub calldata: WalletBytes,
-    /// Forwarded in this order, which is the order the target's `Signed`
-    /// arguments take them in.
-    pub tokens: VecM<WalletTokenRef, MAX_CALL_TOKENS>,
 }
 
 /// An ordinary call to the newly deployed contract, made by the wallet.
@@ -82,18 +73,18 @@ pub enum WalletError {
 
 #[contract(client = Client, throws = WalletError)]
 pub trait DefaultWallet {
-    fn execute(calls: Vec<WalletCall>) -> Vec<WalletBytes>;
-    /// `execute`, with auth tokens: mint `mints` as this wallet, then run
-    /// `calls` in order, forwarding to each the tokens it references.
+    /// Mint `mints` as this wallet, then run `calls` in order, forwarding to
+    /// each the tokens it references.
     ///
     /// Each mint is an XDR-encoded `AuthTokenNode`, valid for the current
-    /// block only. `mints` and each call's `tokens` are bounded by their
-    /// types, so a longer list fails to decode instead of reaching the wallet. Its minter is the wallet, so a consumer that trusts the
+    /// block only. Its minter is the wallet, so a consumer that trusts the
     /// minter address is trusting the account that signed the transaction.
-    /// Tokens left unforwarded when the batch ends are dropped.
-    fn execute_with_tokens(
+    /// Tokens left unforwarded when the batch ends are dropped. `mints` and
+    /// each call's `tokens` are bounded by their types, so a longer list
+    /// fails to decode instead of reaching the wallet.
+    fn execute(
         mints: VecM<WalletBytes, MAX_MINTS>,
-        calls: Vec<WalletTokenCall>,
+        calls: Vec<WalletCall>,
     ) -> Vec<WalletBytes>;
     /// Fund, deploy and optionally initialize a contract in one transaction.
     /// Zero amount skips funding; otherwise transfer exactly the requested

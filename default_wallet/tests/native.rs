@@ -1,6 +1,6 @@
 use default_wallet::{
     DefaultWallet, DefaultWalletContract, WalletCall, WalletError,
-    WalletTokenCall, WalletTokenRef, WalletTokenSource,
+    WalletTokenRef, WalletTokenSource,
 };
 use thruput_domain_separator::sha2::pubkey_account_address;
 use thruput_sdk::{
@@ -67,6 +67,16 @@ fn pubkey_claim_address(auth_claim: &AuthClaim) -> ContractAddress {
     }
 }
 
+/// `execute`'s `mints` for a batch that mints nothing.
+fn no_mints() -> thruput_sdk::VecM<default_wallet::WalletBytes, { default_wallet::MAX_MINTS }> {
+    Vec::new().try_into().unwrap()
+}
+
+/// A call's `tokens` when it forwards none.
+fn no_tokens() -> thruput_sdk::VecM<WalletTokenRef, { default_wallet::MAX_CALL_TOKENS }> {
+    Vec::new().try_into().unwrap()
+}
+
 fn assert_wallet_error(result: &thruput_sdk::TransactResult, expected: WalletError) {
     result.assert_abort();
 
@@ -88,7 +98,7 @@ fn execute_accepts_matching_pubkey_auth_claim() {
 
     let result = env.transaction().with_auth_claim(claim).transact(|tx| {
         tx.call(&wallet_address).run(|| {
-            <DefaultWalletContract as DefaultWallet>::execute(Vec::new())
+            <DefaultWalletContract as DefaultWallet>::execute(no_mints(), Vec::new())
         })
     });
 
@@ -105,7 +115,7 @@ fn execute_rejects_pubkey_auth_claim_for_different_address() {
 
     let result = env.transaction().with_auth_claim(claim).transact(|tx| {
         tx.call(&wrong_address).run(|| {
-            <DefaultWalletContract as DefaultWallet>::execute(Vec::new())
+            <DefaultWalletContract as DefaultWallet>::execute(no_mints(), Vec::new())
         })
     });
 
@@ -118,7 +128,7 @@ fn execute_rejects_default_source_address_auth_claim() {
 
     let result = env.transact(|tx| {
         tx.call(&ContractAddress::new([1u8; 32])).run(|| {
-            <DefaultWalletContract as DefaultWallet>::execute(Vec::new())
+            <DefaultWalletContract as DefaultWallet>::execute(no_mints(), Vec::new())
         })
     });
 
@@ -400,6 +410,7 @@ fn adder_call(
             .as_slice()
             .try_into()
             .unwrap(),
+        tokens: no_tokens(),
     }
 }
 
@@ -416,7 +427,7 @@ fn execute_calls_deployed_contract_and_returns_each_result() {
     let wallet = pubkey_claim_address(&claim);
     let result = env.transaction().with_auth_claim(claim).transact(|tx| {
         tx.call(&wallet).run(|| {
-            <DefaultWalletContract as DefaultWallet>::execute(vec![
+            <DefaultWalletContract as DefaultWallet>::execute(no_mints(), vec![
                 adder_call(&ADDER, AdderEntrypoints::add, 2, 3),
                 adder_call(&ADDER, AdderEntrypoints::add, 40, 2),
             ])
@@ -449,7 +460,7 @@ fn execute_rethrows_callee_error() {
             .with_auth_claim(claim.clone())
             .transact(|tx| {
                 tx.call(&wallet).run(|| {
-                    <DefaultWalletContract as DefaultWallet>::execute(calls)
+                    <DefaultWalletContract as DefaultWallet>::execute(no_mints(), calls)
                 })
             })
     };
@@ -640,7 +651,7 @@ fn execute_calls_contract_for_each_scheme() {
         let wallet = pubkey_claim_address(&claim);
         let result = env.transaction().with_auth_claim(claim).transact(|tx| {
             tx.call(&wallet).run(|| {
-                <DefaultWalletContract as DefaultWallet>::execute(vec![
+                <DefaultWalletContract as DefaultWallet>::execute(no_mints(), vec![
                     adder_call(&ADDER, AdderEntrypoints::store_sum, 2, 3),
                 ])
             })
@@ -682,12 +693,13 @@ fn execute_transfers_native_tokens_for_each_scheme() {
                 .as_slice()
                 .try_into()
                 .unwrap(),
+            tokens: no_tokens(),
         };
         env.transaction()
             .with_auth_claim(claim)
             .transact(|tx| {
                 tx.call(&wallet).run(|| {
-                    <DefaultWalletContract as DefaultWallet>::execute(vec![
+                    <DefaultWalletContract as DefaultWallet>::execute(no_mints(), vec![
                         transfer,
                     ])
                 })
@@ -717,7 +729,7 @@ fn execute_rejects_claim_for_another_key_scheme_or_nonce() {
     ] {
         let result = env.transaction().with_auth_claim(claim).transact(|tx| {
             tx.call(&wallet).run(|| {
-                <DefaultWalletContract as DefaultWallet>::execute(Vec::new())
+                <DefaultWalletContract as DefaultWallet>::execute(no_mints(), Vec::new())
             })
         });
         assert_wallet_error(&result, WalletError::InvalidAuthClaim);
@@ -913,8 +925,8 @@ fn desk_call<A: thruput_sdk::WriteXDR>(
     entrypoint: TokenDeskEntrypoints,
     args: &A,
     tokens: Vec<WalletTokenRef>,
-) -> WalletTokenCall {
-    WalletTokenCall {
+) -> WalletCall {
+    WalletCall {
         target: DESK,
         entrypoint: entrypoint.into(),
         gas_limit: u64::MAX,
@@ -923,15 +935,15 @@ fn desk_call<A: thruput_sdk::WriteXDR>(
     }
 }
 
-fn redeem(token: WalletTokenRef) -> WalletTokenCall {
+fn redeem(token: WalletTokenRef) -> WalletCall {
     desk_call(TokenDeskEntrypoints::redeem, &(), vec![token])
 }
 
-fn redeem_pair(first: WalletTokenRef, second: WalletTokenRef) -> WalletTokenCall {
+fn redeem_pair(first: WalletTokenRef, second: WalletTokenRef) -> WalletCall {
     desk_call(TokenDeskEntrypoints::redeem_pair, &(), vec![first, second])
 }
 
-fn issue(a: u64, b: u64) -> WalletTokenCall {
+fn issue(a: u64, b: u64) -> WalletCall {
     desk_call(TokenDeskEntrypoints::issue, &(DESK, a, b), Vec::new())
 }
 
@@ -959,14 +971,14 @@ impl TokenBatch {
     fn execute(
         &self,
         mints: Vec<default_wallet::WalletBytes>,
-        calls: Vec<WalletTokenCall>,
+        calls: Vec<WalletCall>,
     ) -> thruput_sdk::TransactResult {
         self.env
             .transaction()
             .with_auth_claim(self.claim.clone())
             .transact(|tx| {
                 tx.call(&self.wallet).run(|| {
-                    <DefaultWalletContract as DefaultWallet>::execute_with_tokens(
+                    <DefaultWalletContract as DefaultWallet>::execute(
                         mints.try_into().unwrap(),
                         calls,
                     )
@@ -985,7 +997,7 @@ fn return_item<R: for<'r> thruput_sdk::ReadXDR<'r>>(
 }
 
 #[test]
-fn execute_with_tokens_forwards_a_token_minted_as_the_wallet() {
+fn execute_forwards_a_token_minted_as_the_wallet() {
     let batch = TokenBatch::new();
     let result =
         batch.execute(vec![mint_node(DESK, 7)], vec![redeem(minted(0))]);
@@ -998,7 +1010,7 @@ fn execute_with_tokens_forwards_a_token_minted_as_the_wallet() {
 }
 
 #[test]
-fn execute_with_tokens_forwards_minted_tokens_in_reference_order() {
+fn execute_forwards_minted_tokens_in_reference_order() {
     let batch = TokenBatch::new();
     let result = batch.execute(
         vec![mint_node(DESK, 1), mint_node(DESK, 2), mint_node(DESK, 3)],
@@ -1010,7 +1022,7 @@ fn execute_with_tokens_forwards_minted_tokens_in_reference_order() {
 }
 
 #[test]
-fn execute_with_tokens_forwards_tokens_an_earlier_call_returned() {
+fn execute_forwards_tokens_an_earlier_call_returned() {
     let batch = TokenBatch::new();
     // Two calls return tokens and a mint sits beside them, so a reference
     // resolves by the call and position it names, not by a running count.
@@ -1035,45 +1047,7 @@ fn execute_with_tokens_forwards_tokens_an_earlier_call_returned() {
 }
 
 #[test]
-fn execute_with_tokens_without_tokens_matches_execute() {
-    const ADDER: ContractAddress = ContractAddress::new([0xAD; 32]);
-    let batch = TokenBatch::new();
-    batch
-        .env
-        .register_mock(|contract| {
-            <AdderContract as Adder>::__mock(contract);
-        })
-        .deploy_contract_to(&ADDER);
-    let plain = adder_call(&ADDER, AdderEntrypoints::add, 2, 3);
-    let with_tokens = batch.execute(
-        Vec::new(),
-        vec![WalletTokenCall {
-            target: plain.target,
-            entrypoint: plain.entrypoint,
-            gas_limit: plain.gas_limit,
-            calldata: wallet_bytes(plain.calldata.as_slice()),
-            tokens: Vec::new().try_into().unwrap(),
-        }],
-    );
-    let without = batch
-        .env
-        .transaction()
-        .with_auth_claim(batch.claim.clone())
-        .transact(|tx| {
-            tx.call(&batch.wallet).run(|| {
-                <DefaultWalletContract as DefaultWallet>::execute(vec![plain])
-            })
-        });
-    with_tokens.assert_success();
-    without.assert_success();
-    assert_eq!(
-        with_tokens.frame().return_buffer(),
-        without.frame().return_buffer()
-    );
-}
-
-#[test]
-fn execute_with_tokens_drops_tokens_left_unforwarded() {
+fn execute_drops_tokens_left_unforwarded() {
     let batch = TokenBatch::new();
     batch
         .execute(vec![mint_node(DESK, 7)], vec![issue(1, 2)])
@@ -1081,14 +1055,14 @@ fn execute_with_tokens_drops_tokens_left_unforwarded() {
 }
 
 #[test]
-fn execute_with_tokens_rejects_references_that_name_no_token() {
+fn execute_rejects_references_that_name_no_token() {
     let batch = TokenBatch::new();
     let minted_with_call = WalletTokenRef {
         source: WalletTokenSource::Minted,
         call: 1,
         index: 0,
     };
-    let cases: [(&str, Vec<WalletTokenCall>); 6] = [
+    let cases: [(&str, Vec<WalletCall>); 6] = [
         ("mint index past mints", vec![redeem(minted(1))]),
         ("minted with a call", vec![issue(1, 2), redeem(minted_with_call)]),
         ("its own call", vec![redeem(returned(0, 0))]),
@@ -1107,9 +1081,9 @@ fn execute_with_tokens_rejects_references_that_name_no_token() {
 }
 
 #[test]
-fn execute_with_tokens_rejects_forwarding_a_token_twice() {
+fn execute_rejects_forwarding_a_token_twice() {
     let batch = TokenBatch::new();
-    let cases: [(&str, Vec<WalletTokenCall>); 4] = [
+    let cases: [(&str, Vec<WalletCall>); 4] = [
         ("twice in one call", vec![redeem_pair(minted(0), minted(0))]),
         (
             "again in a later call",
@@ -1132,7 +1106,7 @@ fn execute_with_tokens_rejects_forwarding_a_token_twice() {
 }
 
 #[test]
-fn execute_with_tokens_bounds_calls_and_mints() {
+fn execute_bounds_calls_and_mints() {
     let batch = TokenBatch::new();
     assert_wallet_error(
         &batch.execute(vec![mint_node(DESK, 7)], Vec::new()),
@@ -1153,21 +1127,7 @@ fn execute_with_tokens_bounds_calls_and_mints() {
 }
 
 #[test]
-fn execute_with_tokens_requires_the_wallet_auth_claim() {
-    let batch = TokenBatch::new();
-    let result = batch.env.transact(|tx| {
-        tx.call(&batch.wallet).run(|| {
-            <DefaultWalletContract as DefaultWallet>::execute_with_tokens(
-                vec![mint_node(DESK, 7)].try_into().unwrap(),
-                vec![redeem(minted(0))],
-            )
-        })
-    });
-    assert_wallet_error(&result, WalletError::InvalidAuthClaim);
-}
-
-#[test]
-fn execute_with_tokens_aborts_on_a_mint_the_runtime_refuses() {
+fn execute_aborts_on_a_mint_the_runtime_refuses() {
     use thruput_sdk::exn::LibraryExn;
     let batch = TokenBatch::new();
     let result = batch.execute(
@@ -1182,7 +1142,7 @@ fn execute_with_tokens_aborts_on_a_mint_the_runtime_refuses() {
 }
 
 #[test]
-fn execute_with_tokens_rethrows_a_consumer_mismatch_from_the_callee() {
+fn execute_rethrows_a_consumer_mismatch_from_the_callee() {
     use thruput_sdk::exn::LibraryExn;
     let batch = TokenBatch::new();
     // Minted for another contract, so the desk's consume is refused and its

@@ -11,7 +11,7 @@ mod interface;
 pub use implementation::DefaultWalletContract;
 pub use interface::{
     Client, DefaultWallet, DefaultWalletEntrypoints, WalletBytes, WalletCall,
-    WalletError, WalletInitCall, WalletTokenCall, WalletTokenRef,
+    WalletError, WalletInitCall, WalletTokenRef,
     WalletTokenSource, MAX_CALL_TOKENS, MAX_MINTS,
 };
 

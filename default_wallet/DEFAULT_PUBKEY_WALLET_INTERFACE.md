@@ -17,10 +17,9 @@ No deploy step. No `create_wallet` flow. No app-specific wallet setup.
 ```rust
 #[contract(client = DefaultWalletClient, throws = WalletError)]
 pub trait DefaultWallet {
-    fn execute(calls: Vec<WalletCall>) -> Vec<Bytes>;
-    fn execute_with_tokens(
+    fn execute(
         mints: VecM<Bytes, 16>,
-        calls: Vec<WalletTokenCall>,
+        calls: Vec<WalletCall>,
     ) -> Vec<Bytes>;
     fn deploy(
         nonce: SHA256Hash,
@@ -32,14 +31,6 @@ pub trait DefaultWallet {
 
 #[contract_type]
 pub struct WalletCall {
-    pub target: ContractAddress,
-    pub entrypoint: ContractEntrypointID,
-    pub gas_limit: u64,
-    pub calldata: Bytes,
-}
-
-#[contract_type]
-pub struct WalletTokenCall {
     pub target: ContractAddress,
     pub entrypoint: ContractEntrypointID,
     pub gas_limit: u64,
@@ -83,9 +74,9 @@ pub enum WalletError {
 
 ## Semantics
 
-### `execute(calls)`
+### `execute(mints, calls)`
 
-Executes one or more contract calls from the wallet, in order, inside one transaction.
+Mints `mints` as the wallet, then executes one or more contract calls from the wallet, in order, inside one transaction, forwarding to each call the auth tokens it references.
 
 - Must be the transaction root invocation.
 - Must be authorized by `kPubkeySignature` for this wallet address.
@@ -95,18 +86,13 @@ Executes one or more contract calls from the wallet, in order, inside one transa
   wallet's caller sees the callee's own error. An abort whose payload is not an
   exception reports `CallAborted`; an invocation failure reports `CallFaulted`.
 
-Single-call usage is `execute([call])`. Multicall usage is `execute([call_a, call_b, call_c])`.
+Single-call usage is `execute([], [call])`. Multicall usage is `execute([], [call_a, call_b, call_c])`. A batch that uses no auth tokens passes empty `mints` and leaves each call's `tokens` empty.
 
-Return values are ordered the same way: `execute([call_a, call_b, call_c]) -> [return_a, return_b, return_c]`.
+Return values are ordered the same way: `execute([], [call_a, call_b, call_c]) -> [return_a, return_b, return_c]`.
 
 Do not include partial-success or allow-failure behavior in v1 unless there is a concrete app requirement.
 
-### `execute_with_tokens(mints, calls)`
-
-`execute`, with auth tokens. The wallet mints `mints` as itself, then runs
-`calls` in order, forwarding to each call the tokens it references. Everything
-`execute` says about authorization, ordering, return data and failure holds
-here too.
+#### Auth tokens
 
 - Each mint is an XDR-encoded `AuthTokenNode`: its consumer, payload and child
   nodes. The wallet mints all of them before the first call, valid for the
@@ -228,10 +214,7 @@ This should be handled as an address-lifecycle or protocol feature, separate fro
 - `execute` allows up to 16 child calls.
 - Aggregate raw child return data is capped at the protocol return-buffer limit.
 - Each `WalletCall` carries an explicit child-call gas limit.
-- `execute` and the `deploy` initializer forward no auth tokens;
-  `execute_with_tokens` is the entrypoint that does.
-- `execute_with_tokens` is a separate entrypoint, so `execute` and
-  `WalletCall` keep their encoding and existing callers are unaffected.
+- The `deploy` initializer forwards no auth tokens.
 
 ## Implementation Notes
 
