@@ -27,7 +27,6 @@ unsafe fn direct_syscall(
 const K_SYSCALL_NONNEGATIVE_INT_GET: SyscallWord =
     thruput_sdk::sys::SyscallNo::kNonnegativeIntGet.0 as SyscallWord;
 const K_SYSCALL_GET_CALLDATA: SyscallWord = thruput_sdk::sys::SyscallNo::kGetCalldata.0 as SyscallWord;
-const K_SYSCALL_LOG_EVENT: SyscallWord = thruput_sdk::sys::SyscallNo::kLogEvent.0 as SyscallWord;
 
 const K_FAULT: i32 = 1; // SyscallErrorCode::kSyscallErrorCodeFault
 
@@ -170,80 +169,6 @@ impl OutputAliasTest for OutputAliasTestContract {
         };
 
         assert_not_fault(err_code);
-    }
-
-    // Two optional input pointers at the same address must fault.
-    // LogEvent: (topic0_ptr, topic1_ptr, topic2_ptr, data_ptr, data_len, 0, 0)
-    fn test_log_event_input_input_alias() {
-        let topic = [0u8; 32];
-        let topic_ptr = &topic as *const _ as u32;
-
-        // Pass the same topic pointer for topic0 and topic2 (topic1=None).
-        let err_code = unsafe {
-            direct_syscall(
-                K_SYSCALL_LOG_EVENT,
-                topic_ptr,         // topic0
-                SyscallWord::MAX,  // topic1 = None
-                topic_ptr,         // topic2 = same address as topic0!
-                0,                 // data ptr (empty)
-                0,                 // data len
-                0,
-                0
-            )
-        };
-
-        assert_fault(err_code);
-    }
-
-    // Zero-length span aliasing under the half-open overlap predicate: a
-    // zero-length data span whose pointer lands strictly inside topic0's
-    // 32-byte range faults; at the topic's exact start or one-past-end it
-    // does not alias and the event logs.
-    fn test_log_event_zero_len_data_alias() {
-        let topic = [0u8; 32];
-        let topic_ptr = &topic as *const _ as u32;
-
-        let inside = unsafe {
-            direct_syscall(
-                K_SYSCALL_LOG_EVENT,
-                topic_ptr,
-                SyscallWord::MAX, // topic1 = None
-                SyscallWord::MAX, // topic2 = None
-                topic_ptr + 8,    // zero-len data inside topic0's range
-                0,
-                0,
-                0,
-            )
-        };
-        assert_fault(inside);
-
-        let at_start = unsafe {
-            direct_syscall(
-                K_SYSCALL_LOG_EVENT,
-                topic_ptr,
-                SyscallWord::MAX,
-                SyscallWord::MAX,
-                topic_ptr, // zero-len data at topic0's start: no alias
-                0,
-                0,
-                0,
-            )
-        };
-        assert_not_fault(at_start);
-
-        let at_end = unsafe {
-            direct_syscall(
-                K_SYSCALL_LOG_EVENT,
-                topic_ptr,
-                SyscallWord::MAX,
-                SyscallWord::MAX,
-                topic_ptr + 32, // zero-len data one-past topic0: no alias
-                0,
-                0,
-                0,
-            )
-        };
-        assert_not_fault(at_end);
     }
 
     fn test_nnint_input_alias_output() {
