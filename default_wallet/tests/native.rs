@@ -1141,3 +1141,18 @@ fn execute_rethrows_a_consumer_mismatch_from_the_callee() {
         "expected the ConsumeAuthToken syscall error, got {exn:?}"
     );
 }
+
+/// The reference encoding is a discriminant followed by the variant's fields,
+/// and the discriminants are fixed: clients and hogd's native wallet encode
+/// the same bytes.
+#[test]
+fn wallet_token_ref_discriminants_are_pinned() {
+    assert_eq!(
+        thruput_sdk::encode_xdr(&minted(5)).unwrap().to_vec(),
+        thruput_sdk::encode_xdr(&(0i32, 5u32)).unwrap().to_vec(),
+    );
+    assert_eq!(
+        thruput_sdk::encode_xdr(&returned(7, 9)).unwrap().to_vec(),
+        thruput_sdk::encode_xdr(&(1i32, 7u32, 9u32)).unwrap().to_vec(),
+    );
+}

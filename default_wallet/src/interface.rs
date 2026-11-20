@@ -23,6 +23,9 @@ pub struct WalletCall {
 /// Names one auth token the wallet holds, by where it came from rather than
 /// by its runtime id, so a signer can write the reference without knowing how
 /// many tokens any callee will return.
+///
+/// The discriminants are stated, not left to declaration order: they are part
+/// of the calldata encoding that signers and hogd's native wallet share.
 #[contract_type]
 #[derive(Copy, Clone)]
 pub enum WalletTokenRef {
