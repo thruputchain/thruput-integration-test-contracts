@@ -1,5 +1,6 @@
 use default_wallet::{
     DefaultWallet, DefaultWalletContract, WalletCall, WalletError,
+    WalletTokenRef,
 };
 use thruput_domain_separator::sha2::pubkey_account_address;
 use thruput_sdk::{
@@ -66,6 +67,16 @@ fn pubkey_claim_address(auth_claim: &AuthClaim) -> ContractAddress {
     }
 }
 
+/// `execute`'s `mints` for a batch that mints nothing.
+fn no_mints() -> thruput_sdk::VecM<default_wallet::WalletBytes, { default_wallet::MAX_MINTS }> {
+    Vec::new().try_into().unwrap()
+}
+
+/// A call's `tokens` when it forwards none.
+fn no_tokens() -> thruput_sdk::VecM<WalletTokenRef, { default_wallet::MAX_CALL_TOKENS }> {
+    Vec::new().try_into().unwrap()
+}
+
 fn assert_wallet_error(result: &thruput_sdk::TransactResult, expected: WalletError) {
     result.assert_abort();
 
@@ -87,7 +98,7 @@ fn execute_accepts_matching_pubkey_auth_claim() {
 
     let result = env.transaction().with_auth_claim(claim).transact(|tx| {
         tx.call(&wallet_address).run(|| {
-            <DefaultWalletContract as DefaultWallet>::execute(Vec::new())
+            <DefaultWalletContract as DefaultWallet>::execute(no_mints(), Vec::new())
         })
     });
 
@@ -104,7 +115,7 @@ fn execute_rejects_pubkey_auth_claim_for_different_address() {
 
     let result = env.transaction().with_auth_claim(claim).transact(|tx| {
         tx.call(&wrong_address).run(|| {
-            <DefaultWalletContract as DefaultWallet>::execute(Vec::new())
+            <DefaultWalletContract as DefaultWallet>::execute(no_mints(), Vec::new())
         })
     });
 
@@ -117,7 +128,7 @@ fn execute_rejects_default_source_address_auth_claim() {
 
     let result = env.transact(|tx| {
         tx.call(&ContractAddress::new([1u8; 32])).run(|| {
-            <DefaultWalletContract as DefaultWallet>::execute(Vec::new())
+            <DefaultWalletContract as DefaultWallet>::execute(no_mints(), Vec::new())
         })
     });
 
@@ -399,6 +410,7 @@ fn adder_call(
             .as_slice()
             .try_into()
             .unwrap(),
+        tokens: no_tokens(),
     }
 }
 
@@ -415,7 +427,7 @@ fn execute_calls_deployed_contract_and_returns_each_result() {
     let wallet = pubkey_claim_address(&claim);
     let result = env.transaction().with_auth_claim(claim).transact(|tx| {
         tx.call(&wallet).run(|| {
-            <DefaultWalletContract as DefaultWallet>::execute(vec![
+            <DefaultWalletContract as DefaultWallet>::execute(no_mints(), vec![
                 adder_call(&ADDER, AdderEntrypoints::add, 2, 3),
                 adder_call(&ADDER, AdderEntrypoints::add, 40, 2),
             ])
@@ -448,7 +460,7 @@ fn execute_rethrows_callee_error() {
             .with_auth_claim(claim.clone())
             .transact(|tx| {
                 tx.call(&wallet).run(|| {
-                    <DefaultWalletContract as DefaultWallet>::execute(calls)
+                    <DefaultWalletContract as DefaultWallet>::execute(no_mints(), calls)
                 })
             })
     };
@@ -639,7 +651,7 @@ fn execute_calls_contract_for_each_scheme() {
         let wallet = pubkey_claim_address(&claim);
         let result = env.transaction().with_auth_claim(claim).transact(|tx| {
             tx.call(&wallet).run(|| {
-                <DefaultWalletContract as DefaultWallet>::execute(vec![
+                <DefaultWalletContract as DefaultWallet>::execute(no_mints(), vec![
                     adder_call(&ADDER, AdderEntrypoints::store_sum, 2, 3),
                 ])
             })
@@ -681,12 +693,13 @@ fn execute_transfers_native_tokens_for_each_scheme() {
                 .as_slice()
                 .try_into()
                 .unwrap(),
+            tokens: no_tokens(),
         };
         env.transaction()
             .with_auth_claim(claim)
             .transact(|tx| {
                 tx.call(&wallet).run(|| {
-                    <DefaultWalletContract as DefaultWallet>::execute(vec![
+                    <DefaultWalletContract as DefaultWallet>::execute(no_mints(), vec![
                         transfer,
                     ])
                 })
@@ -716,7 +729,7 @@ fn execute_rejects_claim_for_another_key_scheme_or_nonce() {
     ] {
         let result = env.transaction().with_auth_claim(claim).transact(|tx| {
             tx.call(&wallet).run(|| {
-                <DefaultWalletContract as DefaultWallet>::execute(Vec::new())
+                <DefaultWalletContract as DefaultWallet>::execute(no_mints(), Vec::new())
             })
         });
         assert_wallet_error(&result, WalletError::InvalidAuthClaim);
@@ -817,4 +830,329 @@ fn pubkey_account_addresses_match_shared_vectors() {
     let execute: thruput_sdk::ContractEntrypointID =
         default_wallet::DefaultWalletEntrypoints::execute.into();
     assert_eq!(execute, hex!("c3edb11fdd6d5d58").into());
+}
+
+/// A contract whose methods take and return auth tokens, for the wallet to
+/// forward tokens to and collect them from.
+#[thruput_sdk::contract]
+pub trait TokenDesk {
+    /// Consume `token`, returning its payload and who minted it.
+    fn redeem(token: thruput_sdk::signer::Signed<u64>) -> (u64, ContractAddress);
+    /// Consume both tokens, returning their payloads in argument order.
+    fn redeem_pair(
+        first: thruput_sdk::signer::Signed<u64>,
+        second: thruput_sdk::signer::Signed<u64>,
+    ) -> (u64, u64);
+    /// Mint two tokens `consumer` may consume, carrying `a` and `b`.
+    fn issue(
+        consumer: &ContractAddress,
+        a: u64,
+        b: u64,
+    ) -> (
+        thruput_sdk::signer::Signed<u64>,
+        thruput_sdk::signer::Signed<u64>,
+    );
+}
+
+pub struct TokenDeskContract;
+
+#[thruput_sdk::contract]
+impl TokenDesk for TokenDeskContract {
+    fn redeem(token: thruput_sdk::signer::Signed<u64>) -> (u64, ContractAddress) {
+        token.consume()
+    }
+
+    fn redeem_pair(
+        first: thruput_sdk::signer::Signed<u64>,
+        second: thruput_sdk::signer::Signed<u64>,
+    ) -> (u64, u64) {
+        (first.consume().0, second.consume().0)
+    }
+
+    fn issue(
+        consumer: &ContractAddress,
+        a: u64,
+        b: u64,
+    ) -> (
+        thruput_sdk::signer::Signed<u64>,
+        thruput_sdk::signer::Signed<u64>,
+    ) {
+        let mint = |data| {
+            thruput_sdk::signer::mint_auth_token::<u64>(
+                thruput_sdk::block::get_block_height(),
+                thruput_sdk::mintable::AuthTokenPreimage {
+                    consumer: *consumer,
+                    data,
+                },
+            )
+        };
+        (mint(a), mint(b))
+    }
+}
+
+const DESK: ContractAddress = ContractAddress::new([0xDE; 32]);
+const OTHER_DESK: ContractAddress = ContractAddress::new([0x0D; 32]);
+
+fn wallet_bytes(bytes: &[u8]) -> default_wallet::WalletBytes {
+    bytes.try_into().unwrap()
+}
+
+/// The encoded node for a token carrying `data` that `consumer` may consume.
+fn mint_node(consumer: ContractAddress, data: u64) -> default_wallet::WalletBytes {
+    let node = thruput_sdk::mintable::build_auth_token_node::<u64>(
+        thruput_sdk::mintable::AuthTokenPreimage { consumer, data },
+    );
+    wallet_bytes(&thruput_sdk::mintable::encode_auth_token_node(&node))
+}
+
+fn minted(index: u32) -> WalletTokenRef {
+    WalletTokenRef::Minted(index)
+}
+
+fn returned(call: u32, index: u32) -> WalletTokenRef {
+    WalletTokenRef::Returned { call, index }
+}
+
+fn desk_call<A: thruput_sdk::WriteXDR>(
+    entrypoint: TokenDeskEntrypoints,
+    args: &A,
+    tokens: Vec<WalletTokenRef>,
+) -> WalletCall {
+    WalletCall {
+        target: DESK,
+        entrypoint: entrypoint.into(),
+        gas_limit: u64::MAX,
+        calldata: wallet_bytes(&thruput_sdk::encode_xdr(args).unwrap()),
+        tokens: tokens.try_into().unwrap(),
+    }
+}
+
+fn redeem(token: WalletTokenRef) -> WalletCall {
+    desk_call(TokenDeskEntrypoints::redeem, &(), vec![token])
+}
+
+fn redeem_pair(first: WalletTokenRef, second: WalletTokenRef) -> WalletCall {
+    desk_call(TokenDeskEntrypoints::redeem_pair, &(), vec![first, second])
+}
+
+fn issue(a: u64, b: u64) -> WalletCall {
+    desk_call(TokenDeskEntrypoints::issue, &(DESK, a, b), Vec::new())
+}
+
+/// An environment with the token desk deployed, and a wallet to drive it.
+struct TokenBatch {
+    env: thruput_sdk::TestEnvironmentHandle,
+    claim: AuthClaim,
+    wallet: ContractAddress,
+}
+
+impl TokenBatch {
+    fn new() -> Self {
+        let env = thruput_sdk::TestEnvironment::no_cost();
+        for address in [DESK, OTHER_DESK] {
+            env.register_mock(|contract| {
+                <TokenDeskContract as TokenDesk>::__mock(contract);
+            })
+            .deploy_contract_to(&address);
+        }
+        let claim = pubkey_claim(17, 7);
+        let wallet = pubkey_claim_address(&claim);
+        Self { env, claim, wallet }
+    }
+
+    fn execute(
+        &self,
+        mints: Vec<default_wallet::WalletBytes>,
+        calls: Vec<WalletCall>,
+    ) -> thruput_sdk::TransactResult {
+        self.env
+            .transaction()
+            .with_auth_claim(self.claim.clone())
+            .transact(|tx| {
+                tx.call(&self.wallet).run(|| {
+                    <DefaultWalletContract as DefaultWallet>::execute(
+                        mints.try_into().unwrap(),
+                        calls,
+                    )
+                })
+            })
+    }
+}
+
+/// Decode one call's return data out of the wallet's return value.
+fn return_item<R: for<'r> thruput_sdk::ReadXDR<'r>>(
+    result: &thruput_sdk::TransactResult,
+    call: usize,
+) -> R {
+    let returns = result.assert_return_as::<Vec<default_wallet::WalletBytes>>();
+    thruput_sdk::__xdrs::cxs::decode(returns[call].as_slice()).unwrap()
+}
+
+#[test]
+fn execute_forwards_a_token_minted_as_the_wallet() {
+    let batch = TokenBatch::new();
+    let result =
+        batch.execute(vec![mint_node(DESK, 7)], vec![redeem(minted(0))]);
+    result.assert_success();
+    // The desk sees the wallet, the account that signed, as the minter.
+    assert_eq!(
+        return_item::<(u64, ContractAddress)>(&result, 0),
+        (7, batch.wallet)
+    );
+}
+
+#[test]
+fn execute_forwards_minted_tokens_in_reference_order() {
+    let batch = TokenBatch::new();
+    let result = batch.execute(
+        vec![mint_node(DESK, 1), mint_node(DESK, 2), mint_node(DESK, 3)],
+        vec![redeem_pair(minted(2), minted(0)), redeem(minted(1))],
+    );
+    result.assert_success();
+    assert_eq!(return_item::<(u64, u64)>(&result, 0), (3, 1));
+    assert_eq!(return_item::<(u64, ContractAddress)>(&result, 1).0, 2);
+}
+
+#[test]
+fn execute_forwards_tokens_an_earlier_call_returned() {
+    let batch = TokenBatch::new();
+    // Two calls return tokens and a mint sits beside them, so a reference
+    // resolves by the call and position it names, not by a running count.
+    let result = batch.execute(
+        vec![mint_node(DESK, 9)],
+        vec![
+            issue(11, 22),
+            issue(33, 44),
+            redeem_pair(returned(1, 1), returned(0, 0)),
+            redeem_pair(returned(0, 1), minted(0)),
+            redeem(returned(1, 0)),
+        ],
+    );
+    result.assert_success();
+    assert_eq!(return_item::<(u64, u64)>(&result, 2), (44, 11));
+    assert_eq!(return_item::<(u64, u64)>(&result, 3), (22, 9));
+    // A returned token keeps its own minter: the desk, not the wallet.
+    assert_eq!(
+        return_item::<(u64, ContractAddress)>(&result, 4),
+        (33, DESK)
+    );
+}
+
+#[test]
+fn execute_drops_tokens_left_unforwarded() {
+    let batch = TokenBatch::new();
+    batch
+        .execute(vec![mint_node(DESK, 7)], vec![issue(1, 2)])
+        .assert_success();
+}
+
+#[test]
+fn execute_rejects_references_that_name_no_token() {
+    let batch = TokenBatch::new();
+    let cases: [(&str, Vec<WalletCall>); 5] = [
+        ("mint index past mints", vec![redeem(minted(1))]),
+        ("its own call", vec![redeem(returned(0, 0))]),
+        ("a later call", vec![redeem(returned(1, 0)), issue(1, 2)]),
+        ("index past returned", vec![issue(1, 2), redeem(returned(0, 2))]),
+        (
+            "a call that returned none",
+            vec![redeem(minted(0)), redeem(returned(0, 0))],
+        ),
+    ];
+    for (case, calls) in cases {
+        let result = batch.execute(vec![mint_node(DESK, 7)], calls);
+        assert!(result.frame().is_abort(), "{case}");
+        assert_wallet_error(&result, WalletError::InvalidTokenRef);
+    }
+}
+
+#[test]
+fn execute_rejects_forwarding_a_token_twice() {
+    let batch = TokenBatch::new();
+    let cases: [(&str, Vec<WalletCall>); 4] = [
+        ("twice in one call", vec![redeem_pair(minted(0), minted(0))]),
+        (
+            "again in a later call",
+            vec![redeem(minted(0)), redeem(minted(0))],
+        ),
+        (
+            "a returned token twice in one call",
+            vec![issue(1, 2), redeem_pair(returned(0, 1), returned(0, 1))],
+        ),
+        (
+            "a returned token again in a later call",
+            vec![issue(1, 2), redeem(returned(0, 0)), redeem(returned(0, 0))],
+        ),
+    ];
+    for (case, calls) in cases {
+        let result = batch.execute(vec![mint_node(DESK, 7)], calls);
+        assert!(result.frame().is_abort(), "{case}");
+        assert_wallet_error(&result, WalletError::TokenAlreadyForwarded);
+    }
+}
+
+#[test]
+fn execute_bounds_calls_and_mints() {
+    let batch = TokenBatch::new();
+    assert_wallet_error(
+        &batch.execute(vec![mint_node(DESK, 7)], Vec::new()),
+        WalletError::EmptyCallList,
+    );
+    assert_wallet_error(
+        &batch.execute(Vec::new(), (0..17).map(|_| issue(1, 2)).collect()),
+        WalletError::TooManyCalls,
+    );
+    // The mint bound is the argument type's, so the largest list that
+    // decodes is the largest the wallet sees.
+    let mints = (0..u64::from(default_wallet::MAX_MINTS))
+        .map(|data| mint_node(DESK, data))
+        .collect();
+    let result = batch.execute(mints, vec![redeem(minted(15))]);
+    result.assert_success();
+    assert_eq!(return_item::<(u64, ContractAddress)>(&result, 0).0, 15);
+}
+
+#[test]
+fn execute_aborts_on_a_mint_the_runtime_refuses() {
+    use thruput_sdk::exn::LibraryExn;
+    let batch = TokenBatch::new();
+    let result = batch.execute(
+        vec![mint_node(DESK, 7), wallet_bytes(&[0xFF; 3])],
+        vec![redeem(minted(0))],
+    );
+    let exn: LibraryExn = result.assert_abort_as();
+    assert!(
+        matches!(exn, LibraryExn::Syscall(_)),
+        "expected the MintAuthToken syscall error, got {exn:?}"
+    );
+}
+
+#[test]
+fn execute_rethrows_a_consumer_mismatch_from_the_callee() {
+    use thruput_sdk::exn::LibraryExn;
+    let batch = TokenBatch::new();
+    // Minted for another contract, so the desk's consume is refused and its
+    // error reaches the wallet's caller as any callee error does.
+    let result =
+        batch.execute(vec![mint_node(OTHER_DESK, 7)], vec![redeem(minted(0))]);
+    let exn: LibraryExn = result.assert_abort_as();
+    assert!(
+        matches!(exn, LibraryExn::Syscall(_)),
+        "expected the ConsumeAuthToken syscall error, got {exn:?}"
+    );
+}
+
+/// The reference encoding is a discriminant followed by the variant's fields,
+/// and the discriminants are fixed: clients and hogd's native wallet encode
+/// the same bytes.
+#[test]
+fn wallet_token_ref_discriminants_are_pinned() {
+    assert_eq!(
+        thruput_sdk::encode_xdr(&minted(5)).unwrap().to_vec(),
+        thruput_sdk::encode_xdr(&(0i32, 5u32)).unwrap().to_vec(),
+    );
+    assert_eq!(
+        thruput_sdk::encode_xdr(&returned(7, 9)).unwrap().to_vec(),
+        thruput_sdk::encode_xdr(&(1i32, 7u32, 9u32)).unwrap().to_vec(),
+    );
 }
