@@ -27,8 +27,8 @@ unsafe fn direct_syscall(
     )
 }
 
-const K_SYSCALL_BYTESTRING_SET: SyscallWord =
-    thruput_xdr::SyscallNo::kBytestringSet.0 as SyscallWord;
+const K_SYSCALL_DEPLOY_CONTRACT: SyscallWord =
+    thruput_xdr::SyscallNo::kDeployContract.0 as SyscallWord;
 
 pub struct ReadOnlyTestContract;
 
@@ -188,16 +188,20 @@ impl ReadOnlyTest for ReadOnlyTestContract {
 
     fn read_only_aliasing_before_read_only_check_inner()
     {
+        // DeployContract(nonce, contract_hash) -> deployed_address is a write
+        // with an output. The output address is aliased onto the nonce: an
+        // output that aliases an input faults, where two inputs that alias
+        // each other do not.
         let mut buf : [u8;64] = [0xAB;64];
-        let key_ptr = buf.as_mut_ptr() as thruput_xdr::syscalls::SyscallWord;
-        let bytestring_ptr = (buf.as_mut_ptr() as thruput_xdr::syscalls::SyscallWord) + 16;
-        let flags = 0;
+        let nonce_ptr = buf.as_mut_ptr() as SyscallWord;
+        let contract_hash_ptr = nonce_ptr + 32;
+        let deployed_address_ptr = nonce_ptr;
         let err_code = unsafe {
             direct_syscall(
-                K_SYSCALL_BYTESTRING_SET,
-                key_ptr,
-                bytestring_ptr,
-                flags,
+                K_SYSCALL_DEPLOY_CONTRACT,
+                nonce_ptr,
+                contract_hash_ptr,
+                deployed_address_ptr,
                 0,
                 0,
                 0,
@@ -208,8 +212,8 @@ impl ReadOnlyTest for ReadOnlyTestContract {
         assert_eq!(buf, [0xAB;64]);
 
         // The kFault above only demonstrates an *ordering* if this frame is
-        // genuinely read-only: check that the same syscall, called with
-        // non-aliased arguments, is rejected by the read-only guard.
+        // genuinely read-only: check that a write, called with non-aliased
+        // arguments, is rejected by the read-only guard.
         let key: StorageKeyContractData = static_key!("test");
         let res = thruput_sdk::sys_result::bytestring::bytestring_set(&key, b"test");
         assert!(res.err().unwrap().is_code(
