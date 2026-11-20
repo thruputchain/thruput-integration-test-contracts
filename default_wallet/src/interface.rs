@@ -20,29 +20,17 @@ pub struct WalletCall {
     pub tokens: VecM<WalletTokenRef, MAX_CALL_TOKENS>,
 }
 
-/// Where a forwarded auth token comes from.
-#[contract_type]
-#[derive(Copy, Clone)]
-pub enum WalletTokenSource {
-    /// One of the tokens `execute` minted from its `mints`.
-    Minted = 0,
-    /// One of the tokens an earlier call in the same batch returned.
-    Returned = 1,
-}
-
 /// Names one auth token the wallet holds, by where it came from rather than
 /// by its runtime id, so a signer can write the reference without knowing how
 /// many tokens any callee will return.
 #[contract_type]
 #[derive(Copy, Clone)]
-pub struct WalletTokenRef {
-    pub source: WalletTokenSource,
-    /// For `Returned`, the index in `calls` of the call that returned the
-    /// token; it must be an earlier call. For `Minted`, must be zero.
-    pub call: u32,
-    /// For `Minted`, the index in `mints`. For `Returned`, the token's
-    /// position among the tokens that call returned.
-    pub index: u32,
+pub enum WalletTokenRef {
+    /// A token `execute` minted: its position in `mints`.
+    Minted(u32) = 0,
+    /// A token an earlier call in the batch returned: that call's position in
+    /// `calls`, and the token's position among the tokens it returned.
+    Returned { call: u32, index: u32 } = 1,
 }
 
 /// An ordinary call to the newly deployed contract, made by the wallet.
@@ -64,8 +52,8 @@ pub enum WalletError {
     CallFaulted = 6,
     ReturnDataTooLarge = 7,
     /// A token reference names no token: a mint index past `mints`, a call
-    /// that is not earlier in the batch, an index past what that call
-    /// returned, or a `Minted` reference with a nonzero `call`.
+    /// that is not earlier in the batch, or an index past what that call
+    /// returned.
     InvalidTokenRef = 8,
     /// A token reference names a token the batch has already forwarded.
     TokenAlreadyForwarded = 9,

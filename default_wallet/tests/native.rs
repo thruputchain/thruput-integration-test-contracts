@@ -1,6 +1,6 @@
 use default_wallet::{
     DefaultWallet, DefaultWalletContract, WalletCall, WalletError,
-    WalletTokenRef, WalletTokenSource,
+    WalletTokenRef,
 };
 use thruput_domain_separator::sha2::pubkey_account_address;
 use thruput_sdk::{
@@ -906,19 +906,11 @@ fn mint_node(consumer: ContractAddress, data: u64) -> default_wallet::WalletByte
 }
 
 fn minted(index: u32) -> WalletTokenRef {
-    WalletTokenRef {
-        source: WalletTokenSource::Minted,
-        call: 0,
-        index,
-    }
+    WalletTokenRef::Minted(index)
 }
 
 fn returned(call: u32, index: u32) -> WalletTokenRef {
-    WalletTokenRef {
-        source: WalletTokenSource::Returned,
-        call,
-        index,
-    }
+    WalletTokenRef::Returned { call, index }
 }
 
 fn desk_call<A: thruput_sdk::WriteXDR>(
@@ -1057,14 +1049,8 @@ fn execute_drops_tokens_left_unforwarded() {
 #[test]
 fn execute_rejects_references_that_name_no_token() {
     let batch = TokenBatch::new();
-    let minted_with_call = WalletTokenRef {
-        source: WalletTokenSource::Minted,
-        call: 1,
-        index: 0,
-    };
-    let cases: [(&str, Vec<WalletCall>); 6] = [
+    let cases: [(&str, Vec<WalletCall>); 5] = [
         ("mint index past mints", vec![redeem(minted(1))]),
-        ("minted with a call", vec![issue(1, 2), redeem(minted_with_call)]),
         ("its own call", vec![redeem(returned(0, 0))]),
         ("a later call", vec![redeem(returned(1, 0)), issue(1, 2)]),
         ("index past returned", vec![issue(1, 2), redeem(returned(0, 2))]),

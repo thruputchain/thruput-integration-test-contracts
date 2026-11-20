@@ -103,18 +103,14 @@ impl BatchTokens {
     /// Resolve `token` to the id of a token the wallet still holds, and mark
     /// it forwarded.
     fn take(&mut self, token: &WalletTokenRef) -> u32 {
-        let index = token.index as usize;
-        let handle = match token.source {
-            WalletTokenSource::Minted if token.call == 0 => {
-                self.minted.get(index)
-            }
-            WalletTokenSource::Minted => None,
+        let handle = match *token {
+            WalletTokenRef::Minted(index) => self.minted.get(index as usize),
             // Only completed calls have an entry, so a reference to the
             // current or a later call finds nothing.
-            WalletTokenSource::Returned => self
+            WalletTokenRef::Returned { call, index } => self
                 .returned
-                .get(token.call as usize)
-                .and_then(|returned| returned.get(index)),
+                .get(call as usize)
+                .and_then(|returned| returned.get(index as usize)),
         };
         let handle = *handle
             .unwrap_or_else(|| throw(WalletError::InvalidTokenRef));

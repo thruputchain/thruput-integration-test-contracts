@@ -11,8 +11,7 @@ mod interface;
 pub use implementation::DefaultWalletContract;
 pub use interface::{
     Client, DefaultWallet, DefaultWalletEntrypoints, WalletBytes, WalletCall,
-    WalletError, WalletInitCall, WalletTokenRef,
-    WalletTokenSource, MAX_CALL_TOKENS, MAX_MINTS,
+    WalletError, WalletInitCall, WalletTokenRef, MAX_CALL_TOKENS, MAX_MINTS,
 };
 
 thruput_sdk::declare_mock_contract!();

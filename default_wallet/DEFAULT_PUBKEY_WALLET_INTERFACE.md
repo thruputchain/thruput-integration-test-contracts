@@ -39,16 +39,9 @@ pub struct WalletCall {
 }
 
 #[contract_type]
-pub struct WalletTokenRef {
-    pub source: WalletTokenSource,
-    pub call: u32,
-    pub index: u32,
-}
-
-#[contract_type]
-pub enum WalletTokenSource {
-    Minted = 0,
-    Returned = 1,
+pub enum WalletTokenRef {
+    Minted(u32) = 0,
+    Returned { call: u32, index: u32 } = 1,
 }
 
 #[contract_type]
@@ -105,9 +98,9 @@ Do not include partial-success or allow-failure behavior in v1 unless there is a
 - `tokens` lists what a call forwards, in the order the target's `Signed`
   arguments take them.
 - A reference names a token by where it came from, never by its runtime id:
-  - `Minted`: `index` is a position in `mints`; `call` must be zero.
-  - `Returned`: `call` is the position in `calls` of an earlier call, and
-    `index` a position among the tokens that call returned.
+  - `Minted(index)`: a position in `mints`.
+  - `Returned { call, index }`: `call` is the position in `calls` of an
+    earlier call, and `index` a position among the tokens that call returned.
 
   A callee decides how many tokens it returns, so runtime ids after a call are
   not something a signer can know. These references do not depend on them: one
