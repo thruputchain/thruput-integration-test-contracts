@@ -1,8 +1,7 @@
 //! The checks in `src/checks.rs`, run against the rv32 build of
 //! `read_only_test` rather than the host mock.
 //!
-//! Requires the lowered `read_only_test` artifact: `scripts/dev.sh
-//! build-integration-rv32` writes it.
+//! Requires the lowered `calldata_wrapper` artifact. See README for building it.
 
 use read_only_test::checks::check_read_only_bytestring_set;
 use thruput_sdk::*;

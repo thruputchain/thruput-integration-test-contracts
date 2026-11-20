@@ -28,3 +28,6 @@ logging = ["thruput-sdk/logging", "manual_revert_test/logging"]
 name = "manual_revert_caller"
 path = "src/main.rs"
 required-features = ["entrypoints"]
+
+[package.metadata.gnaw]
+kind = "disabled"

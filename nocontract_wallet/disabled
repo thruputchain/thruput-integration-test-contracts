@@ -1,4 +1,0 @@
-Interface/client-only library — deliberately not implemented as a guest
-contract (building it as one produced an artifact with no entrypoints at
-all, which cannot be invoked). Host builds and its Client remain available
-to tests; only the guest build-and-finalize loop skips it.
