@@ -29,3 +29,6 @@ txs_roundtrip = { path = ".", features = ["dev"] }
 name = "txs_roundtrip"
 path = "src/main.rs"
 required-features = ["entrypoints"]
+
+[package.metadata.gnaw]
+kind = "disabled"

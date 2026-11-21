@@ -28,3 +28,6 @@ nnint_output_fault_test = { path = ".", features = ["dev"] }
 name = "nnint_output_fault_test"
 path = "src/main.rs"
 required-features = ["entrypoints"]
+
+[package.metadata.gnaw]
+kind = "disabled"
