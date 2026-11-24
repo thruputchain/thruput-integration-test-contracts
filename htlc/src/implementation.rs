@@ -62,7 +62,7 @@ impl HTLC for HTLCContract {
             receiver: *receiver,
             token: *token,
             amount,
-            expiration_height: expiration_height.clone(),
+            expiration_height,
         };
 
         let token_client = htlc.token_client();

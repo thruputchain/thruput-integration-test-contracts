@@ -146,7 +146,7 @@ impl DefaultWallet for DefaultWalletContract {
                 .iter()
                 .map(|node| {
                     thruput_sdk::signer::mint_opaque_auth_token(
-                        expiry.clone(),
+                        expiry,
                         node.as_slice(),
                     )
                     .handle()
